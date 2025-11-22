@@ -7,16 +7,27 @@
   "engines": {
     "node": ">=25.x"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.23.0",
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "format": "turbo run format --continue -- --cache --cache-location ./node_modules/.cache/format.log",
-    "clean": "turbo run clean"
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "biome check .",
+    "clean": "rm -rf node_modules dist"
+  },
+  "dependencies": {
+    "@stylexjs/stylex": "^0.17.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.6",
-    "turbo": "^2.6.1",
-    "typescript": "^5.9.3"
+    "@biomejs/biome": "^2.3.7",
+    "@stylexjs/unplugin": "^0.17.0",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.4"
   }
 }
