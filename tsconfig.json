@@ -1,33 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    /* Base Options: */
-    "skipLibCheck": true,
-    "target": "es2022",
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    "noErrorTruncation": true,
-    "exactOptionalPropertyTypes": true,
-    "erasableSyntaxOnly": true,
-    "libReplacement": false,
-
-    /* Strictness */
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "checkJs": true,
-
-    /* Bundled projects */
-    "lib": ["dom", "dom.iterable", "ES2022"],
-    "noEmit": true,
-    "module": "preserve",
-    "jsx": "preserve",
-
-    /** Monorepo */
-    "incremental": true,
-    "tsBuildInfoFile": "./node_modules/.cache/ts.log"
-  },
-  "include": ["*.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
