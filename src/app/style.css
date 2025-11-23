@@ -1,0 +1,216 @@
+@layer reset, theme, typography, layout;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  html {
+    font-size: 100%;
+  }
+  body {
+    min-height: 100vh;
+  }
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-inline-size: 100%;
+  }
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer theme {
+  :root {
+    --font-sans: "Geist", system-ui, sans-serif;
+    --font-mono: "Geist Mono", monospace;
+    --color-heading: #f2f3f4;
+    --color-text: #c2c3c4;
+    --color-info: #a4a5a6;
+    --color-surface: #060708;
+    --color-preview: #020304;
+    --color-border: #171819;
+    --color-accent: #727374;
+  }
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3,
+  strong {
+    color: var(--color-heading);
+  }
+  code,
+  em {
+    font-family: var(--font-mono);
+  }
+  p,
+  li {
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+}
+
+@layer typography {
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -0.08rem;
+    line-height: 3rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.04rem;
+    line-height: 2rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02rem;
+    line-height: 1.75rem;
+  }
+  p {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    max-width: 80ch;
+  }
+  li {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+  }
+  footer,
+  pre code {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+  }
+  strong {
+    font-weight: 500;
+  }
+  em {
+    font-style: italic;
+    letter-spacing: -0.02rem;
+  }
+}
+
+@layer layout {
+  article {
+    text-wrap: pretty;
+    white-space: break-spaces;
+  }
+  article {
+    & * + h1,
+    & * + h2,
+    & * + h3,
+    & p,
+    & pre {
+      margin-top: 1.25rem;
+    }
+    & ul,
+    & ol {
+      padding: 1rem 0 0 1.25rem;
+    }
+    & li:not(:first-child) {
+      margin-top: 0.5rem;
+    }
+    & h1 + *,
+    & h2 + *,
+    & h3 + * {
+      margin-top: 0.5rem;
+    }
+    & h1 + ul,
+    & h2 + ul,
+    & h3 + ul,
+    & h1 + ol,
+    & h2 + ol,
+    & h3 + ol,
+    & p + ul,
+    & p + ol {
+      margin-top: -0.5rem;
+    }
+    & pre {
+      background-color: var(--color-preview);
+      border: 1px solid var(--color-border);
+      border-radius: 0.25rem;
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 1.25rem 1rem;
+      white-space: pre;
+    }
+    & blockquote {
+      border-left: 2px solid var(--color-accent);
+      padding-left: 1rem;
+    }
+    & blockquote > p {
+      margin-top: 0;
+    }
+    & footer {
+      color: var(--color-info);
+    }
+    & li::marker {
+      color: var(--color-accent);
+    }
+  }
+}
+
+/* latin */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../lib/fonts/geist.woff2) format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin */
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../lib/fonts/geist-mono.woff2) format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../lib/fonts/geist-ext.woff2) format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../lib/fonts/geist-mono-ext.woff2) format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* stylex: layer priority */
+@layer priority1, priority2, priority3, priority4, priority5;
