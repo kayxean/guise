@@ -26,6 +26,9 @@
       "correctness": {
         "useHookAtTopLevel": "error",
         "noPrecisionLoss": "off"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off"
       }
     }
   },

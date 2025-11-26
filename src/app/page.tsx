@@ -5,14 +5,14 @@ import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router/dom";
 
 const styles = stylex.create({
-  section: {
-    padding: "0 1rem",
+  layout: {
+    padding: "0 0.875rem",
   },
 });
 
 export default function Home() {
   return (
-    <div {...stylex.props(styles.section)}>
+    <div {...stylex.props(styles.layout)}>
       <h1>Home</h1>
     </div>
   );
