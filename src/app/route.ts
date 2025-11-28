@@ -1,23 +1,9 @@
-import { useEffect } from "react";
-import { createBrowserRouter, useLocation } from "react-router";
+import { lazy, useEffect, type ComponentType } from "react";
+import { createBrowserRouter, useLocation, type RouteObject } from "react-router";
 import Layout from "./layout";
-import Home from "./page";
-import About from "./about/page";
-import Typography from "./typograpy/page";
-import ErrorBoundary from "~/components/error-boundary";
+import ErrorBoundary from "./error";
 
-export const createRoute = createBrowserRouter([
-  {
-    path: "/",
-    Component: Layout,
-    ErrorBoundary: ErrorBoundary,
-    children: [
-      { index: true, Component: Home },
-      { path: "about", Component: About },
-      { path: "typography", Component: Typography },
-    ],
-  },
-]);
+export type Page = ComponentType<object>;
 
 export type Metadata = {
   title: string;
@@ -25,38 +11,93 @@ export type Metadata = {
   canonical: string;
 };
 
-export const metadata: Metadata[] = [
+const metadata = new Map<string, () => Promise<Metadata | undefined>>();
+
+metadata.set("/", async () => {
+  const module = (await import("./page.tsx")) as { metadata?: Metadata };
+  return module.metadata;
+});
+
+const dynamicRoutes: RouteObject[] = [
   {
-    title: "Guise: Mask and Theme",
-    description: "implies masking or theming the underlying tool",
-    canonical: "/",
-  },
-  {
-    title: "Guise: About",
-    description: "about guise",
-    canonical: "/about",
-  },
-  {
-    title: "Guise: Typography",
-    description: "typography demo",
-    canonical: "/typography",
+    index: true,
+    Component: lazy(() => import("./page.tsx") as Promise<{ default: Page }>),
   },
 ];
+
+function pathToRoute(path: string): string {
+  let route = path.replace(/^\.\//, "");
+  route = route.replace(/\/page\.tsx$/i, "");
+  if (route === "page") {
+    route = "";
+  }
+  return route.toLowerCase();
+}
+
+const pages = import.meta.glob("./**/page.tsx");
+
+for (const path in pages) {
+  const page = pages[path];
+  const slug = pathToRoute(path);
+  const canonical = `/${slug}`;
+
+  metadata.set(canonical, async () => {
+    const module = (await page()) as {
+      default: Page;
+      metadata?: Metadata;
+    };
+    return module.metadata;
+  });
+
+  const route: RouteObject = {
+    path: slug,
+    Component: lazy(() => page() as Promise<{ default: Page }>),
+  };
+
+  dynamicRoutes.push(route);
+}
+
+export const createRoute = createBrowserRouter(
+  [
+    {
+      path: "/",
+      Component: Layout,
+      ErrorBoundary: ErrorBoundary,
+      children: dynamicRoutes,
+    },
+  ],
+  {
+    basename: "/",
+  },
+);
 
 export function useMetadata() {
   const location = useLocation();
   const currentPath = location.pathname;
 
   useEffect(() => {
-    const meta: Metadata | undefined = metadata.find((item) => item.canonical === currentPath);
-
-    createMetadata(
-      meta || {
+    const page = metadata.get(currentPath);
+    if (page) {
+      page()
+        .then((meta) => {
+          createMetadata(
+            meta || {
+              title: "Missing Metadata",
+              description: "Metadata not defined for this page.",
+              canonical: currentPath,
+            },
+          );
+        })
+        .catch((error) => {
+          console.error("Failed to load metadata:", error);
+        });
+    } else {
+      createMetadata({
         title: "Not Found",
         description: "This page does not exist.",
         canonical: currentPath,
-      },
-    );
+      });
+    }
   }, [currentPath]);
 }
 

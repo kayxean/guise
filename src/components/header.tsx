@@ -1,6 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
 import { Link } from "react-router";
+import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
   header: {

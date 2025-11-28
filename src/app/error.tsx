@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { createMetadata } from "~/app/route";
+import { createMetadata } from "./route";
 import { useRouteError, isRouteErrorResponse } from "react-router";
 
 const styles = stylex.create({

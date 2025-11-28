@@ -1,3 +1,4 @@
+import type { Metadata } from "../route";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -14,6 +15,12 @@ const styles = stylex.create({
     display: "inline-grid",
   },
 });
+
+export const metadata: Metadata = {
+  title: "Guise: Typography",
+  description: "typography demo",
+  canonical: "/typography",
+};
 
 export default function Typography() {
   return (

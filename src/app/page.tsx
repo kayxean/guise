@@ -1,14 +1,21 @@
 import "./style.css";
-import * as stylex from "@stylexjs/stylex";
-import { createRoute } from "./route";
+import { createRoute, type Metadata } from "./route";
 import { createRoot } from "react-dom/client";
+import { Suspense } from "react";
 import { RouterProvider } from "react-router/dom";
+import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
   layout: {
     padding: "0 0.875rem",
   },
 });
+
+export const metadata: Metadata = {
+  title: "Guise: Mask and Theme",
+  description: "implies masking or theming the underlying tool",
+  canonical: "/",
+};
 
 export default function Home() {
   return (
@@ -21,7 +28,11 @@ export default function Home() {
 let isRendered = false;
 if (!isRendered) {
   const root = createRoot(document.getElementById("root") || document.body);
-  root.render(<RouterProvider router={createRoute} />);
+  root.render(
+    <Suspense fallback={<div>Loading Page...</div>}>
+      <RouterProvider router={createRoute} />
+    </Suspense>,
+  );
 
   isRendered = true;
 }
