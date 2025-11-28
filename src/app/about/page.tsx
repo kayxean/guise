@@ -1,3 +1,4 @@
+import type { Metadata } from "../route";
 import * as stylex from "@stylexjs/stylex";
 
 const styles = stylex.create({
@@ -14,6 +15,12 @@ const styles = stylex.create({
     display: "inline-grid",
   },
 });
+
+export const metadata: Metadata = {
+  title: "Guise: About",
+  description: "about guise",
+  canonical: "/about",
+};
 
 export default function About() {
   return (
