@@ -30,6 +30,12 @@
   select {
     font: inherit;
   }
+  a,
+  button,
+  input[type="button"],
+  input[type="submit"] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @layer theme {
@@ -68,10 +74,10 @@
 
 @layer typography {
   h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 600;
     letter-spacing: -0.08rem;
-    line-height: 3rem;
+    line-height: 2.5rem;
   }
   h2 {
     font-size: 1.5rem;
@@ -89,7 +95,6 @@
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5rem;
-    max-width: 80ch;
   }
   li {
     font-size: 1rem;
@@ -117,33 +122,19 @@
     white-space: break-spaces;
   }
   article {
-    & * + h1,
-    & * + h2,
-    & * + h3,
-    & p,
-    & pre {
+    & :is(* + h1, * + h2, * + h3, p, pre) {
       margin-top: 1.25rem;
     }
-    & ul,
-    & ol {
+    & :is(h1, h2, h3) + * {
+      margin-top: 0.5rem;
+    }
+    & :is(ul, ol) {
       padding: 1rem 0 0 1.25rem;
     }
     & li:not(:first-child) {
       margin-top: 0.5rem;
     }
-    & h1 + *,
-    & h2 + *,
-    & h3 + * {
-      margin-top: 0.5rem;
-    }
-    & h1 + ul,
-    & h2 + ul,
-    & h3 + ul,
-    & h1 + ol,
-    & h2 + ol,
-    & h3 + ol,
-    & p + ul,
-    & p + ol {
+    & :is(h1, h2, h3, p) + :is(ul, ol) {
       margin-top: -0.5rem;
     }
     & pre {
