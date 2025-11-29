@@ -11,6 +11,7 @@ export default {
   build: {
     cssMinify: "lightningcss",
   },
+  clearScreen: false,
   css: {
     transformer: "lightningcss",
   },
@@ -19,14 +20,12 @@ export default {
       useCSSLayers: true,
       unstable_moduleResolution: { type: "commonJS", rootDir: resolve(__dirname, "./src") },
       lightningcssOptions: { minify: true },
-      runtimeInjection: true,
     }),
     react(),
   ],
-  preview: {
-    port: 3000,
-  },
-  server: {
-    port: 3000,
+  resolve: {
+    alias: {
+      "~": resolve(__dirname, "./src"),
+    },
   },
 } satisfies UserConfig;

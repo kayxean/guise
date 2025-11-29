@@ -1,5 +1,5 @@
 import { lazy, useEffect, type ComponentType } from "react";
-import { createBrowserRouter, useLocation, type RouteObject } from "react-router";
+import { createBrowserRouter, useMatches, type RouteObject } from "react-router";
 import Layout from "./layout";
 import ErrorBoundary from "./error";
 
@@ -11,53 +11,67 @@ export type Metadata = {
   canonical: string;
 };
 
-const metadata = new Map<string, () => Promise<Metadata | undefined>>();
+type PageModule = {
+  default: Page;
+  metadata?: Metadata;
+};
 
-metadata.set("/", async () => {
-  const module = (await import("./page.tsx")) as { metadata?: Metadata };
-  return module.metadata;
-});
+function convertPath(filePath: string): string {
+  let routePath = filePath.replace(/^\.\//, "");
+  routePath = routePath.replace(/\/page\.tsx$/i, "");
+  routePath = routePath.replace(/\[(\w+)\]/g, ":$1");
 
-const dynamicRoutes: RouteObject[] = [
-  {
-    index: true,
-    Component: lazy(() => import("./page.tsx") as Promise<{ default: Page }>),
-  },
-];
-
-function pathToRoute(path: string): string {
-  let route = path.replace(/^\.\//, "");
-  route = route.replace(/\/page\.tsx$/i, "");
-  if (route === "page") {
-    route = "";
+  if (routePath === "page" || routePath === "") {
+    routePath = "/";
+  } else {
+    routePath = `/${routePath}`;
   }
-  return route.toLowerCase();
+
+  return routePath.toLowerCase();
 }
 
-const pages = import.meta.glob("./**/page.tsx");
+function generateDynamicRoutes(): RouteObject[] {
+  const routes: RouteObject[] = [];
 
-for (const path in pages) {
-  const page = pages[path];
-  const slug = pathToRoute(path);
-  const canonical = `/${slug}`;
+  const loadRootPageModule = () => import("./page.tsx") as Promise<PageModule>;
+  const rootPageModulePromise = loadRootPageModule();
 
-  metadata.set(canonical, async () => {
-    const module = (await page()) as {
-      default: Page;
-      metadata?: Metadata;
-    };
-    return module.metadata;
-  });
-
-  const route: RouteObject = {
-    path: slug,
-    Component: lazy(() => page() as Promise<{ default: Page }>),
+  const rootPageRoute: RouteObject = {
+    index: true,
+    Component: lazy(loadRootPageModule),
+    handle: {
+      metadata: rootPageModulePromise.then((module) => module.metadata),
+    },
   };
+  routes.push(rootPageRoute);
 
-  dynamicRoutes.push(route);
+  const pageFiles = import.meta.glob<PageModule>("./**/page.tsx");
+
+  for (const filePath in pageFiles) {
+    if (filePath === "./page.tsx") {
+      continue;
+    }
+
+    const loadPageModule = pageFiles[filePath];
+    const routePath = convertPath(filePath);
+    const pageModulePromise = loadPageModule();
+
+    const route: RouteObject = {
+      path: routePath,
+      Component: lazy(() => pageModulePromise),
+      handle: {
+        metadata: pageModulePromise.then((module) => module.metadata),
+      },
+    };
+    routes.push(route);
+  }
+
+  return routes;
 }
 
-export const createRoute = createBrowserRouter(
+const dynamicRoutes = generateDynamicRoutes();
+
+export const appRouter = createBrowserRouter(
   [
     {
       path: "/",
@@ -66,57 +80,61 @@ export const createRoute = createBrowserRouter(
       children: dynamicRoutes,
     },
   ],
-  {
-    basename: "/",
-  },
+  { basename: "/" },
 );
 
 export function useMetadata() {
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const matches = useMatches();
 
   useEffect(() => {
-    const page = metadata.get(currentPath);
-    if (page) {
-      page()
+    const currentMatch = matches.find((m) => Boolean((m.handle as { metadata?: Promise<Metadata | undefined> })?.metadata));
+
+    const metadataPromise = (
+      currentMatch?.handle as {
+        metadata?: Promise<Metadata | undefined>;
+      }
+    )?.metadata;
+
+    if (metadataPromise) {
+      metadataPromise
         .then((meta) => {
           createMetadata(
             meta || {
               title: "Missing Metadata",
               description: "Metadata not defined for this page.",
-              canonical: currentPath,
+              canonical: window.location.href,
             },
           );
         })
-        .catch((error) => {
-          console.error("Failed to load metadata:", error);
-        });
+        .catch((error) => console.error("Failed to load metadata:", error));
     } else {
       createMetadata({
-        title: "Not Found",
-        description: "This page does not exist.",
-        canonical: currentPath,
+        title: "Page Not Found",
+        description: "The page you are looking for does not exist.",
+        canonical: window.location.href,
       });
     }
-  }, [currentPath]);
+  }, [matches]);
 }
 
-export function createMetadata(page: Metadata) {
-  document.title = page.title;
+export function createMetadata(pageMeta: Metadata) {
+  document.title = pageMeta.title;
 
-  let description = document.head.querySelector('meta[name="description"]');
+  let description = document.head.querySelector("meta[name='description']");
   if (!description) {
     description = document.createElement("meta");
     description.setAttribute("name", "description");
     document.head.appendChild(description);
   }
-  description.setAttribute("content", page.description);
+  description.setAttribute("content", pageMeta.description);
 
-  let canonical = document.querySelector('link[rel="canonical"]');
+  let canonical = document.querySelector("link[rel='canonical']");
   if (!canonical) {
     canonical = document.createElement("link");
     canonical.setAttribute("rel", "canonical");
     document.head.appendChild(canonical);
   }
-  canonical.setAttribute("href", new URL(document.location.href).href);
+  const currentBase = new URL(document.location.origin);
+  const canonicalUrl = new URL(pageMeta.canonical, currentBase).href;
+  canonical.setAttribute("href", canonicalUrl);
 }
