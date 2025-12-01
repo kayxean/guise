@@ -27,10 +27,7 @@ const styles = stylex.create({
 		height: '2rem',
 	},
 	name: {
-		fontSize: '1.5rem',
-		fontWeight: 500,
-		lineHeight: '2rem',
-		marginLeft: '0.5rem',
+		display: 'none',
 	},
 	list: {
 		display: 'flex',
@@ -100,6 +97,7 @@ function SiteLogo() {
 function SiteLinks() {
 	return (
 		<ul {...stylex.props(styles.list)}>
+			<SiteLink path="/icons" text="Icons" />
 			<SiteLink path="/about" text="About" />
 			<SiteLink path="/typography" text="Typography" />
 			<SiteLink path="/pricing" text="Pricing" />
