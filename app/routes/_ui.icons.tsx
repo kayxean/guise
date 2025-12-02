@@ -1,11 +1,11 @@
 import type { MetaFunction } from '@remix-run/node';
-import * as Icon from '~/components/icons/material';
-import { Item, List, Preview, Section } from '~/components/icons/preview';
+import * as Icon from '~/icons/material';
+import { Item, List, Preview, Section } from '~/icons/preview';
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: 'Guise: Icons' },
-		{ name: 'description', content: 'icons preview' },
+		{ title: 'Icons' },
+		{ name: 'description', content: 'guise' },
 		{ tagName: 'link', rel: 'canonical', href: '/icons' },
 	];
 };

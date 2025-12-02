@@ -3,8 +3,8 @@ import { Article, Section } from '~/components/semantic';
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: 'Guise: About' },
-		{ name: 'description', content: 'about guise' },
+		{ title: 'About' },
+		{ name: 'description', content: 'guise' },
 		{ tagName: 'link', rel: 'canonical', href: '/about' },
 	];
 };
