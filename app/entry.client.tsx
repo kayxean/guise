@@ -2,13 +2,13 @@ import { RemixBrowser } from '@remix-run/react';
 import { StrictMode, startTransition } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 
-import './stylex';
+import './styles/stylex';
 
 startTransition(() => {
-	hydrateRoot(
-		document,
-		<StrictMode>
-			<RemixBrowser />
-		</StrictMode>,
-	);
+  hydrateRoot(
+    document,
+    <StrictMode>
+      <RemixBrowser />
+    </StrictMode>,
+  );
 });
