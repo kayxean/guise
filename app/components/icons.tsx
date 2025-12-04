@@ -34,13 +34,13 @@ export function List({ children, ...props }: ComponentProps<'ul'>) {
 
 export function Item({
   children,
-  icon,
+  name,
   ...props
-}: ComponentProps<'li'> & { icon: string }) {
+}: ComponentProps<'li'> & { name: string }) {
   return (
     <li {...stylex.props(styles.item)} {...props}>
       <div {...stylex.props(styles.icon)}>{children}</div>
-      <p {...stylex.props(styles.text)}>{icon}</p>
+      <p {...stylex.props(styles.text)}>{name}</p>
     </li>
   );
 }

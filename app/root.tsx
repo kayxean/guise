@@ -11,7 +11,7 @@ import fonts from './styles/fonts.css?url';
 import styles from './styles/style.css?url';
 
 export const links: LinksFunction = () => [
-  { rel: 'icon', href: 'favicon.svg', type: 'image/svg+xml' },
+  { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
   { rel: 'stylesheet', href: styles },
   { rel: 'stylesheet', href: fonts },
 ];

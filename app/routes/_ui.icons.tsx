@@ -23,11 +23,14 @@ export default function Icons() {
         </p>
       </header>
       <List>
-        <Item icon="Guise Logo">
+        <Item name="Guise Logo">
           <Icon.GuiseLogo />
         </Item>
-        <Item icon="Pane">
+        <Item name="Pane">
           <Icon.Pane />
+        </Item>
+        <Item name="Menu">
+          <Icon.Menu />
         </Item>
       </List>
       <h2>Material Icons</h2>
@@ -36,79 +39,79 @@ export default function Icons() {
         License version 2.0.
       </p>
       <List>
-        <Item icon="Chrome">
+        <Item name="Chrome">
           <Icon.Chrome />
         </Item>
-        <Item icon="Search">
+        <Item name="Search">
           <Icon.Search />
         </Item>
-        <Item icon="Microphone">
+        <Item name="Microphone">
           <Icon.Mic />
         </Item>
-        <Item icon="Camera">
+        <Item name="Camera">
           <Icon.Camera />
         </Item>
-        <Item icon="Search Spark">
+        <Item name="Search Spark">
           <Icon.SearchSpark />
         </Item>
-        <Item icon="Search Labs">
+        <Item name="Search Labs">
           <Icon.SearchLabs />
         </Item>
-        <Item icon="Apps">
+        <Item name="Apps">
           <Icon.Apps />
         </Item>
-        <Item icon="Google">
+        <Item name="Google">
           <Icon.Google />
         </Item>
-        <Item icon="Page Info">
+        <Item name="Page Info">
           <Icon.PageInfo />
         </Item>
-        <Item icon="Grid View">
+        <Item name="Grid View">
           <Icon.GridView />
         </Item>
-        <Item icon="Folder">
+        <Item name="Folder">
           <Icon.Folder />
         </Item>
-        <Item icon="Star">
+        <Item name="Star">
           <Icon.Star />
         </Item>
-        <Item icon="Install Desktop">
+        <Item name="Install Desktop">
           <Icon.InstallDesktop />
         </Item>
-        <Item icon="More Vertical">
+        <Item name="More Vertical">
           <Icon.MoreVert />
         </Item>
-        <Item icon="Account Circle">
+        <Item name="Account Circle">
           <Icon.AccountCircle />
         </Item>
-        <Item icon="Queue Music">
+        <Item name="Queue Music">
           <Icon.QueueMusic />
         </Item>
-        <Item icon="Arrow Down">
+        <Item name="Arrow Down">
           <Icon.ArrowDown />
         </Item>
-        <Item icon="Arrow Back">
+        <Item name="Arrow Back">
           <Icon.ArrowBack />
         </Item>
-        <Item icon="Refresh">
+        <Item name="Refresh">
           <Icon.Refresh />
         </Item>
-        <Item icon="Close">
+        <Item name="Close">
           <Icon.Close />
         </Item>
-        <Item icon="Add">
+        <Item name="Add">
           <Icon.Add />
         </Item>
-        <Item icon="Globe">
+        <Item name="Globe">
           <Icon.Globe />
         </Item>
-        <Item icon="File">
+        <Item name="File">
           <Icon.File />
         </Item>
-        <Item icon="Data Array">
+        <Item name="Data Array">
           <Icon.DataArray />
         </Item>
-        <Item icon="Data Object">
+        <Item name="Data Object">
           <Icon.DataObject />
         </Item>
       </List>
