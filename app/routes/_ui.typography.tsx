@@ -12,161 +12,154 @@ export const meta: MetaFunction = () => {
 export default function Typography() {
   return (
     <Article>
-      <h1>Understanding Guise</h1>
+      <header>
+        <h1>Typography is the visual representation of written language.</h1>
+        <h2>
+          It can be used to arrange type for legibility, readability, and
+          appeal.
+        </h2>
+        <p>
+          Typography is used in a variety of applications, including web pages,
+          print media, and digital interfaces.
+        </p>
+      </header>
+
       <p>
-        The word <em>"guise"</em> refers to an external appearance, often
-        adopted in order to conceal the true nature of something or someone.
+        Effective typography creates a clear visual hierarchy, allowing users to
+        scan content and quickly grasp its structure and key points. This is
+        achieved through the strategic use of different heading levels, font
+        sizes, weights, and colors.
+      </p>
+
+      <h3>Establishing Visual Flow with H3</h3>
+      <p>
+        From main titles to supporting details, each piece of text plays a role.
+        Below, we demonstrate the standard heading levels, essential for
+        structuring content logically and aesthetically.
+      </p>
+
+      <p>
+        <strong>Note on Heading Usage (H4-H6):</strong> To ensure a clean,
+        accessible, and easily scannable content structure, our guidelines
+        strongly recommend against using <code>&lt;h4&gt;</code>,{' '}
+        <code>&lt;h5&gt;</code>, and <code>&lt;h6&gt;</code> for main article
+        content.
+      </p>
+
+      <p>
+        If you find yourself needing these deeper levels, consider restructuring
+        your content using lists, breaking sections into standalone articles, or
+        employing other visual grouping elements. A hierarchy of H1-H3 typically
+        provides sufficient structure for most webpages.
+      </p>
+
+      <hr />
+
+      <h2>Paragraphs, Emphasis, and Links</h2>
+      <p>
+        The backbone of any textual content, paragraphs should be easy to read.
+        Use <em>italics</em> for emphasis, foreign words, or titles of works.
+        Employ <strong>bold text</strong> for strong statements, keywords, or to
+        highlight crucial information. Links, like this one to{' '}
+        <a href="https://practicaltypography.com/">Practical Typography</a>,
+        should be clearly distinguishable and indicate interactivity, often with
+        a distinct color and hover state.
       </p>
       <p>
-        It suggests a deceptive or misleading outward show. Think of it as a{' '}
-        <strong>costume</strong> or a <strong>disguise</strong> that an entity
-        wears.
+        This paragraph demonstrates a standard block of text. Notice how the
+        line height (leading) and character spacing (kerning and tracking)
+        contribute to its overall readability. A comfortable measure (line
+        length, typically 45-75 characters) is crucial for preventing eye strain
+        and ensuring a pleasant reading experience across various devices.
       </p>
-      <p>
-        It can be used in various contexts, from literature to everyday
-        conversation. For instance, a villain might appear in the guise of a
-        friendly stranger.
-      </p>
-      <h2>Key Aspects and Usage</h2>
+
       <blockquote>
         <p>
-          <strong>Guise:</strong> an external form, appearance, or manner of
-          presentation, typically concealing the true nature of something.
+          "Typography is two-dimensional architecture, based on experience and
+          fantasy, two-dimensional with a three-dimensional effect."
         </p>
-        <footer>— Oxford English Dictionary (conceptual interpretation)</footer>
+        <footer>— Hermann Zapf, renowned type designer</footer>
       </blockquote>
-      <p>Common uses often involve:</p>
+
+      <h2>Lists and Their Structure</h2>
+      <p>
+        Lists are vital for breaking up large blocks of text and presenting
+        information in an easily digestible format. They naturally create a
+        visual hierarchy and improve scannability.
+      </p>
+
+      <h3>Unordered Lists for Grouped Items</h3>
       <ul>
+        <li>Choose a primary font family for body text.</li>
+        <li>Select a secondary font for headlines or specific UI elements.</li>
+        <li>Define font sizes for all heading levels (h1-h6) and body text.</li>
         <li>
-          <strong>Concealment:</strong> Hiding intentions or identity.
-        </li>
-        <li>
-          <strong>Deception:</strong> Misleading others about one's true
-          purpose.
-        </li>
-        <li>
-          <strong>Appearance vs. Reality:</strong> Highlighting a contrast
-          between what seems to be and what actually is.
-        </li>
-      </ul>
-      <h3>Examples in Sentences</h3>
-      <ol>
-        <li>The spy entered the country in the guise of a tourist.</li>
-        <li>Under the guise of friendship, he betrayed his allies.</li>
-        <li>
-          The software virus often appears in the guise of a helpful utility.
+          Establish baseline grid and line heights (leading).
           <ul>
-            <li>This is a common tactic for malware.</li>
-            <li>It makes users unsuspecting.</li>
+            <li>For paragraphs, aim for 1.5 - 1.7 times the font size.</li>
+            <li>
+              Headings can often have tighter line heights for compactness.
+            </li>
           </ul>
         </li>
-      </ol>
-      <h2>Technical Analogy</h2>
-      <p>
-        In programming, one might metaphorically think of an interface or an
-        abstract class as defining a "guise" that concrete implementations must
-        adhere to, even if their internal workings differ.
-      </p>
-      <pre>
-        <code>{`interface Animal {
-  makeSound(): string;
-  eat(): void;
-}
-
-class Dog implements Animal {
-  makeSound() {
-    return "Woof!"; // The "dog" guise
-  }
-  eat() {
-    console.log("Eating kibble.");
-  }
-}
-
-class Cat implements Animal {
-  makeSound() {
-    return "Meow!"; // The "cat" guise
-  }
-  eat() {
-    console.log("Eating fish.");
-  }
-}
-
-function interactWithAnimal(animal: Animal) {
-  console.log(animal.makeSound()); // Interacting with the "Animal" guise
-  animal.eat();
-}
-
-const myDog = new Dog();
-const myCat = new Cat();
-
-interactWithAnimal(myDog); // Output: Woof! \\n Eating kibble.
-interactWithAnimal(myCat); // Output: Meow! \\n Eating fish.
-`}</code>
-      </pre>
-      <p>
-        Here, <code>Animal</code> provides a common "guise" (interface) for
-        different creatures.
-      </p>
-      <h2>The Aesthetic Guise of Software</h2>
-      <p>
-        In software development, "guise" refers to the deliberate external
-        appearance and presentation of an application or system.
-      </p>
-      <p>
-        It encompasses all visual and interactive elements that shape how a user
-        perceives and interacts with the software.
-      </p>
-      <p>
-        This is the intentional 'face' your software presents, distinct from its
-        underlying functionality.
-      </p>
-      <h3>Defining Software's External Presentation</h3>
-      <p>Consider the various ways software can manifest its "guise":</p>
-      <ul>
-        <li>
-          The meticulously chosen color palette of your Integrated Development
-          Environment (IDE).
-        </li>
-        <li>A custom font applied to your terminal interface.</li>
-        <li>A seamless dark mode theme for late-night coding sessions.</li>
-        <li>
-          The overall design language and user interface of a web application.
-        </li>
+        <li>Consider contrast and color palette for accessibility.</li>
       </ul>
+
+      <h3>Ordered Lists for Sequential Information</h3>
+      <ol>
+        <li>
+          Start with a clear content outline and information architecture.
+        </li>
+        <li>Prioritize information using an appropriate heading hierarchy.</li>
+        <li>
+          Apply consistent font styles and weights across all text elements:
+          <ol type="a">
+            <li>Body text for long-form content.</li>
+            <li>Captions, metadata, and fine print.</li>
+            <li>Call-to-action elements and interactive text.</li>
+          </ol>
+        </li>
+        <li>
+          Test readability and responsiveness across different devices and
+          screen sizes.
+        </li>
+      </ol>
+
+      <hr />
+
+      <h2>Code Presentation</h2>
       <p>
-        These elements collectively form the outward show, or "guise" of the
-        software, influencing user experience and brand perception.
+        Presenting code effectively is crucial in technical documentation and
+        educational contexts. Inline code, like <code>&lt;pre&gt;</code> or{' '}
+        <code>&lt;code&gt;</code> tags, should use a monospaced font and blend
+        seamlessly with surrounding text, indicating a technical term or
+        command.
       </p>
-      <h3>Functionality vs. Appearance</h3>
       <p>
-        The software's guise is how its core functionality is packaged and
-        perceived. For example, a sleek, minimalist Command Line Interface (CLI)
-        tool might conceal highly complex algorithms beneath a simple facade.
+        For larger blocks of code, a dedicated code block ensures syntax
+        highlighting, proper indentation, and excellent legibility. To execute
+        this example, press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd>.
       </p>
+
+      <pre>
+        <code>{`interface User {
+  name: string;
+  age: number;
+}
+
+function greetUser(user: User): string {
+  return \`Hello, \${user.name}! You are \${user.age} years old.\`;
+}
+
+const currentUser: User = { name: 'Alice', age: 30 };
+console.log(greetUser(currentUser));`}</code>
+      </pre>
+
       <p>
-        Similarly, a beautifully rendered dashboard presents data streams in an
-        aesthetically pleasing and easily digestible format, rather than
-        exposing raw information.
-      </p>
-      <p>
-        Both deliver information, but the latter does so with a designed and
-        impactful aesthetic that shapes user understanding and engagement.
-      </p>
-      <h3>Crafting the Intentional Look</h3>
-      <p>
-        When you adjust CSS variables, install custom icon packs, or
-        meticulously arrange your dotfiles, you are actively crafting the
-        software's aesthetic guise.
-      </p>
-      <p>
-        These actions go beyond simple styling; they involve making deliberate
-        design choices that tell a story, evoke a specific feeling, and
-        influence how the software truly *appears* to the user.
-      </p>
-      <p>
-        This process often involves obscuring the technical complexities or
-        "bare metal" underneath with a layer of intentional design and personal
-        flair, creating a distinct user impression.
+        This typography demo aims to showcase common HTML elements and provide
+        insight into effective text presentation. Remember, good typography
+        significantly enhances readability, accessibility, and overall user
+        experience.
       </p>
     </Article>
   );

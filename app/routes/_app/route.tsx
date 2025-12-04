@@ -1,9 +1,9 @@
 import { Outlet } from '@remix-run/react';
+import { Footer } from '~/components/footer';
 import { Navigation } from '~/components/nav';
 
 export default function AppLayout() {
   const APP = [
-    { name: 'Guise', path: '/' },
     { name: 'Create', path: '/create' },
     { name: 'Color', path: '/color' },
     { name: 'Theme', path: '/theme' },
@@ -17,6 +17,7 @@ export default function AppLayout() {
       <main>
         <Outlet />
       </main>
+      <Footer />
     </>
   );
 }

@@ -37,6 +37,12 @@
   a {
     text-decoration: none;
   }
+  button,
+  input {
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+  }
 }
 
 @layer theme {
@@ -113,8 +119,12 @@
     overflow: auto;
     white-space: pre;
   }
-  code {
+  code,
+  kbd {
     font-family: var(--font-mono);
+  }
+  :is(p, li) :where(code, kbd) {
+    font-size: 90%;
   }
   pre code {
     font-size: 0.875rem;
@@ -190,6 +200,11 @@
     }
     & > blockquote > p {
       margin: 0.5rem 0;
+    }
+    & hr {
+      border: 1px solid #d1d1d1;
+      margin: 5rem auto;
+      max-width: 12rem;
     }
   }
   @media (width >= 40rem) {
