@@ -7,7 +7,7 @@
   },
   "packageManager": "pnpm@10.24.0",
   "scripts": {
-    "build": "remix vite:build",
+    "build": "remix vite:build && node metadata.ts",
     "check": "biome check --write",
     "dev": "remix vite:dev",
     "format": "biome format --write",
