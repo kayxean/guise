@@ -14,7 +14,19 @@
   "assist": {
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":NODE:",
+              ":PACKAGE:",
+              ":PATH:",
+              ":ALIAS:",
+              { "type": true }
+            ],
+            "identifierOrder": "natural"
+          }
+        }
       }
     }
   },
@@ -24,7 +36,12 @@
       "recommended": true,
       "style": {
         "useNodejsImportProtocol": "error",
-        "useImportType": "error"
+        "useImportType": {
+          "level": "warn",
+          "options": {
+            "style": "separatedType"
+          }
+        }
       },
       "suspicious": {
         "noConsole": {
