@@ -8,9 +8,7 @@ export default function HomePage() {
     <article>
       <h1>Guise</h1>
       <nav>
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/glyphs">Glyphs</Link>
+        <Link to="/chromium">Chromium</Link>
       </nav>
     </article>
   );

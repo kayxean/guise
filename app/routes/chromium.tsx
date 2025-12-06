@@ -1,17 +1,17 @@
 import { Link } from '@remix-run/react';
+import { Tabs } from '~/components/browser/tabs';
 import { createMeta } from '~/meta';
 
-export const meta = createMeta('about');
+export const meta = createMeta('chromium');
 
-export default function About() {
+export default function Chromium() {
   return (
     <article>
-      <h1>About</h1>
+      <h1>Chromium</h1>
       <nav>
         <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/glyphs">Glyphs</Link>
       </nav>
+      <Tabs />
     </article>
   );
 }

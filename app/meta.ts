@@ -12,15 +12,10 @@ export const routes = {
     description: 'Design with Every Hue',
     canonical: '/',
   },
-  about: {
-    title: 'About',
-    description: 'Learn about our mission and history.',
-    canonical: '/about',
-  },
-  glyphs: {
-    title: 'Glyphs',
-    description: 'Explore the full library of icons and symbols.',
-    canonical: '/glyphs',
+  chromium: {
+    title: 'Chromium',
+    description: 'Create a Chromium-based browser theme with ease',
+    canonical: '/chromium',
   },
 } satisfies { [key: string]: Metadata };
 
