@@ -1,5 +1,6 @@
 import { Link } from '@remix-run/react';
-import { Tabs } from '~/components/browser/tabs';
+import { TabList } from '~/features/browser/tab-list';
+import { TabPanel } from '~/features/browser/tab-panel';
 import { createMeta } from '~/meta';
 
 export const meta = createMeta('chromium');
@@ -11,7 +12,8 @@ export default function Chromium() {
       <nav>
         <Link to="/">Home</Link>
       </nav>
-      <Tabs />
+      <TabList />
+      <TabPanel />
     </article>
   );
 }
