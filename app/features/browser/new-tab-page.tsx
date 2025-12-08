@@ -6,7 +6,7 @@ const new_tab_page = stylex.create({
     alignContent: 'baseline',
     backgroundColor: '#242526',
     display: 'grid',
-    gap: '2rem',
+    gap: '2.5rem',
     minHeight: 'calc(100dvh - 6.25rem)',
   },
 });
@@ -15,15 +15,20 @@ const navigation = stylex.create({
   layout: {
     alignItems: 'center',
     display: 'flex',
-    gap: '1rem',
+    gap: '.875rem',
     height: '4rem',
     justifyContent: 'flex-end',
     padding: '0 .875rem',
   },
   link: {
     color: '#f2f3f4',
+    display: {
+      default: 'inline-flex',
+      '@media (width <= 20em)': 'none',
+    },
     fontSize: '.75rem',
     lineHeight: '1.5rem',
+    padding: '0 .125rem',
     textDecoration: {
       default: 'none',
       ':hover': 'underline',
@@ -68,10 +73,17 @@ const doodle = stylex.create({
     backgroundColor: '#242526',
     display: 'flex',
     justifyContent: 'center',
+    padding: '0 1rem',
   },
   image: {
-    height: '5.75rem',
-    width: '17rem',
+    height: {
+      default: 'auto',
+      '@media (width >= 20em)': '5.75rem',
+    },
+    width: {
+      default: '12rem',
+      '@media (width >= 20em)': '17rem',
+    },
   },
 });
 
@@ -80,6 +92,7 @@ const search = stylex.create({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
+    padding: '0 1rem',
   },
   box: {
     position: 'relative',
@@ -91,14 +104,37 @@ const search = stylex.create({
     color: '#020304',
     fontSize: '1rem',
     height: '3rem',
-    minWidth: '30rem',
-    padding: '.063rem 5.5rem .063rem 3.25rem',
+    minWidth: {
+      default: 'calc(100dvw - 2rem)',
+      '@media (width >= 32em)': '28rem',
+      '@media (width >= 40em)': '36rem',
+      '@media (width >= 48em)': '45rem',
+    },
+    outline: 'none',
+    paddingTop: '.063rem',
+    paddingRight: {
+      default: '.063rem',
+      '@media (width >= 24em)': '5.5rem',
+      '@media (width >= 40em)': '12.75rem',
+    },
+    paddingBottom: '.063rem',
+    paddingLeft: {
+      default: '1rem',
+      '@media (width >= 20em)': '3.25rem',
+    },
     width: '100%',
   },
-  button: {
+  button_left: {
+    alignItems: 'center',
     backgroundColor: '#0000',
     color: '#020304',
+    cursor: 'pointer',
+    display: {
+      default: 'inline-flex',
+      '@media (width <= 20em)': 'none',
+    },
     height: '3rem',
+    justifyContent: 'center',
     position: 'absolute',
     width: '2rem',
     zIndex: 2,
@@ -109,12 +145,49 @@ const search = stylex.create({
   },
   query: {
     left: '.75rem',
+    pointerEvents: 'none',
+  },
+  button_right: {
+    alignItems: 'center',
+    backgroundColor: '#0000',
+    color: '#020304',
+    cursor: 'pointer',
+    display: {
+      default: 'inline-flex',
+      '@media (width <= 24em)': 'none',
+    },
+    height: '2rem',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: '.5rem',
+    zIndex: 2,
   },
   mic: {
-    right: '3rem',
+    right: {
+      default: '3.125rem',
+      '@media (width >= 40em)': '10.25rem',
+    },
+    width: '2rem',
   },
   camera: {
+    right: {
+      default: '.75rem',
+      '@media (width >= 40em)': '7.75rem',
+    },
+    width: '2rem',
+  },
+  ai_mode: {
+    display: {
+      default: 'inline-flex',
+      '@media (width <= 40em)': 'none',
+    },
+    backgroundColor: '#e1e2e3',
+    borderRadius: '1rem',
+    padding: '0 .75rem 0 .5rem',
     right: '.75rem',
+  },
+  ai_label: {
+    fontSize: '1rem',
   },
 });
 
@@ -143,6 +216,8 @@ export function NewTabPage() {
         <div {...stylex.props(navigation.group)}>
           <a
             href="https://labs.google.com/search?source=ntp"
+            target="_blank"
+            rel="noreferrer noopener"
             {...stylex.props(navigation.button)}
           >
             <Icon name="search_labs" {...stylex.props(navigation.icon)} />
@@ -173,14 +248,34 @@ export function NewTabPage() {
             spellCheck="false"
             {...stylex.props(search.input)}
           />
-          <button type="button" {...stylex.props(search.button, search.query)}>
+          <button
+            type="button"
+            tabIndex={-1}
+            {...stylex.props(search.button_left, search.query)}
+          >
             <Icon name="search" {...stylex.props(search.icon)} />
           </button>
-          <button type="button" {...stylex.props(search.button, search.mic)}>
+          <button
+            type="button"
+            tabIndex={-1}
+            {...stylex.props(search.button_right, search.mic)}
+          >
             <Icon name="mic" {...stylex.props(search.icon)} />
           </button>
-          <button type="button" {...stylex.props(search.button, search.camera)}>
+          <button
+            type="button"
+            tabIndex={-1}
+            {...stylex.props(search.button_right, search.camera)}
+          >
             <Icon name="camera" {...stylex.props(search.icon)} />
+          </button>
+          <button
+            type="button"
+            tabIndex={-1}
+            {...stylex.props(search.button_right, search.ai_mode)}
+          >
+            <Icon name="search_spark" {...stylex.props(search.icon)} />
+            <span {...stylex.props(search.ai_label)}>AI Mode</span>
           </button>
         </div>
       </div>

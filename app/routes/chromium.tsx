@@ -1,4 +1,5 @@
 import { Link } from '@remix-run/react';
+import { BookmarkBar } from '~/features/browser/bookmark-bar';
 import { TabList } from '~/features/browser/tab-list';
 import { TabPanel } from '~/features/browser/tab-panel';
 import { createMeta } from '~/meta';
@@ -13,6 +14,7 @@ export default function Chromium() {
         <Link to="/">Home</Link>
       </nav>
       <TabList />
+      <BookmarkBar />
       <TabPanel />
     </article>
   );

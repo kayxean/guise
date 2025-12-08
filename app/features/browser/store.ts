@@ -25,10 +25,11 @@ function createStore<T>(initialState: T) {
 
 export type TabItem = {
   id: number;
+  ntp: boolean;
+  url: string | null;
   title: string;
   icon: MaterialIcons;
   content: ComponentType;
-  ntp: boolean;
 };
 
 type TabState = {
@@ -38,8 +39,22 @@ type TabState = {
 
 export const tabStore = createStore<TabState>({
   tabsList: [
-    { id: 1, title: 'New Tab', icon: 'chrome', content: NewTabPage, ntp: true },
-    { id: 2, title: 'Internet', icon: 'globe', content: LocalHost, ntp: false },
+    {
+      id: 1,
+      ntp: true,
+      url: null,
+      title: 'New Tab',
+      icon: 'chrome',
+      content: NewTabPage,
+    },
+    {
+      id: 2,
+      ntp: false,
+      url: 'localhost:3000',
+      title: 'Internet',
+      icon: 'globe',
+      content: LocalHost,
+    },
   ],
   tabActive: 1,
 });
@@ -62,10 +77,11 @@ export const tabActions = {
           ...s.tabsList,
           {
             id: newId,
+            ntp: true,
+            url: null,
             title: 'New Tab',
             icon: 'chrome',
             content: NewTabPage,
-            ntp: true,
           },
         ],
         tabActive: newId,
