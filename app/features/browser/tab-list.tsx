@@ -13,6 +13,7 @@ const tab_list = stylex.create({
     gap: '.375rem',
     maxWidth: '100%',
     overflowX: 'auto',
+    overscrollBehavior: 'contain',
     padding: '.375rem .5rem',
     position: 'relative',
     scrollbarWidth: 'none',
@@ -92,7 +93,10 @@ const tab_item = stylex.create({
     fontSize: '.875rem',
     fontWeight: 400,
     lineHeight: '1.125rem',
-    minWidth: '10.625rem',
+    minWidth: {
+      default: '6.25rem',
+      '@media (width >= 48em)': '10.625rem',
+    },
     userSelect: 'none',
   },
   button: {
@@ -178,6 +182,7 @@ export function TabList() {
       <div role="none" {...stylex.props(tab_action.layout)}>
         <button
           type="button"
+          role="tab"
           aria-label="Tab options"
           {...stylex.props(tab_action.button)}
         >
@@ -225,6 +230,7 @@ export function TabList() {
       <div role="none" {...stylex.props(new_tab.layout)}>
         <button
           type="button"
+          role="tab"
           aria-label="Open new tab"
           onClick={() => {
             tabActions.addTab();
