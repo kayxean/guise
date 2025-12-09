@@ -1,5 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useRef } from 'react';
+import type { KeyboardEvent } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { tabActions, useTabStore } from './store';
 import { Icon } from '~/icons/material';
 
@@ -46,8 +47,8 @@ const tab_action = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#464748',
+      default: '#121314',
+      ':hover': '#2d2e2f',
     },
     borderRadius: '.625rem',
     color: 'inherit',
@@ -65,6 +66,17 @@ const tab_action = stylex.create({
 const tab_item = stylex.create({
   active: {
     color: '#f2f3f4',
+    ':after': {
+      backgroundColor: '#121314',
+      bottom: '-.375rem',
+      content: '""',
+      left: 0,
+      height: '.75rem',
+      pointerEvents: 'none',
+      position: 'absolute',
+      right: 0,
+      zIndex: -1,
+    },
   },
   inactive: {
     color: {
@@ -74,14 +86,16 @@ const tab_item = stylex.create({
   },
   layout: {
     alignItems: 'center',
-    backgroundColor: '#242526',
+    backgroundColor: '#121314',
     borderRadius: '.625rem',
     display: 'flex',
     gap: '.375rem',
     height: '1.75rem',
     padding: '0 .375rem',
+    position: 'relative',
     scrollMarginLeft: '2.625rem',
     scrollMarginRight: '2.625rem',
+    zIndex: 0,
   },
   favicon: {
     display: 'inline-flex',
@@ -102,8 +116,8 @@ const tab_item = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#464748',
+      default: '#121314',
+      ':hover': '#2d2e2f',
     },
     borderRadius: '50%',
     color: 'inherit',
@@ -142,8 +156,8 @@ const new_tab = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#464748',
+      default: '#121314',
+      ':hover': '#2d2e2f',
     },
     borderRadius: '50%',
     color: 'inherit',
@@ -162,19 +176,41 @@ const new_tab = stylex.create({
 export function TabList() {
   const { tabsList, tabActive } = useTabStore();
 
+  const lastIntentRef = useRef<'mount' | 'keyboard' | 'mouse' | null>('mount');
   const tabRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
-  useEffect(() => {
+  const onTabClick = (id: number) => {
+    lastIntentRef.current = 'mouse';
+    tabActions.activateTab(id);
+  };
+  const onTabKeyDown = (e: KeyboardEvent<HTMLDivElement>, id: number) => {
+    lastIntentRef.current = 'keyboard';
+    tabActions.navigateTab(e, id);
+  };
+
+  useLayoutEffect(() => {
+    const intent = lastIntentRef.current;
+    if (intent === 'mount') return;
+
     const ref = tabRefs.current[tabActive];
-    if (ref) {
-      ref.focus();
-      const isMobile = window.innerWidth <= 768;
-      ref.scrollIntoView({
-        behavior: 'smooth',
-        inline: isMobile ? 'center' : 'nearest',
-        block: 'nearest',
+    if (!ref) return;
+
+    if (intent === 'keyboard') {
+      requestAnimationFrame(() => {
+        ref.focus();
       });
     }
+
+    const isMobile = window.innerWidth <= 768;
+    requestAnimationFrame(() => {
+      ref.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: isMobile ? 'center' : 'nearest',
+      });
+    });
+
+    lastIntentRef.current = null;
   }, [tabActive]);
 
   return (
@@ -203,8 +239,8 @@ export function TabList() {
             aria-selected={isActive}
             aria-controls={`panel-${t.id}`}
             tabIndex={isActive ? 0 : -1}
-            onClick={() => tabActions.activateTab(t.id)}
-            onKeyDown={(e) => tabActions.navigateTab(e, t.id)}
+            onClick={() => onTabClick(t.id)}
+            onKeyDown={(e) => onTabKeyDown(e, t.id)}
             {...stylex.props(
               tab_item.layout,
               isActive ? tab_item.active : tab_item.inactive,

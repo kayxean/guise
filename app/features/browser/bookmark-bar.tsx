@@ -1,15 +1,15 @@
 import * as stylex from '@stylexjs/stylex';
+import { useTabStore } from './store';
 import { Icon } from '~/icons/material';
 
 const bookmark_bar = stylex.create({
   layout: {
     alignItems: 'center',
-    backgroundColor: '#000000',
     color: '#a4a5a6',
     display: 'flex',
     flexWrap: 'nowrap',
     gap: '.375rem',
-    height: '2.5rem',
+    height: '1.75rem',
     maxWidth: '100%',
     overflowX: 'auto',
     padding: '0 .5rem',
@@ -18,6 +18,9 @@ const bookmark_bar = stylex.create({
     '::-webkit-scrollbar': {
       display: 'none',
     },
+  },
+  hidden: {
+    display: 'none',
   },
 });
 
@@ -28,7 +31,7 @@ const tabs_group = stylex.create({
     position: 'sticky',
     zIndex: 2,
     ':after': {
-      backgroundImage: 'linear-gradient(90deg, #000 70%, #0000)',
+      backgroundImage: 'linear-gradient(90deg, #121314 70%, #0000)',
       bottom: '-.375rem',
       content: '""',
       left: '-.5rem',
@@ -42,8 +45,8 @@ const tabs_group = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#464748',
+      default: '#121314',
+      ':hover': '#242526',
     },
     borderRadius: '50%',
     color: 'inherit',
@@ -67,8 +70,8 @@ const bookmark_list = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#464748',
+      default: '#121314',
+      ':hover': '#242526',
     },
     borderRadius: '.875rem',
     color: 'inherit',
@@ -103,8 +106,8 @@ const bookmark_alt = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#464748',
+      default: '#121314',
+      ':hover': '#242526',
     },
     borderRadius: '.875rem',
     color: 'inherit',
@@ -122,10 +125,21 @@ const bookmark_alt = stylex.create({
 });
 
 export function BookmarkBar() {
+  const { tabsList, tabActive } = useTabStore();
+
+  const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
+
   const bookmarks = ['Research', 'Service', 'Products', 'Design'];
 
   return (
-    <div role="menubar" {...stylex.props(bookmark_bar.layout)}>
+    <div
+      role="menubar"
+      aria-hidden={!isNewTabPage}
+      {...stylex.props(
+        bookmark_bar.layout,
+        !isNewTabPage && bookmark_bar.hidden,
+      )}
+    >
       <div role="none" {...stylex.props(tabs_group.layout)}>
         <button
           type="button"
