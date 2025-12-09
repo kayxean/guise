@@ -24,6 +24,7 @@ export function TabPanel() {
             id={`panel-${t.id}`}
             role="tabpanel"
             aria-labelledby={`tab-${t.id}`}
+            aria-hidden={!isActive}
             hidden={!isActive}
           >
             <Content />

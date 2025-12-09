@@ -4,10 +4,10 @@ import { Icon } from '~/icons/material';
 const new_tab_page = stylex.create({
   layout: {
     alignContent: 'baseline',
-    backgroundColor: '#242526',
+    backgroundColor: '#121314',
     display: 'grid',
     gap: '2.5rem',
-    minHeight: 'calc(100dvh - 6.25rem)',
+    minHeight: 'calc(100dvh - 7.688rem)',
   },
 });
 
@@ -43,7 +43,7 @@ const navigation = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#242526',
+      default: '#121314',
       ':hover': '#464748',
     },
     borderRadius: '50%',
@@ -70,7 +70,6 @@ const navigation = stylex.create({
 const doodle = stylex.create({
   layout: {
     alignItems: 'center',
-    backgroundColor: '#242526',
     display: 'flex',
     justifyContent: 'center',
     padding: '0 1rem',
@@ -240,6 +239,14 @@ export function NewTabPage() {
       </div>
       <div {...stylex.props(search.layout)}>
         <div {...stylex.props(search.box)}>
+          <button
+            type="button"
+            aria-label="Search"
+            tabIndex={-1}
+            {...stylex.props(search.button_left, search.query)}
+          >
+            <Icon name="search" {...stylex.props(search.icon)} />
+          </button>
           <input
             id={input_id}
             type="search"
@@ -250,13 +257,7 @@ export function NewTabPage() {
           />
           <button
             type="button"
-            tabIndex={-1}
-            {...stylex.props(search.button_left, search.query)}
-          >
-            <Icon name="search" {...stylex.props(search.icon)} />
-          </button>
-          <button
-            type="button"
+            aria-label="Microphone"
             tabIndex={-1}
             {...stylex.props(search.button_right, search.mic)}
           >
@@ -264,6 +265,7 @@ export function NewTabPage() {
           </button>
           <button
             type="button"
+            aria-label="Camera"
             tabIndex={-1}
             {...stylex.props(search.button_right, search.camera)}
           >
