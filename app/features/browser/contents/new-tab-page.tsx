@@ -1,5 +1,96 @@
 import * as stylex from '@stylexjs/stylex';
-import { Icon } from '~/icons/material';
+import { Icon } from '../components/button';
+import { Doodle } from '../components/doodle';
+
+export function NewTabPage() {
+  const input_id = new Date().toISOString();
+
+  return (
+    <div {...stylex.props(new_tab_page.layout)}>
+      <div {...stylex.props(navigation.layout)}>
+        <a
+          href="https://mail.google.com/mail/?tab=rm&ogbl"
+          target="_blank"
+          rel="noreferrer noopener"
+          {...stylex.props(navigation.link)}
+        >
+          Gmail
+        </a>
+        <a
+          href="https://www.google.com/imghp?hl=en&tab=ri&ogbl"
+          target="_blank"
+          rel="noreferrer noopener"
+          {...stylex.props(navigation.link)}
+        >
+          Images
+        </a>
+        <div {...stylex.props(navigation.group)}>
+          <a
+            href="https://labs.google.com/search?source=ntp"
+            target="_blank"
+            rel="noreferrer noopener"
+            {...stylex.props(navigation.button)}
+          >
+            <Icon name="search_labs" {...stylex.props(navigation.icon)} />
+          </a>
+          <button type="button" {...stylex.props(navigation.button)}>
+            <Icon name="apps" {...stylex.props(navigation.icon)} />
+          </button>
+          <button type="button" {...stylex.props(navigation.button)}>
+            <Icon name="person" {...stylex.props(navigation.person)} />
+          </button>
+        </div>
+      </div>
+      <div {...stylex.props(doodle.layout)}>
+        <Doodle {...stylex.props(doodle.image)} />
+      </div>
+      <div {...stylex.props(search.layout)}>
+        <div {...stylex.props(search.box)}>
+          <button
+            type="button"
+            aria-label="Search"
+            tabIndex={-1}
+            {...stylex.props(search.button_left, search.query)}
+          >
+            <Icon name="search" {...stylex.props(search.icon)} />
+          </button>
+          <input
+            id={input_id}
+            type="search"
+            placeholder="Search Google or type URL"
+            autoComplete="off"
+            spellCheck="false"
+            {...stylex.props(search.input)}
+          />
+          <button
+            type="button"
+            aria-label="Microphone"
+            tabIndex={-1}
+            {...stylex.props(search.button_right, search.mic)}
+          >
+            <Icon name="mic" {...stylex.props(search.icon)} />
+          </button>
+          <button
+            type="button"
+            aria-label="Camera"
+            tabIndex={-1}
+            {...stylex.props(search.button_right, search.camera)}
+          >
+            <Icon name="camera" {...stylex.props(search.icon)} />
+          </button>
+          <button
+            type="button"
+            tabIndex={-1}
+            {...stylex.props(search.button_right, search.ai_mode)}
+          >
+            <Icon name="search_spark" {...stylex.props(search.icon)} />
+            <span {...stylex.props(search.ai_label)}>AI Mode</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const new_tab_page = stylex.create({
   layout: {
@@ -189,98 +280,3 @@ const search = stylex.create({
     fontSize: '1rem',
   },
 });
-
-export function NewTabPage() {
-  const input_id = new Date().toISOString();
-
-  return (
-    <div {...stylex.props(new_tab_page.layout)}>
-      <div {...stylex.props(navigation.layout)}>
-        <a
-          href="https://mail.google.com/mail/?tab=rm&ogbl"
-          target="_blank"
-          rel="noreferrer noopener"
-          {...stylex.props(navigation.link)}
-        >
-          Gmail
-        </a>
-        <a
-          href="https://www.google.com/imghp?hl=en&tab=ri&ogbl"
-          target="_blank"
-          rel="noreferrer noopener"
-          {...stylex.props(navigation.link)}
-        >
-          Images
-        </a>
-        <div {...stylex.props(navigation.group)}>
-          <a
-            href="https://labs.google.com/search?source=ntp"
-            target="_blank"
-            rel="noreferrer noopener"
-            {...stylex.props(navigation.button)}
-          >
-            <Icon name="search_labs" {...stylex.props(navigation.icon)} />
-          </a>
-          <button type="button" {...stylex.props(navigation.button)}>
-            <Icon name="apps" {...stylex.props(navigation.icon)} />
-          </button>
-          <button type="button" {...stylex.props(navigation.button)}>
-            <Icon name="person" {...stylex.props(navigation.person)} />
-          </button>
-        </div>
-      </div>
-      <div {...stylex.props(doodle.layout)}>
-        <Icon
-          name="google_logo"
-          width={272}
-          height={92}
-          {...stylex.props(doodle.image)}
-        />
-      </div>
-      <div {...stylex.props(search.layout)}>
-        <div {...stylex.props(search.box)}>
-          <button
-            type="button"
-            aria-label="Search"
-            tabIndex={-1}
-            {...stylex.props(search.button_left, search.query)}
-          >
-            <Icon name="search" {...stylex.props(search.icon)} />
-          </button>
-          <input
-            id={input_id}
-            type="search"
-            placeholder="Search Google or type URL"
-            autoComplete="off"
-            spellCheck="false"
-            {...stylex.props(search.input)}
-          />
-          <button
-            type="button"
-            aria-label="Microphone"
-            tabIndex={-1}
-            {...stylex.props(search.button_right, search.mic)}
-          >
-            <Icon name="mic" {...stylex.props(search.icon)} />
-          </button>
-          <button
-            type="button"
-            aria-label="Camera"
-            tabIndex={-1}
-            {...stylex.props(search.button_right, search.camera)}
-          >
-            <Icon name="camera" {...stylex.props(search.icon)} />
-          </button>
-          <button
-            type="button"
-            tabIndex={-1}
-            {...stylex.props(search.button_right, search.ai_mode)}
-          >
-            <Icon name="search_spark" {...stylex.props(search.icon)} />
-            <span {...stylex.props(search.ai_label)}>AI Mode</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}

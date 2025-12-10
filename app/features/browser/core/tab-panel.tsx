@@ -1,13 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { useTabStore } from './store';
-
-const tab_panel = stylex.create({
-  layout: {
-    position: 'relative',
-    overflowX: 'auto',
-    overflowY: 'auto',
-  },
-});
+import { useTabStore } from '../store';
 
 export function TabPanel() {
   const { tabsList, tabActive } = useTabStore();
@@ -34,3 +26,11 @@ export function TabPanel() {
     </div>
   );
 }
+
+const tab_panel = stylex.create({
+  layout: {
+    position: 'relative',
+    overflowX: 'auto',
+    overflowY: 'auto',
+  },
+});

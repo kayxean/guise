@@ -1,6 +1,61 @@
 import * as stylex from '@stylexjs/stylex';
-import { useTabStore } from './store';
-import { Icon } from '~/icons/material';
+import { Icon } from '../components/button';
+import { useTabStore } from '../store';
+
+export function BookmarkBar() {
+  const { tabsList, tabActive } = useTabStore();
+
+  const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
+
+  const bookmarks = ['Research', 'Service', 'Products', 'Design'];
+
+  return (
+    <div
+      role="menubar"
+      aria-hidden={!isNewTabPage}
+      {...stylex.props(
+        bookmark_bar.layout,
+        !isNewTabPage && bookmark_bar.hidden,
+      )}
+    >
+      <div role="none" {...stylex.props(tabs_group.layout)}>
+        <button
+          type="button"
+          role="menuitem"
+          aria-label="Tabs group"
+          {...stylex.props(tabs_group.button)}
+        >
+          <Icon name="grid_view" {...stylex.props(tabs_group.icon)} />
+        </button>
+      </div>
+
+      {bookmarks.map((b) => (
+        <div key={b} role="none" {...stylex.props(bookmark_list.layout)}>
+          <button
+            type="button"
+            role="menuitem"
+            {...stylex.props(bookmark_list.button)}
+          >
+            <Icon name="globe" {...stylex.props(bookmark_list.icon)} />
+            <span>{b}</span>
+          </button>
+        </div>
+      ))}
+
+      <div role="none" {...stylex.props(bookmark_alt.layout)}>
+        <button
+          type="button"
+          role="menuitem"
+          aria-label="All bookmarks"
+          {...stylex.props(bookmark_alt.button)}
+        >
+          <Icon name="folder" {...stylex.props(bookmark_alt.icon)} />
+          <span>All Bookmarks</span>
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const bookmark_bar = stylex.create({
   layout: {
@@ -9,10 +64,10 @@ const bookmark_bar = stylex.create({
     display: 'flex',
     flexWrap: 'nowrap',
     gap: '.375rem',
-    height: '1.75rem',
+    height: '2.125rem',
     maxWidth: '100%',
     overflowX: 'auto',
-    padding: '0 .5rem',
+    padding: '0 .5rem .375rem .5rem',
     position: 'relative',
     scrollbarWidth: 'none',
     '::-webkit-scrollbar': {
@@ -123,58 +178,3 @@ const bookmark_alt = stylex.create({
     width: '1.125rem',
   },
 });
-
-export function BookmarkBar() {
-  const { tabsList, tabActive } = useTabStore();
-
-  const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
-
-  const bookmarks = ['Research', 'Service', 'Products', 'Design'];
-
-  return (
-    <div
-      role="menubar"
-      aria-hidden={!isNewTabPage}
-      {...stylex.props(
-        bookmark_bar.layout,
-        !isNewTabPage && bookmark_bar.hidden,
-      )}
-    >
-      <div role="none" {...stylex.props(tabs_group.layout)}>
-        <button
-          type="button"
-          role="menuitem"
-          aria-label="Tabs group"
-          {...stylex.props(tabs_group.button)}
-        >
-          <Icon name="grid_view" {...stylex.props(tabs_group.icon)} />
-        </button>
-      </div>
-
-      {bookmarks.map((b) => (
-        <div key={b} role="none" {...stylex.props(bookmark_list.layout)}>
-          <button
-            type="button"
-            role="menuitem"
-            {...stylex.props(bookmark_list.button)}
-          >
-            <Icon name="globe" {...stylex.props(bookmark_list.icon)} />
-            <span>{b}</span>
-          </button>
-        </div>
-      ))}
-
-      <div role="none" {...stylex.props(bookmark_alt.layout)}>
-        <button
-          type="button"
-          role="menuitem"
-          aria-label="All bookmarks"
-          {...stylex.props(bookmark_alt.button)}
-        >
-          <Icon name="folder" {...stylex.props(bookmark_alt.icon)} />
-          <span>All Bookmarks</span>
-        </button>
-      </div>
-    </div>
-  );
-}

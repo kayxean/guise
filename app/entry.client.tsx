@@ -2,7 +2,7 @@ import { RemixBrowser } from '@remix-run/react';
 import { StrictMode, startTransition } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 
-import './styles/stylex';
+import './stylex';
 
 startTransition(() => {
   hydrateRoot(
