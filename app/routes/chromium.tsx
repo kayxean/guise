@@ -1,4 +1,4 @@
-import { Browser } from '~/features/browser/provider';
+import { Browser } from '~/features/browser';
 import { createMeta } from '~/meta';
 
 export const meta = createMeta('chromium');

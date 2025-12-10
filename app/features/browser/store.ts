@@ -1,8 +1,8 @@
 import type { ComponentType, KeyboardEvent } from 'react';
 import { useSyncExternalStore } from 'react';
-import { LocalHost } from './localhost';
-import { NewTabPage } from './new-tab-page';
-import type { MaterialIcons } from '~/icons/material';
+import type { Icons } from './components/icons';
+import { LocalHost } from './contents/localhost';
+import { NewTabPage } from './contents/new-tab-page';
 
 type Listener = () => void;
 
@@ -28,7 +28,7 @@ export type TabItem = {
   ntp: boolean;
   url: string | null;
   title: string;
-  icon: MaterialIcons;
+  icon: Icons;
   content: ComponentType;
 };
 
