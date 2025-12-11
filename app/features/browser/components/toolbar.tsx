@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
-import { Icon } from '../components/button';
-import { useTabStore } from '../store';
+import { useTabStore } from '../tabs';
+import { Icon } from './icons';
 
 export function Toolbar() {
   const [pageUrl, setPageUrl] = useState('');

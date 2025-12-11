@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
-import { Icon } from '../components/button';
-import { useTabStore } from '../store';
+import { useTabStore } from '../tabs';
+import { Icon } from './icons';
 
 export function BookmarkBar() {
   const { tabsList, tabActive } = useTabStore();

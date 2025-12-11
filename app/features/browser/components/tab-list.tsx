@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { KeyboardEvent } from 'react';
 import { useLayoutEffect, useRef } from 'react';
-import { Icon } from '../components/button';
-import { tabActions, useTabStore } from '../store';
+import { tabActions, useTabStore } from '../tabs';
+import { Icon } from './icons';
 
 export function TabList() {
   const { tabsList, tabActive } = useTabStore();
