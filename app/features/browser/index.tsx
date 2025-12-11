@@ -1,12 +1,14 @@
 import * as stylex from '@stylexjs/stylex';
-import { BookmarkBar } from './core/bookmark-bar';
-import { TabList } from './core/tab-list';
-import { TabPanel } from './core/tab-panel';
-import { Toolbar } from './core/toolbar';
+import { BookmarkBar } from './components/bookmark-bar';
+import { TabList } from './components/tab-list';
+import { TabPanel } from './components/tab-panel';
+import { Toolbar } from './components/toolbar';
+import { Theme } from './theme';
 
 export function Browser() {
   return (
     <div {...stylex.props(browser.layout)}>
+      <Theme />
       <div {...stylex.props(browser.navigation)}>
         <TabList />
         <Toolbar />
