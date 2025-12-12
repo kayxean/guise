@@ -1,5 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { Icon } from '../components/icons';
+import { chrome, colors } from '../tokens.stylex';
 
 export function NewTabPage() {
   const input_id = new Date().toISOString();
@@ -74,12 +75,7 @@ export function NewTabPage() {
       </div>
       <div {...stylex.props(search.layout)}>
         <div {...stylex.props(search.box)}>
-          <button
-            type="button"
-            aria-label="Search"
-            tabIndex={-1}
-            {...stylex.props(search.button_left, search.query)}
-          >
+          <button type="button" aria-label="Search" tabIndex={-1} {...stylex.props(search.button_left, search.query)}>
             <Icon name="search" {...stylex.props(search.icon)} />
           </button>
           <input
@@ -90,28 +86,25 @@ export function NewTabPage() {
             spellCheck="false"
             {...stylex.props(search.input)}
           />
-          <button
-            type="button"
-            aria-label="Microphone"
-            {...stylex.props(search.button_right, search.mic)}
-          >
+          <button type="button" aria-label="Microphone" {...stylex.props(search.button_right, search.mic)}>
             <Icon name="mic" {...stylex.props(search.icon)} />
           </button>
-          <button
-            type="button"
-            aria-label="Camera"
-            {...stylex.props(search.button_right, search.camera)}
-          >
+          <button type="button" aria-label="Camera" {...stylex.props(search.button_right, search.camera)}>
             <Icon name="camera" {...stylex.props(search.icon)} />
           </button>
-          <button
-            type="button"
-            {...stylex.props(search.button_right, search.ai_mode)}
-          >
+          <button type="button" {...stylex.props(search.button_right, search.ai_mode)}>
             <Icon name="search_spark" {...stylex.props(search.icon)} />
             <span {...stylex.props(search.ai_label)}>AI Mode</span>
           </button>
         </div>
+      </div>
+      <div {...stylex.props(shortcuts.layout)}>
+        <button type="button" {...stylex.props(shortcuts.button)}>
+          <div {...stylex.props(shortcuts.view)}>
+            <Icon name="add" {...stylex.props(shortcuts.icon)} />
+          </div>
+          <span {...stylex.props(shortcuts.text)}>Add shortcut</span>
+        </button>
       </div>
     </div>
   );
@@ -120,10 +113,10 @@ export function NewTabPage() {
 const new_tab_page = stylex.create({
   layout: {
     alignContent: 'baseline',
-    backgroundColor: '#121314',
+    backgroundColor: colors.ntp_background,
     display: 'grid',
-    gap: '2.5rem',
-    minHeight: 'calc(100dvh - 7.688rem)',
+    gap: '1rem',
+    minHeight: 'calc(100dvh - 7.625rem)',
   },
 });
 
@@ -137,7 +130,7 @@ const navigation = stylex.create({
     padding: '0 .875rem',
   },
   link: {
-    color: '#f2f3f4',
+    color: chrome.ntp_link,
     display: {
       default: 'inline-flex',
       '@media (width <= 20em)': 'none',
@@ -159,11 +152,11 @@ const navigation = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#464748',
+      default: colors.ntp_background,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '50%',
-    color: '#f2f3f4',
+    color: chrome.ntp_button_icon,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '2.5rem',
@@ -176,7 +169,7 @@ const navigation = stylex.create({
     width: '1.5rem',
   },
   person: {
-    backgroundColor: '#000',
+    backgroundColor: chrome.ntp_profile_background,
     borderRadius: '50%',
     height: '2rem',
     width: '2rem',
@@ -188,7 +181,7 @@ const doodle = stylex.create({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    padding: '0 1rem',
+    padding: '1.5rem 1rem',
   },
   image: {
     height: {
@@ -214,9 +207,9 @@ const search = stylex.create({
   },
   input: {
     appearance: 'none',
-    backgroundColor: '#f2f3f4',
+    backgroundColor: chrome.ntp_omnibox_background,
     borderRadius: '1.5rem',
-    color: '#020304',
+    color: chrome.ntp_omnibox_text,
     fontSize: '1rem',
     height: '3rem',
     minWidth: {
@@ -238,11 +231,14 @@ const search = stylex.create({
       '@media (width >= 20em)': '3.25rem',
     },
     width: '100%',
+    '::placeholder': {
+      color: chrome.ntp_omnibox_placeholder,
+    },
   },
   button_left: {
     alignItems: 'center',
-    backgroundColor: '#0000',
-    color: '#020304',
+    backgroundColor: chrome.transparent,
+    color: chrome.ntp_omnibox_action,
     cursor: 'pointer',
     display: {
       default: 'inline-flex',
@@ -264,8 +260,8 @@ const search = stylex.create({
   },
   button_right: {
     alignItems: 'center',
-    backgroundColor: '#0000',
-    color: '#020304',
+    backgroundColor: chrome.transparent,
+    color: chrome.ntp_omnibox_action_alt,
     cursor: 'pointer',
     display: {
       default: 'inline-flex',
@@ -296,12 +292,51 @@ const search = stylex.create({
       default: 'inline-flex',
       '@media (width <= 40em)': 'none',
     },
-    backgroundColor: '#e1e2e3',
+    backgroundColor: chrome.ntp_omnibox_ai_mode,
     borderRadius: '1rem',
     padding: '0 .75rem 0 .5rem',
     right: '.75rem',
   },
   ai_label: {
     fontSize: '1rem',
+  },
+});
+
+const shortcuts = stylex.create({
+  layout: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  button: {
+    alignItems: 'center',
+    backgroundColor: {
+      default: colors.ntp_background,
+      ':hover': chrome.button_hover,
+    },
+    borderRadius: '.375rem',
+    display: 'inline-flex',
+    color: '#f2f3f4',
+    cursor: 'pointer',
+    flexDirection: 'column',
+    gap: '1rem',
+    justifyContent: 'center',
+    padding: '1rem',
+  },
+  view: {
+    alignItems: 'center',
+    backgroundColor: '#161718',
+    borderRadius: '50%',
+    display: 'flex',
+    height: '3rem',
+    justifyContent: 'center',
+    width: '3rem',
+  },
+  icon: {
+    height: '1.25rem',
+    width: '1.25rem',
+  },
+  text: {
+    color: colors.ntp_text,
   },
 });

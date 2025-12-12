@@ -1,5 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { useTabStore } from '../tabs';
+import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function BookmarkBar() {
@@ -13,29 +14,17 @@ export function BookmarkBar() {
     <div
       role="menubar"
       aria-hidden={!isNewTabPage}
-      {...stylex.props(
-        bookmark_bar.layout,
-        !isNewTabPage && bookmark_bar.hidden,
-      )}
+      {...stylex.props(bookmark_bar.layout, !isNewTabPage && bookmark_bar.hidden)}
     >
       <div role="none" {...stylex.props(tabs_group.layout)}>
-        <button
-          type="button"
-          role="menuitem"
-          aria-label="Tabs group"
-          {...stylex.props(tabs_group.button)}
-        >
+        <button type="button" role="menuitem" aria-label="Tabs group" {...stylex.props(tabs_group.button)}>
           <Icon name="grid_view" {...stylex.props(tabs_group.icon)} />
         </button>
       </div>
 
       {bookmarks.map((b) => (
         <div key={b} role="none" {...stylex.props(bookmark_list.layout)}>
-          <button
-            type="button"
-            role="menuitem"
-            {...stylex.props(bookmark_list.button)}
-          >
+          <button type="button" role="menuitem" {...stylex.props(bookmark_list.button)}>
             <Icon name="globe" {...stylex.props(bookmark_list.icon)} />
             <span>{b}</span>
           </button>
@@ -43,12 +32,7 @@ export function BookmarkBar() {
       ))}
 
       <div role="none" {...stylex.props(bookmark_alt.layout)}>
-        <button
-          type="button"
-          role="menuitem"
-          aria-label="All bookmarks"
-          {...stylex.props(bookmark_alt.button)}
-        >
+        <button type="button" role="menuitem" aria-label="All bookmarks" {...stylex.props(bookmark_alt.button)}>
           <Icon name="folder" {...stylex.props(bookmark_alt.icon)} />
           <span>All Bookmarks</span>
         </button>
@@ -60,7 +44,6 @@ export function BookmarkBar() {
 const bookmark_bar = stylex.create({
   layout: {
     alignItems: 'center',
-    color: '#a4a5a6',
     display: 'flex',
     flexWrap: 'nowrap',
     gap: '.375rem',
@@ -86,7 +69,7 @@ const tabs_group = stylex.create({
     position: 'sticky',
     zIndex: 2,
     ':after': {
-      backgroundImage: 'linear-gradient(90deg, #121314 70%, #0000)',
+      backgroundImage: `linear-gradient(90deg, ${colors.toolbar} 70%, ${chrome.transparent})`,
       bottom: '-.375rem',
       content: '""',
       left: '-.5rem',
@@ -100,11 +83,11 @@ const tabs_group = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#242526',
+      default: colors.toolbar,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '50%',
-    color: 'inherit',
+    color: colors.toolbar_button_icon,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '1.75rem',
@@ -125,11 +108,11 @@ const bookmark_list = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#242526',
+      default: colors.toolbar,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '.875rem',
-    color: 'inherit',
+    color: colors.bookmark_text,
     cursor: 'pointer',
     display: 'inline-flex',
     gap: '.375rem',
@@ -161,11 +144,11 @@ const bookmark_alt = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#242526',
+      default: colors.toolbar,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '.875rem',
-    color: 'inherit',
+    color: colors.bookmark_text,
     cursor: 'pointer',
     display: 'inline-flex',
     gap: '.375rem',

@@ -1,6 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import { useTabStore } from '../tabs';
+import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function Toolbar() {
@@ -19,12 +20,7 @@ export function Toolbar() {
 
   return (
     <div role="menubar" {...stylex.props(toolbar.layout)}>
-      <button
-        type="button"
-        role="menuitem"
-        aria-label="Back"
-        {...stylex.props(toolbar.button)}
-      >
+      <button type="button" role="menuitem" aria-label="Back" {...stylex.props(toolbar.button)}>
         <Icon name="arrow_back" {...stylex.props(toolbar.icon)} />
       </button>
       <button
@@ -104,12 +100,7 @@ export function Toolbar() {
       >
         <Icon name="account_circle" {...stylex.props(toolbar.icon)} />
       </button>
-      <button
-        type="button"
-        role="menuitem"
-        aria-label="Settings"
-        {...stylex.props(toolbar.button)}
-      >
+      <button type="button" role="menuitem" aria-label="Settings" {...stylex.props(toolbar.button)}>
         <Icon name="more_vert" {...stylex.props(toolbar.icon)} />
       </button>
     </div>
@@ -119,7 +110,6 @@ export function Toolbar() {
 const toolbar = stylex.create({
   layout: {
     alignItems: 'center',
-    color: '#a4a5a6',
     display: 'flex',
     flexWrap: 'nowrap',
     gap: '.375rem',
@@ -137,11 +127,11 @@ const toolbar = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#242526',
+      default: colors.toolbar,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '50%',
-    color: 'inherit',
+    color: colors.toolbar_button_icon,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '2.25rem',
@@ -169,11 +159,11 @@ const omnibox = stylex.create({
   },
   input: {
     backgroundColor: {
-      default: '#242526',
-      ':hover': '#2d2e2f',
+      default: colors.omnibox_background,
+      ':hover': chrome.input_hover,
     },
     borderRadius: '1.25rem',
-    color: '#f2f3f4',
+    color: colors.omnibox_text,
     fontSize: '.875rem',
     height: '2.25rem',
     outline: 'none',
@@ -189,7 +179,7 @@ const omnibox = stylex.create({
     },
     width: '100%',
     '::placeholder': {
-      color: '#a4a5a6',
+      color: chrome.omnibox_placeholder,
     },
   },
   button_left: {
@@ -210,7 +200,7 @@ const omnibox = stylex.create({
   button: {
     alignItems: 'center',
     borderRadius: '50%',
-    color: 'inherit',
+    color: colors.omnibox_text,
     cursor: 'pointer',
     display: {
       default: 'none',
@@ -226,14 +216,14 @@ const omnibox = stylex.create({
   },
   action: {
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#2d2e2f',
+      default: colors.toolbar,
+      ':hover': chrome.button_hover,
     },
   },
   action_alt: {
     backgroundColor: {
-      default: '#0000',
-      ':hover': '#313233',
+      default: chrome.transparent,
+      ':hover': chrome.button_hover,
     },
   },
 });

@@ -4,6 +4,7 @@ import { TabList } from './components/tab-list';
 import { TabPanel } from './components/tab-panel';
 import { Toolbar } from './components/toolbar';
 import { Theme } from './theme';
+import { colors } from './tokens.stylex';
 
 export function Browser() {
   return (
@@ -24,9 +25,9 @@ const browser = stylex.create({
     position: 'relative',
   },
   navigation: {
-    backgroundColor: '#121314',
-    borderBottomStyle: 'solid',
-    borderBottomWidth: '1px',
-    borderColor: '#242526',
+    backgroundColor: colors.toolbar,
+    boxShadow: `0 .25px 0 ${colors.toolbar_button_icon}`,
+    position: 'relative',
+    zIndex: 2,
   },
 });

@@ -2,6 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import type { KeyboardEvent } from 'react';
 import { useLayoutEffect, useRef } from 'react';
 import { tabActions, useTabStore } from '../tabs';
+import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function TabList() {
@@ -47,12 +48,7 @@ export function TabList() {
   return (
     <div role="tablist" {...stylex.props(tab_list.layout)}>
       <div role="none" {...stylex.props(tab_action.layout)}>
-        <button
-          type="button"
-          role="tab"
-          aria-label="Tab options"
-          {...stylex.props(tab_action.button)}
-        >
+        <button type="button" role="tab" aria-label="Tab options" {...stylex.props(tab_action.button)}>
           <Icon name="arrow_down" {...stylex.props(tab_action.icon)} />
         </button>
       </div>
@@ -72,10 +68,7 @@ export function TabList() {
             tabIndex={isActive ? 0 : -1}
             onClick={() => onTabClick(t.id)}
             onKeyDown={(e) => onTabKeyDown(e, t.id)}
-            {...stylex.props(
-              tab_item.layout,
-              isActive ? tab_item.active : tab_item.inactive,
-            )}
+            {...stylex.props(tab_item.layout, isActive ? tab_item.active : tab_item.inactive)}
           >
             <Icon name={t.icon} {...stylex.props(tab_item.favicon)} />
             <span {...stylex.props(tab_item.title)}>{t.title}</span>
@@ -92,13 +85,9 @@ export function TabList() {
             </button>
             {isActive && (
               <div {...stylex.props(tab_item.status)}>
-                <span
-                  {...stylex.props(tab_item.corner, tab_item.corner_left)}
-                ></span>
+                <span {...stylex.props(tab_item.corner, tab_item.corner_left)}></span>
                 <span {...stylex.props(tab_item.space)}></span>
-                <span
-                  {...stylex.props(tab_item.corner, tab_item.corner_right)}
-                ></span>
+                <span {...stylex.props(tab_item.corner, tab_item.corner_right)}></span>
               </div>
             )}
           </div>
@@ -125,8 +114,7 @@ export function TabList() {
 const tab_list = stylex.create({
   layout: {
     alignItems: 'center',
-    backgroundColor: '#000000',
-    color: '#a4a5a6',
+    backgroundColor: colors.frame,
     display: 'flex',
     flexWrap: 'nowrap',
     gap: '.375rem',
@@ -151,7 +139,7 @@ const tab_action = stylex.create({
     position: 'sticky',
     zIndex: 2,
     ':after': {
-      backgroundImage: 'linear-gradient(90deg, #000 70%, #0000)',
+      backgroundImage: `linear-gradient(90deg, ${colors.frame} 70%, ${chrome.transparent})`,
       bottom: '-.375rem',
       content: '""',
       left: '-.5rem',
@@ -165,11 +153,11 @@ const tab_action = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#2d2e2f',
+      default: colors.toolbar,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '.625rem',
-    color: 'inherit',
+    color: colors.tab_text,
     display: 'inline-flex',
     height: '1.75rem',
     justifyContent: 'center',
@@ -183,21 +171,23 @@ const tab_action = stylex.create({
 
 const tab_item = stylex.create({
   active: {
-    color: '#f2f3f4',
+    backgroundColor: colors.toolbar,
+    color: colors.tab_text,
   },
   inactive: {
+    backgroundColor: colors.background_tab,
     color: {
-      default: '#a4a5a6',
-      ':hover': '#f2f3f4',
+      default: colors.tab_background_text,
+      ':hover': colors.tab_text,
     },
   },
   layout: {
     alignItems: 'center',
-    backgroundColor: '#121314',
     borderRadius: '.625rem',
     display: 'flex',
     gap: '.375rem',
     height: '1.75rem',
+    outline: 'none',
     padding: '0 .375rem',
     position: 'relative',
     scrollMarginLeft: '2.625rem',
@@ -205,6 +195,7 @@ const tab_item = stylex.create({
     zIndex: 0,
   },
   favicon: {
+    color: colors.toolbar_button_icon,
     display: 'inline-flex',
     height: '1.125rem',
     width: '1.125rem',
@@ -223,8 +214,8 @@ const tab_item = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#2d2e2f',
+      default: chrome.transparent,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '50%',
     color: 'inherit',
@@ -240,7 +231,7 @@ const tab_item = stylex.create({
   },
   status: {
     alignItems: 'flex-end',
-    backgroundColor: '#121314',
+    backgroundColor: colors.toolbar,
     bottom: '-.375rem',
     display: 'flex',
     left: 0,
@@ -265,7 +256,7 @@ const tab_item = stylex.create({
       borderRadius: '50%',
       borderStyle: 'solid',
       borderWidth: '.375rem',
-      borderColor: '#121314',
+      borderColor: colors.toolbar,
       content: '""',
       height: '200%',
       position: 'absolute',
@@ -299,7 +290,7 @@ const new_tab = stylex.create({
     right: 0,
     zIndex: 2,
     ':after': {
-      backgroundImage: 'linear-gradient(-90deg, #000 70%, #0000)',
+      backgroundImage: `linear-gradient(-90deg, ${colors.frame} 70%, ${chrome.transparent})`,
       bottom: '-.375rem',
       content: '""',
       left: '-.5rem',
@@ -313,11 +304,11 @@ const new_tab = stylex.create({
   button: {
     alignItems: 'center',
     backgroundColor: {
-      default: '#121314',
-      ':hover': '#2d2e2f',
+      default: colors.background_tab,
+      ':hover': chrome.button_hover,
     },
     borderRadius: '50%',
-    color: 'inherit',
+    color: colors.tab_background_text,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '1.75rem',
