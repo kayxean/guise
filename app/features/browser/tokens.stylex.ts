@@ -1,0 +1,41 @@
+import * as stylex from '@stylexjs/stylex';
+
+export const colors = stylex.defineVars({
+  background_tab: 'var(--background_tab)',
+  background_tab_inactive: 'var(--background_tab_inactive)',
+  background_tab_incognito: 'var(--background_tab_incognito)',
+  background_tab_incognito_inactive: 'var(--background_tab_incognito_inactive)',
+  frame: 'var(--frame)',
+  frame_inactive: 'var(--frame_inactive)',
+  frame_incognito: 'var(--frame_incognito)',
+  frame_incognito_inactive: 'var(--frame_incognito_inactive)',
+  bookmark_text: 'var(--bookmark_text)',
+  ntp_background: 'var(--ntp_background)',
+  ntp_text: 'var(--ntp_text)',
+  omnibox_background: 'var(--omnibox_background)',
+  omnibox_text: 'var(--omnibox_text)',
+  tab_background_text: 'var(--tab_background_text)',
+  tab_background_text_inactive: 'var(--tab_background_text_inactive)',
+  tab_background_text_incognito: 'var(--tab_background_text_incognito)',
+  tab_background_text_incognito_inactive: 'var(--tab_background_text_incognito_inactive)',
+  tab_text: 'var(--tab_text)',
+  toolbar: 'var(--toolbar)',
+  toolbar_button_icon: 'var(--toolbar_button_icon)',
+  toolbar_text: 'var(--toolbar_text)',
+});
+
+export const chrome = stylex.defineConsts({
+  button_hover: '#ffffff1c',
+  input_hover: '#ffffff1c',
+  omnibox_placeholder: '#a4a5a6',
+  transparent: '#0000',
+  ntp_link: '#f2f3f4',
+  ntp_button_icon: '#f2f3f4',
+  ntp_profile_background: '#000',
+  ntp_omnibox_background: '#f2f3f4',
+  ntp_omnibox_text: '#020304',
+  ntp_omnibox_placeholder: '#727374',
+  ntp_omnibox_action: '#5f6368',
+  ntp_omnibox_action_alt: '#020304',
+  ntp_omnibox_ai_mode: '#e2e7ea',
+});
