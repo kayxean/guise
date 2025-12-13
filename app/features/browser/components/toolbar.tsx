@@ -1,17 +1,19 @@
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTabStore } from '../tabs';
 import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
+import { createToken } from '~/lib/utils';
 
 export function Toolbar() {
   const [pageUrl, setPageUrl] = useState('');
-  const { tabsList, tabActive } = useTabStore();
+  const tabsList = useTabStore((state) => state.tabsList);
+  const tabActive = useTabStore((state) => state.tabActive);
 
   const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
   const hasPageUrl = tabsList.find((t) => t.id === tabActive)?.url;
 
-  const input_id = new Date().toISOString();
+  const input_id = useMemo(() => createToken(), []);
 
   useEffect(() => {
     const currentPage = typeof hasPageUrl === 'string' ? hasPageUrl : '';
@@ -116,7 +118,6 @@ const toolbar = stylex.create({
     height: '3rem',
     maxWidth: '100%',
     overflowX: 'auto',
-    overscrollBehavior: 'contain',
     padding: '.375rem',
     position: 'relative',
     scrollbarWidth: 'none',

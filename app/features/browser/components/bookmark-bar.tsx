@@ -4,7 +4,8 @@ import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function BookmarkBar() {
-  const { tabsList, tabActive } = useTabStore();
+  const tabsList = useTabStore((state) => state.tabsList);
+  const tabActive = useTabStore((state) => state.tabActive);
 
   const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
 
