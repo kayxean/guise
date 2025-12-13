@@ -17,13 +17,7 @@
         "organizeImports": {
           "level": "on",
           "options": {
-            "groups": [
-              ":NODE:",
-              ":PACKAGE:",
-              ":PATH:",
-              ":ALIAS:",
-              { "type": true }
-            ],
+            "groups": [":NODE:", ":PACKAGE:", ":PATH:", ":ALIAS:", { "type": true }],
             "identifierOrder": "natural"
           }
         }
@@ -35,13 +29,7 @@
     "rules": {
       "recommended": true,
       "style": {
-        "useNodejsImportProtocol": "error",
-        "useImportType": {
-          "level": "warn",
-          "options": {
-            "style": "separatedType"
-          }
-        }
+        "useNodejsImportProtocol": "error"
       },
       "suspicious": {
         "noConsole": {
