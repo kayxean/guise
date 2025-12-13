@@ -1,9 +1,11 @@
 import * as stylex from '@stylexjs/stylex';
+import { useMemo } from 'react';
 import { Icon } from '../components/icons';
 import { chrome, colors } from '../tokens.stylex';
+import { createToken } from '~/lib/utils';
 
 export function NewTabPage() {
-  const input_id = new Date().toISOString();
+  const input_id = useMemo(() => createToken(), []);
 
   return (
     <div {...stylex.props(new_tab_page.layout)}>
@@ -179,6 +181,7 @@ const navigation = stylex.create({
 const doodle = stylex.create({
   layout: {
     alignItems: 'center',
+    color: chrome.ntp_doodle,
     display: 'flex',
     justifyContent: 'center',
     padding: '1.5rem 1rem',
@@ -316,7 +319,7 @@ const shortcuts = stylex.create({
     },
     borderRadius: '.375rem',
     display: 'inline-flex',
-    color: '#f2f3f4',
+    color: chrome.ntp_button_icon,
     cursor: 'pointer',
     flexDirection: 'column',
     gap: '1rem',
@@ -325,7 +328,7 @@ const shortcuts = stylex.create({
   },
   view: {
     alignItems: 'center',
-    backgroundColor: '#161718',
+    backgroundColor: chrome.ntp_button_background,
     borderRadius: '50%',
     display: 'flex',
     height: '3rem',
