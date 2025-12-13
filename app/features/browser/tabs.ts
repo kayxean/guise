@@ -1,9 +1,10 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ComponentType, KeyboardEvent } from 'react';
 import { useSyncExternalStore } from 'react';
 import type { Icons } from './components/icons';
-import { LocalHost } from './contents/localhost';
+import { CounterApp } from './contents/app-counter';
+import { TodoApp } from './contents/app-todo';
 import { NewTabPage } from './contents/new-tab-page';
-import { createStore } from './store';
+import { createStore } from '~/lib/store';
 
 type TabState = {
   tabsList: {
@@ -12,7 +13,7 @@ type TabState = {
     url: string | null;
     title: string;
     icon: Icons;
-    content: ReactNode;
+    content: ComponentType;
   }[];
   tabActive: number;
 };
@@ -25,22 +26,32 @@ export const tabStore = createStore<TabState>({
       url: null,
       title: 'New Tab',
       icon: 'chrome',
-      content: <NewTabPage />,
+      content: NewTabPage,
     },
     {
       id: 2,
       ntp: false,
-      url: 'localhost:3000',
-      title: 'Internet',
+      url: 'localhost:5173/counter',
+      title: 'Counter',
       icon: 'globe',
-      content: <LocalHost />,
+      content: CounterApp,
+    },
+    {
+      id: 3,
+      ntp: false,
+      url: 'localhost:5173/todo',
+      title: 'Todo',
+      icon: 'globe',
+      content: TodoApp,
     },
   ],
   tabActive: 1,
 });
 
-export function useTabStore() {
-  return useSyncExternalStore(tabStore.subscribe, tabStore.getSnapshot);
+type TabStore<T> = (state: typeof tabStore extends { getSnapshot: () => infer S } ? S : never) => T;
+
+export function useTabStore<State>(selector: TabStore<State>) {
+  return useSyncExternalStore(tabStore.subscribe, () => selector(tabStore.getSnapshot()));
 }
 
 export const tabActions = {
@@ -60,7 +71,7 @@ export const tabActions = {
             url: null,
             title: 'New Tab',
             icon: 'chrome',
-            content: <NewTabPage />,
+            content: NewTabPage,
           },
         ],
         tabActive: newId,
