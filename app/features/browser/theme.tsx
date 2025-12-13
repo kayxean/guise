@@ -1,7 +1,7 @@
 import { useColorStore } from './color';
 
 export function Theme() {
-  const colors = useColorStore();
+  const colors = useColorStore((state) => state);
 
   const styles = Object.entries(colors)
     .map(([key, value]) => `--${key}:${value};`)

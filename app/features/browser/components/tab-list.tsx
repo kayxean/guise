@@ -6,7 +6,8 @@ import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function TabList() {
-  const { tabsList, tabActive } = useTabStore();
+  const tabsList = useTabStore((state) => state.tabsList);
+  const tabActive = useTabStore((state) => state.tabActive);
 
   const lastIntentRef = useRef<'mount' | 'keyboard' | 'mouse' | null>('mount');
   const tabRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -81,7 +82,7 @@ export function TabList() {
               }}
               {...stylex.props(tab_item.button)}
             >
-              <Icon name="close" {...stylex.props(tab_item.icon)} />
+              <Icon name="close_small" {...stylex.props(tab_item.icon)} />
             </button>
             {isActive && (
               <div {...stylex.props(tab_item.status)}>
@@ -104,7 +105,7 @@ export function TabList() {
           }}
           {...stylex.props(new_tab.button)}
         >
-          <Icon name="add" {...stylex.props(new_tab.icon)} />
+          <Icon name="add_small" {...stylex.props(new_tab.icon)} />
         </button>
       </div>
     </div>
@@ -206,8 +207,8 @@ const tab_item = stylex.create({
     fontWeight: 400,
     lineHeight: '1.125rem',
     minWidth: {
-      default: '6.25rem',
-      '@media (width >= 48em)': '10.625rem',
+      default: '6rem',
+      '@media (width >= 48em)': '10.6rem',
     },
     userSelect: 'none',
   },
@@ -221,13 +222,13 @@ const tab_item = stylex.create({
     color: 'inherit',
     cursor: 'pointer',
     display: 'inline-flex',
-    height: '1.125rem',
+    height: '1.25rem',
     justifyContent: 'center',
-    width: '1.125rem',
+    width: '1.25rem',
   },
   icon: {
-    height: '.875rem',
-    width: '.875rem',
+    height: '1.25rem',
+    width: '1.25rem',
   },
   status: {
     alignItems: 'flex-end',
@@ -316,7 +317,7 @@ const new_tab = stylex.create({
     width: '1.75rem',
   },
   icon: {
-    height: '.875rem',
-    width: '.875rem',
+    height: '1.125rem',
+    width: '1.125rem',
   },
 });

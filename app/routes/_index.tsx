@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react';
-import { createMeta } from '~/meta';
+import { createMeta } from '~/routes';
 
 export const meta = createMeta('index');
 

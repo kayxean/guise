@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { createStore } from './store';
+import { createStore } from '~/lib/store';
 
 type ColorState = {
   background_tab: string;
@@ -49,6 +49,8 @@ export const colorStore = createStore<ColorState>({
   toolbar_text: '#A4A5A6',
 });
 
-export function useColorStore() {
-  return useSyncExternalStore(colorStore.subscribe, colorStore.getSnapshot);
+type ColorStore<T> = (state: typeof colorStore extends { getSnapshot: () => infer S } ? S : never) => T;
+
+export function useColorStore<State>(selector: ColorStore<State>) {
+  return useSyncExternalStore(colorStore.subscribe, () => selector(colorStore.getSnapshot()));
 }

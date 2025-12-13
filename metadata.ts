@@ -1,8 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { URL } from 'node:url';
-import type { Metadata } from './app/meta';
-import { routes } from './app/meta.ts';
+import { type Metadata, routes } from './app/routes.ts';
 
 const BASE_URL = 'https://kayxean.github.io/guise';
 const BUILD_DIR = path.resolve('build/client');
@@ -29,10 +28,16 @@ async function generateMetadata(): Promise<void> {
     };
     const content = sanitizeHtml(template);
 
+    const createCanonical = (pagePath: string, baseUrl: string) => {
+      const _base = baseUrl.replace(/\/$/, '');
+      const _path = pagePath.replace(/^\//, '');
+      return `${_base}/${_path}`;
+    };
+
     const injectMetadata = (metadata: Metadata): string => {
       const title = `<title>${metadata.title}</title>`;
-      const description = `<meta name="description" content="${metadata.description}">`;
-      const canonical = `<link rel="canonical" href="${new URL(metadata.canonical, BASE_URL).href}"/>`;
+      const description = `<meta name="description" content="${metadata.description}"/>`;
+      const canonical = `<link rel="canonical" href="${createCanonical(metadata.canonical, BASE_URL)}"/>`;
 
       return `${title}${description}${canonical}`;
     };

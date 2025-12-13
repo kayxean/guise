@@ -2,15 +2,17 @@ import * as stylex from '@stylexjs/stylex';
 import { useTabStore } from '../tabs';
 
 export function TabPanel() {
-  const { tabsList, tabActive } = useTabStore();
+  const tabsList = useTabStore((state) => state.tabsList);
+  const tabActive = useTabStore((state) => state.tabActive);
 
   return (
     <div {...stylex.props(tab_panel.layout)}>
       {tabsList.map((t) => {
+        const Content = t.content;
         const isActive = tabActive === t.id;
 
         return (
-          <div
+          <section
             key={t.id}
             id={`panel-${t.id}`}
             role="tabpanel"
@@ -18,8 +20,8 @@ export function TabPanel() {
             aria-hidden={!isActive}
             hidden={!isActive}
           >
-            {t.content}
-          </div>
+            <Content />
+          </section>
         );
       })}
     </div>

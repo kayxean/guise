@@ -1,5 +1,5 @@
 import { Browser } from '~/features/browser';
-import { createMeta } from '~/meta';
+import { createMeta } from '~/routes';
 
 export const meta = createMeta('chromium');
 
