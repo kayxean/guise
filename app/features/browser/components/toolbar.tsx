@@ -1,9 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
+import { createToken } from '~/features/utils';
 import { useTabStore } from '../tabs';
 import { chrome, colors } from '../tokens.stylex';
 import { Icon } from './icons';
-import { createToken } from '~/lib/utils';
 
 export function Toolbar() {
   const [pageUrl, setPageUrl] = useState('');

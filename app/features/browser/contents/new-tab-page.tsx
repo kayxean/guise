@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
+import { createToken } from '~/features/utils';
 import { Icon } from '../components/icons';
 import { chrome, colors } from '../tokens.stylex';
-import { createToken } from '~/lib/utils';
 
 export function NewTabPage() {
   const input_id = useMemo(() => createToken(), []);

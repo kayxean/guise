@@ -1,12 +1,11 @@
 import type { ComponentType, KeyboardEvent } from 'react';
-import { useSyncExternalStore } from 'react';
 import type { Icons } from './components/icons';
+import { createStore } from '~/features/store';
 import { CounterApp } from './contents/app-counter';
 import { TodoApp } from './contents/app-todo';
 import { NewTabPage } from './contents/new-tab-page';
-import { createStore } from '~/lib/store';
 
-type TabState = {
+interface TabState extends Record<string, unknown> {
   tabsList: {
     id: number;
     ntp: boolean;
@@ -16,9 +15,9 @@ type TabState = {
     content: ComponentType;
   }[];
   tabActive: number;
-};
+}
 
-export const tabStore = createStore<TabState>({
+const [useTabStore, apiTabStore] = createStore<TabState>({
   tabsList: [
     {
       id: 1,
@@ -48,15 +47,11 @@ export const tabStore = createStore<TabState>({
   tabActive: 1,
 });
 
-type TabStore<T> = (state: typeof tabStore extends { getSnapshot: () => infer S } ? S : never) => T;
-
-export function useTabStore<State>(selector: TabStore<State>) {
-  return useSyncExternalStore(tabStore.subscribe, () => selector(tabStore.getSnapshot()));
-}
+export { useTabStore, apiTabStore };
 
 export const tabActions = {
   addTab() {
-    tabStore.setState((s) => {
+    apiTabStore.setState((s) => {
       const maxId = s.tabsList.length > 0 ? Math.max(...s.tabsList.map((t) => t.id)) : 0;
 
       const newId = maxId + 1;
@@ -80,7 +75,7 @@ export const tabActions = {
   },
 
   closeTab(id: number) {
-    tabStore.setState((s) => {
+    apiTabStore.setState((s) => {
       const closedIndex = s.tabsList.findIndex((t) => t.id === id);
       const remaining = s.tabsList.filter((t) => t.id !== id);
 
@@ -103,11 +98,11 @@ export const tabActions = {
   },
 
   activateTab(id: number) {
-    tabStore.setState((s) => ({ ...s, tabActive: id }));
+    apiTabStore.setState((s) => ({ ...s, tabActive: id }));
   },
 
   navigateTab(event: KeyboardEvent<HTMLDivElement>, tabId: number) {
-    const { tabsList } = tabStore.getSnapshot();
+    const { tabsList } = apiTabStore.getState();
     const currentIndex = tabsList.findIndex((t) => t.id === tabId);
 
     let nextIndex = currentIndex;

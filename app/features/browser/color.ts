@@ -1,7 +1,6 @@
-import { useSyncExternalStore } from 'react';
-import { createStore } from '~/lib/store';
+import { createStore } from '~/features/store';
 
-type ColorState = {
+interface ColorState extends Record<string, unknown> {
   background_tab: string;
   background_tab_inactive: string;
   background_tab_incognito: string;
@@ -23,9 +22,9 @@ type ColorState = {
   toolbar: string;
   toolbar_button_icon: string;
   toolbar_text: string;
-};
+}
 
-export const colorStore = createStore<ColorState>({
+const [useColorStore, apiColorStore] = createStore<ColorState>({
   background_tab: '#121314',
   background_tab_inactive: '#121314',
   background_tab_incognito: '#121314',
@@ -49,8 +48,4 @@ export const colorStore = createStore<ColorState>({
   toolbar_text: '#A4A5A6',
 });
 
-type ColorStore<T> = (state: typeof colorStore extends { getSnapshot: () => infer S } ? S : never) => T;
-
-export function useColorStore<State>(selector: ColorStore<State>) {
-  return useSyncExternalStore(colorStore.subscribe, () => selector(colorStore.getSnapshot()));
-}
+export { useColorStore, apiColorStore };

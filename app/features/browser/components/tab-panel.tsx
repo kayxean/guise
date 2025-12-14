@@ -12,7 +12,7 @@ export function TabPanel() {
         const isActive = tabActive === t.id;
 
         return (
-          <section
+          <div
             key={t.id}
             id={`panel-${t.id}`}
             role="tabpanel"
@@ -21,7 +21,7 @@ export function TabPanel() {
             hidden={!isActive}
           >
             <Content />
-          </section>
+          </div>
         );
       })}
     </div>

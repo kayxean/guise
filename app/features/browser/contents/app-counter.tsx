@@ -1,37 +1,31 @@
-import * as stylex from '@stylexjs/stylex';
 import type { KeyboardEvent } from 'react';
-import { useRef, useSyncExternalStore } from 'react';
+import * as stylex from '@stylexjs/stylex';
+import { useRef } from 'react';
+import { createStore } from '~/features/store';
 import { Icon } from '../components/icons';
 import { chrome } from '../tokens.stylex';
-import { createStore } from '~/lib/store';
 
-type State = {
+interface State extends Record<string, unknown> {
   count: number;
   text: string;
-};
+}
 
-const store = createStore<State>({
+const [useStore, apiStore] = createStore<State>({
   count: 0,
   text: 'Hello World!',
 });
 
-type Store<T> = (state: typeof store extends { getSnapshot: () => infer S } ? S : never) => T;
+const increaseCount = () => {
+  apiStore.setState((s) => ({ ...s, count: s.count + 1 }));
+};
 
-function useStore<T>(selector: Store<T>) {
-  return useSyncExternalStore(store.subscribe, () => selector(store.getSnapshot()));
-}
+const decreaseCount = () => {
+  apiStore.setState((s) => ({ ...s, count: s.count - 1 }));
+};
 
-function increaseCount() {
-  store.setState((s) => ({ ...s, count: s.count + 1 }));
-}
-
-function decreaseCount() {
-  store.setState((s) => ({ ...s, count: s.count - 1 }));
-}
-
-function restoreCount() {
-  store.setState((s) => ({ ...s, count: 0 }));
-}
+const restoreCount = () => {
+  apiStore.setState((s) => ({ ...s, count: 0 }));
+};
 
 export function CounterApp() {
   const count = useStore((state) => state.count);
