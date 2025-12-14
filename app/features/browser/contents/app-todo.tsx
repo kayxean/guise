@@ -1,19 +1,19 @@
 import * as stylex from '@stylexjs/stylex';
-import { useMemo, useState, useSyncExternalStore } from 'react';
+import { useMemo, useState } from 'react';
+import { createStore } from '~/features/store';
+import { createToken } from '~/features/utils';
 import { Icon } from '../components/icons';
 import { chrome } from '../tokens.stylex';
-import { createStore } from '~/lib/store';
-import { createToken } from '~/lib/utils';
 
-type State = {
+interface State extends Record<string, unknown> {
   todos: {
     id: number;
     text: string;
     done: boolean;
   }[];
-};
+}
 
-const store = createStore<State>({
+const [useStore, apiStore] = createStore<State>({
   todos: [
     { id: 1, text: 'Do something', done: false },
     { id: 2, text: 'Oh, no!', done: false },
@@ -21,32 +21,26 @@ const store = createStore<State>({
   ],
 });
 
-type Store<T> = (state: typeof store extends { getSnapshot: () => infer S } ? S : never) => T;
-
-function useStore<T>(selector: Store<T>) {
-  return useSyncExternalStore(store.subscribe, () => selector(store.getSnapshot()));
-}
-
-function addTodo(text: string) {
-  store.setState((s) => ({
+const addTodo = (text: string) => {
+  apiStore.setState((s) => ({
     ...s,
     todos: [...s.todos, { id: Date.now(), text, done: false }],
   }));
-}
+};
 
-function toggleTodo(id: number) {
-  store.setState((s) => ({
+const toggleTodo = (id: number) => {
+  apiStore.setState((s) => ({
     ...s,
     todos: s.todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
   }));
-}
+};
 
-function removeTodo(id: number) {
-  store.setState((s) => ({
+const removeTodo = (id: number) => {
+  apiStore.setState((s) => ({
     ...s,
     todos: s.todos.filter((t) => t.id !== id),
   }));
-}
+};
 
 export function TodoApp() {
   const todos = useStore((s) => s.todos);

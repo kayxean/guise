@@ -1,5 +1,5 @@
-import * as stylex from '@stylexjs/stylex';
 import type { KeyboardEvent } from 'react';
+import * as stylex from '@stylexjs/stylex';
 import { useLayoutEffect, useRef } from 'react';
 import { tabActions, useTabStore } from '../tabs';
 import { chrome, colors } from '../tokens.stylex';
@@ -153,16 +153,26 @@ const tab_action = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.toolbar,
-      ':hover': chrome.button_hover,
-    },
+    backgroundColor: colors.toolbar,
     borderRadius: '.625rem',
     color: colors.tab_text,
     display: 'inline-flex',
     height: '1.75rem',
     justifyContent: 'center',
+    position: 'relative',
     width: '1.75rem',
+    ':hover:after': {
+      backgroundColor: chrome.button_hover,
+      borderRadius: '.625rem',
+      bottom: 0,
+      content: '""',
+      left: 0,
+      pointerEvents: 'none',
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      zIndex: 2,
+    },
   },
   icon: {
     height: '1.125rem',
@@ -304,17 +314,27 @@ const new_tab = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.background_tab,
-      ':hover': chrome.button_hover,
-    },
+    backgroundColor: colors.background_tab,
     borderRadius: '50%',
     color: colors.tab_background_text,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '1.75rem',
     justifyContent: 'center',
+    position: 'relative',
     width: '1.75rem',
+    ':hover:after': {
+      backgroundColor: chrome.button_hover,
+      borderRadius: '50%',
+      bottom: 0,
+      content: '""',
+      left: 0,
+      pointerEvents: 'none',
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      zIndex: 2,
+    },
   },
   icon: {
     height: '1.125rem',

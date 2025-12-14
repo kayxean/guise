@@ -1,3 +1,18 @@
+export const shallowEqual = (a: unknown, b: unknown): boolean => {
+  if (Object.is(a, b)) return true;
+  if (a == null || b == null || typeof a !== 'object' || typeof b !== 'object') return false;
+
+  const keysA = Reflect.ownKeys(a as object);
+  const keysB = Reflect.ownKeys(b as object);
+  if (keysA.length !== keysB.length) return false;
+
+  for (const key of keysA) {
+    if (!Object.hasOwn(b, key)) return false;
+    if (!Object.is((a as Record<PropertyKey, unknown>)[key], (b as Record<PropertyKey, unknown>)[key])) return false;
+  }
+  return true;
+};
+
 export const createToken = (() => {
   let current = Date.now() >>> 0;
 
