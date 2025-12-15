@@ -8,7 +8,7 @@
   "formatter": {
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 120,
+    "lineWidth": 128,
     "expand": "auto"
   },
   "assist": {
@@ -41,6 +41,9 @@
         "noUnusedFunctionParameters": "error",
         "noUnusedImports": "error",
         "noPrecisionLoss": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "info"
       }
     }
   },
