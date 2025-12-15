@@ -7,16 +7,12 @@ const createHarmony = <T extends ColorMode>(
   variants: { name: string; ratio: number[] }[],
 ): { name: string; ratio: ColorFormat<T>[] }[] => {
   const hue = convertHue(input);
-  const base = hue[0];
+  const [base, c, t, x] = hue;
   const mode = input[0];
-
-  const c = input[1];
-  const t = input[2];
-  const x = input[3];
 
   const nonHue = mode === 'rgb' || mode === 'lab' || mode === 'oklab';
   const isHsv = base === 'hsl' || base === 'hwb';
-  const angle = isHsv ? hue[1] : hue[3];
+  const angle = isHsv ? c : x;
 
   const invert = (deg: number): ColorFormat<T> => {
     const h = (deg + angle) % 360;

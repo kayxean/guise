@@ -13,55 +13,55 @@ import { lrgbToXyz65, xyz50ToXyz65, xyz65ToLrgb, xyz65ToXyz50 } from './mode/xyz
 const compose = <T extends ColorMode, R extends ColorMode>(
   converter: Array<(input: ColorSpace<any>) => ColorSpace<any>>,
 ): ((input: ColorSpace<T>) => ColorSpace<R>) => {
-  return (input: ColorSpace<T>) => converter.reduceRight((acc, fn) => fn(acc), input) as ColorSpace<R>;
+  return (input: ColorSpace<T>) => converter.reduce((acc, fn) => fn(acc), input) as ColorSpace<R>;
 };
 
-const rgbToHsl = compose<'rgb', 'hsl'>([hsvToHsl, rgbToHsv]);
-const rgbToHwb = compose<'rgb', 'hwb'>([hsvToHwb, rgbToHsv]);
-const rgbToLab = compose<'rgb', 'lab'>([xyz50ToLab, lrgbToXyz50, rgbToLrgb]);
-const rgbToLch = compose<'rgb', 'lch'>([labToLch, xyz50ToLab, lrgbToXyz50, rgbToLrgb]);
-const rgbToOklab = compose<'rgb', 'oklab'>([lrgbToOklab, rgbToLrgb]);
-const rgbToOklch = compose<'rgb', 'oklch'>([oklabToOklch, lrgbToOklab, rgbToLrgb]);
+const rgbToHsl = compose<'rgb', 'hsl'>([rgbToHsv, hsvToHsl]);
+const rgbToHwb = compose<'rgb', 'hwb'>([rgbToHsv, hsvToHwb]);
+const rgbToLab = compose<'rgb', 'lab'>([rgbToLrgb, lrgbToXyz50, xyz50ToLab]);
+const rgbToLch = compose<'rgb', 'lch'>([rgbToLrgb, lrgbToXyz50, xyz50ToLab, labToLch]);
+const rgbToOklab = compose<'rgb', 'oklab'>([rgbToLrgb, lrgbToOklab]);
+const rgbToOklch = compose<'rgb', 'oklch'>([rgbToLrgb, lrgbToOklab, oklabToOklch]);
 
-const hslToRgb = compose<'hsl', 'rgb'>([hsvToRgb, hslToHsv]);
-const hslToHwb = compose<'hsl', 'hwb'>([hsvToHwb, hslToHsv]);
-const hslToLab = compose<'hsl', 'lab'>([rgbToLab, hslToRgb]);
-const hslToLch = compose<'hsl', 'lch'>([rgbToLch, hslToRgb]);
-const hslToOklab = compose<'hsl', 'oklab'>([rgbToOklab, hslToRgb]);
-const hslToOklch = compose<'hsl', 'oklch'>([rgbToOklch, hslToRgb]);
+const hslToRgb = compose<'hsl', 'rgb'>([hslToHsv, hsvToRgb]);
+const hslToHwb = compose<'hsl', 'hwb'>([hslToHsv, hsvToHwb]);
+const hslToLab = compose<'hsl', 'lab'>([hslToRgb, rgbToLab]);
+const hslToLch = compose<'hsl', 'lch'>([hslToRgb, rgbToLch]);
+const hslToOklab = compose<'hsl', 'oklab'>([hslToRgb, rgbToOklab]);
+const hslToOklch = compose<'hsl', 'oklch'>([hslToRgb, rgbToOklch]);
 
-const hwbToRgb = compose<'hwb', 'rgb'>([hsvToRgb, hwbToHsv]);
-const hwbToHsl = compose<'hwb', 'hsl'>([hsvToHsl, hwbToHsv]);
-const hwbToLab = compose<'hwb', 'lab'>([rgbToLab, hwbToRgb]);
-const hwbToLch = compose<'hwb', 'lch'>([rgbToLch, hwbToRgb]);
-const hwbToOklab = compose<'hwb', 'oklab'>([rgbToOklab, hwbToRgb]);
-const hwbToOklch = compose<'hwb', 'oklch'>([rgbToOklch, hwbToRgb]);
+const hwbToRgb = compose<'hwb', 'rgb'>([hwbToHsv, hsvToRgb]);
+const hwbToHsl = compose<'hwb', 'hsl'>([hwbToHsv, hsvToHsl]);
+const hwbToLab = compose<'hwb', 'lab'>([hwbToRgb, rgbToLab]);
+const hwbToLch = compose<'hwb', 'lch'>([hwbToRgb, rgbToLch]);
+const hwbToOklab = compose<'hwb', 'oklab'>([hwbToRgb, rgbToOklab]);
+const hwbToOklch = compose<'hwb', 'oklch'>([hwbToRgb, rgbToOklch]);
 
-const labToRgb = compose<'lab', 'rgb'>([lrgbToRgb, xyz50ToLrgb, labToXyz50]);
-const labToHsl = compose<'lab', 'hsl'>([rgbToHsl, labToRgb]);
-const labToHwb = compose<'lab', 'hwb'>([rgbToHwb, labToRgb]);
-const labToOklab = compose<'lab', 'oklab'>([lrgbToOklab, xyz65ToLrgb, xyz50ToXyz65, labToXyz50]);
-const labToOklch = compose<'lab', 'oklch'>([oklabToOklch, labToOklab]);
+const labToRgb = compose<'lab', 'rgb'>([labToXyz50, xyz50ToLrgb, lrgbToRgb]);
+const labToHsl = compose<'lab', 'hsl'>([labToRgb, rgbToHsl]);
+const labToHwb = compose<'lab', 'hwb'>([labToRgb, rgbToHwb]);
+const labToOklab = compose<'lab', 'oklab'>([labToXyz50, xyz65ToLrgb, xyz50ToXyz65, lrgbToOklab]);
+const labToOklch = compose<'lab', 'oklch'>([labToOklab, oklabToOklch]);
 
-const lchToRgb = compose<'lch', 'rgb'>([labToRgb, lchToLab]);
-const lchToHsl = compose<'lch', 'hsl'>([labToHsl, lchToLab]);
-const lchToHwb = compose<'lch', 'hwb'>([labToHwb, lchToLab]);
-const lchToOklab = compose<'lch', 'oklab'>([labToOklab, lchToLab]);
-const lchToOklch = compose<'lch', 'oklch'>([labToOklch, lchToLab]);
+const lchToRgb = compose<'lch', 'rgb'>([lchToLab, labToRgb]);
+const lchToHsl = compose<'lch', 'hsl'>([lchToLab, labToHsl]);
+const lchToHwb = compose<'lch', 'hwb'>([lchToLab, labToHwb]);
+const lchToOklab = compose<'lch', 'oklab'>([lchToLab, labToOklab]);
+const lchToOklch = compose<'lch', 'oklch'>([lchToLab, labToOklch]);
 
-const oklabToRgb = compose<'oklab', 'rgb'>([lrgbToRgb, oklabToLrgb]);
-const oklabToHsl = compose<'oklab', 'hsl'>([rgbToHsl, oklabToRgb]);
-const oklabToHwb = compose<'oklab', 'hwb'>([rgbToHwb, oklabToRgb]);
-const oklabToLab = compose<'oklab', 'lab'>([xyz50ToLab, xyz65ToXyz50, lrgbToXyz65, oklabToLrgb]);
-const oklabToLch = compose<'oklab', 'lch'>([labToLch, oklabToLab]);
+const oklabToRgb = compose<'oklab', 'rgb'>([oklabToLrgb, lrgbToRgb]);
+const oklabToHsl = compose<'oklab', 'hsl'>([oklabToRgb, rgbToHsl]);
+const oklabToHwb = compose<'oklab', 'hwb'>([oklabToRgb, rgbToHwb]);
+const oklabToLab = compose<'oklab', 'lab'>([oklabToLrgb, lrgbToXyz65, xyz65ToXyz50, xyz50ToLab]);
+const oklabToLch = compose<'oklab', 'lch'>([oklabToLab, labToLch]);
 
-const oklchToRgb = compose<'oklch', 'rgb'>([oklabToRgb, oklchToOklab]);
-const oklchToHsl = compose<'oklch', 'hsl'>([oklabToHsl, oklchToOklab]);
-const oklchToHwb = compose<'oklch', 'hwb'>([oklabToHwb, oklchToOklab]);
-const oklchToLab = compose<'oklch', 'lab'>([oklabToLab, oklchToOklab]);
-const oklchToLch = compose<'oklch', 'lch'>([oklabToLch, oklchToOklab]);
+const oklchToRgb = compose<'oklch', 'rgb'>([oklchToOklab, oklabToRgb]);
+const oklchToHsl = compose<'oklch', 'hsl'>([oklchToOklab, oklabToHsl]);
+const oklchToHwb = compose<'oklch', 'hwb'>([oklchToOklab, oklabToHwb]);
+const oklchToLab = compose<'oklch', 'lab'>([oklchToOklab, oklabToLab]);
+const oklchToLch = compose<'oklch', 'lch'>([oklchToOklab, oklabToLch]);
 
-const converter: { [T in ColorMode]: { [R in Exclude<ColorMode, T>]: ColorFn<T, R> } } = {
+const converter: { [T in ColorMode]: { [X in Exclude<ColorMode, T>]: ColorFn<T, X> } } = {
   rgb: {
     hsl: rgbToHsl,
     hwb: rgbToHwb,
@@ -120,14 +120,14 @@ const converter: { [T in ColorMode]: { [R in Exclude<ColorMode, T>]: ColorFn<T, 
   },
 };
 
-const convertColor = <T extends ColorMode, R extends Exclude<ColorMode, T>>(
+const convertColor = <T extends ColorMode, X extends Exclude<ColorMode, T>>(
   input: ColorFormat<T>,
-  output: R,
-): ColorFormat<R> => {
+  output: X,
+): ColorFormat<X> => {
   const [mode, ...value] = input;
   const color = converter[mode][output];
 
-  return [output, ...color(value as ColorSpace<T>)] as ColorFormat<R>;
+  return [output, ...color(value as ColorSpace<T>)] as ColorFormat<X>;
 };
 
 const convertHue = <T extends ColorMode>(input: ColorFormat<T>): ColorFormat<'hsl' | 'hwb' | 'lch' | 'oklch'> => {
@@ -147,4 +147,4 @@ const convertHue = <T extends ColorMode>(input: ColorFormat<T>): ColorFormat<'hs
   return output;
 };
 
-export { compose, converter, convertColor, convertHue };
+export { converter, convertColor, convertHue };

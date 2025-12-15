@@ -17,6 +17,11 @@ export const routes = {
     description: 'Create a Chromium-based browser theme with ease',
     canonical: '/chromium',
   },
+  color: {
+    title: 'Color',
+    description: 'Color Conversion',
+    canonical: '/color',
+  },
 } satisfies { [key: string]: Metadata };
 
 export const createMeta = (key: keyof typeof routes): MetaFunction => {
