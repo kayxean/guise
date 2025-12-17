@@ -14,7 +14,7 @@ const lab_inv_f = (f: number): number => {
   return f > 6 / 29 ? f_pow3 : 3 * (6 / 29) * (6 / 29) * (f - 4 / 29);
 };
 
-export const xyzD50ToLab: ColorFn<'xyz50', 'lab'> = (input) => {
+export const xyz50ToLab: ColorFn<'xyz50', 'lab'> = (input) => {
   const xr = input[0] / WHITE_D50[0];
   const yr = input[1] / WHITE_D50[1];
   const zr = input[2] / WHITE_D50[2];
@@ -30,7 +30,7 @@ export const xyzD50ToLab: ColorFn<'xyz50', 'lab'> = (input) => {
   return [L, A, B] as ColorSpace<'lab'>;
 };
 
-export const labToXyzD50: ColorFn<'lab', 'xyz50'> = (input) => {
+export const labToXyz50: ColorFn<'lab', 'xyz50'> = (input) => {
   const fy = (input[0] + 16) / 116;
   const fx = input[1] / 500 + fy;
   const fz = fy - input[2] / 200;

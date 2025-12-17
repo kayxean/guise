@@ -1,5 +1,14 @@
 import type { ColorFn, ColorMatrix, ColorSpace, ColorValues } from '../types';
-import { multiplyMatrixVector } from '../matrix';
+
+export const multiplyMatrixVector = (matrix: ColorMatrix, vector: ColorValues): ColorValues => {
+  const result: ColorValues = [0, 0, 0];
+
+  for (let i = 0; i < 3; i++) {
+    result[i] = matrix[i][0] * vector[0] + matrix[i][1] * vector[1] + matrix[i][2] * vector[2];
+  }
+
+  return result;
+};
 
 const M_BRADFORD: ColorMatrix = [
   [0.8951, 0.2664, -0.1614],
@@ -22,7 +31,7 @@ const LMS_D50 = multiplyMatrixVector(M_BRADFORD, WHITE_D50);
 const SCALE_D65_TO_D50: ColorValues = [LMS_D50[0] / LMS_D65[0], LMS_D50[1] / LMS_D65[1], LMS_D50[2] / LMS_D65[2]];
 const SCALE_D50_TO_D65: ColorValues = [LMS_D65[0] / LMS_D50[0], LMS_D65[1] / LMS_D50[1], LMS_D65[2] / LMS_D50[2]];
 
-export const xyzD65ToXyzD50: ColorFn<'xyz65', 'xyz50'> = (input) => {
+export const xyz65ToXyz50: ColorFn<'xyz65', 'xyz50'> = (input) => {
   const lms65 = multiplyMatrixVector(M_BRADFORD, input);
 
   const lms50_0 = lms65[0] * SCALE_D65_TO_D50[0];
@@ -32,7 +41,7 @@ export const xyzD65ToXyzD50: ColorFn<'xyz65', 'xyz50'> = (input) => {
   return multiplyMatrixVector(M_BRADFORD_INV, [lms50_0, lms50_1, lms50_2]) as ColorSpace<'xyz50'>;
 };
 
-export const xyzD50ToXyzD65: ColorFn<'xyz50', 'xyz65'> = (input) => {
+export const xyz50ToXyz65: ColorFn<'xyz50', 'xyz65'> = (input) => {
   const lms50 = multiplyMatrixVector(M_BRADFORD, input);
 
   const lms65_0 = lms50[0] * SCALE_D50_TO_D65[0];
