@@ -67,3 +67,67 @@ export const hsvToRgb: ColorFn<'hsv', 'rgb'> = (input) => {
 
   return [R, G, B] as ColorSpace<'rgb'>;
 };
+
+export const hsvToHsl: ColorFn<'hsv', 'hsl'> = (input) => {
+  const H = input[0];
+  const s = input[1];
+  const v = input[2];
+
+  const L = v * (1 - s / 2);
+
+  let S: number;
+  if (L === 0 || L === 1) {
+    S = 0;
+  } else {
+    S = (v - L) / Math.min(L, 1 - L);
+  }
+
+  return [H, S, L] as ColorSpace<'hsl'>;
+};
+
+export const hslToHsv: ColorFn<'hsl', 'hsv'> = (input) => {
+  const H = input[0];
+  const s = input[1];
+  const l = input[2];
+
+  const V = l + s * Math.min(l, 1 - l);
+
+  let S: number;
+  if (V === 0) {
+    S = 0;
+  } else {
+    S = 2 * (1 - l / V);
+  }
+
+  return [H, S, V] as ColorSpace<'hsv'>;
+};
+
+export const hsvToHwb: ColorFn<'hsv', 'hwb'> = (input) => {
+  const H = input[0];
+  const S = input[1];
+  const V = input[2];
+
+  const W = V * (1 - S);
+
+  const B = 1 - V;
+
+  return [H, W, B] as ColorSpace<'hwb'>;
+};
+
+export const hwbToHsv: ColorFn<'hwb', 'hsv'> = (input) => {
+  const H = input[0];
+  const W = input[1];
+  const B = input[2];
+
+  const sum = W + B;
+  if (sum >= 1) {
+    const V = 1 - B;
+    return [H, 0, V] as ColorSpace<'hsv'>;
+  }
+
+  const V = 1 - B;
+
+  const S = V === 0 ? 0 : (V - W) / V;
+
+  return [H, S, V] as ColorSpace<'hsv'>;
+};

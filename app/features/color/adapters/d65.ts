@@ -1,5 +1,25 @@
 import type { ColorFn, ColorMatrix, ColorSpace } from '../types';
-import { multiplyMatrixVector } from '../matrix';
+import { multiplyMatrixVector } from './cat';
+
+const M_SRGB: ColorMatrix = [
+  [0.4124564, 0.3575761, 0.1804375],
+  [0.2126729, 0.7151522, 0.072175],
+  [0.0193339, 0.119192, 0.9503041],
+];
+
+const M_SRGB_INV: ColorMatrix = [
+  [3.2404542, -1.5371385, -0.4985314],
+  [-0.969266, 1.876, 0.041556],
+  [0.0556434, -0.2040259, 1.0572252],
+];
+
+export const xyz65ToLrgb: ColorFn<'xyz65', 'lrgb'> = (input) => {
+  return multiplyMatrixVector(M_SRGB_INV, input) as ColorSpace<'lrgb'>;
+};
+
+export const lrgbToXyz65: ColorFn<'lrgb', 'xyz65'> = (input) => {
+  return multiplyMatrixVector(M_SRGB, input) as ColorSpace<'xyz65'>;
+};
 
 const M_OKLAB: ColorMatrix = [
   [0.8189330101, 0.3618667424, -0.1288597137],
@@ -13,7 +33,7 @@ const M_OKLAB_INV: ColorMatrix = [
   [-0.0763812845, -0.4214819784, 1.5861632204],
 ];
 
-export const xyzD65ToOklab: ColorFn<'xyz65', 'oklab'> = (input) => {
+export const xyz65ToOklab: ColorFn<'xyz65', 'oklab'> = (input) => {
   const lms65 = multiplyMatrixVector(M_OKLAB, input);
 
   const c = Math.cbrt(lms65[0]);
@@ -27,7 +47,7 @@ export const xyzD65ToOklab: ColorFn<'xyz65', 'oklab'> = (input) => {
   return [L, A, B] as ColorSpace<'oklab'>;
 };
 
-export const oklabToXyzD65: ColorFn<'oklab', 'xyz65'> = (input) => {
+export const oklabToXyz65: ColorFn<'oklab', 'xyz65'> = (input) => {
   const L = input[0];
   const A = input[1];
   const B = input[2];

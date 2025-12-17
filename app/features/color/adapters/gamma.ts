@@ -1,6 +1,6 @@
 import type { ColorFn, ColorSpace } from '../types';
 
-export const srgbToLrgb: ColorFn<'rgb', 'lrgb'> = (input) => {
+export const rgbToLrgb: ColorFn<'rgb', 'lrgb'> = (input) => {
   return input.map((c) => {
     if (c <= 0.04045) {
       return c / 12.92;
@@ -10,7 +10,7 @@ export const srgbToLrgb: ColorFn<'rgb', 'lrgb'> = (input) => {
   }) as ColorSpace<'lrgb'>;
 };
 
-export const lrgbToSrgb: ColorFn<'lrgb', 'rgb'> = (input) => {
+export const lrgbToRgb: ColorFn<'lrgb', 'rgb'> = (input) => {
   return input.map((l) => {
     const c = Math.max(0, l);
 
