@@ -42,7 +42,7 @@ export const xyz65ToOklab: ColorFn<'xyz65', 'oklab'> = (input) => {
 
   const L = 0.2104542553 * c + 0.7936177046 * t - 0.0040704681 * x;
   const A = 1.9779984951 * c - 2.4285921822 * t + 0.4505936871 * x;
-  const B = 0.1604755609 * c - 0.2885498426 * t + 1.2286684029 * x;
+  const B = 0.0259040371 * c + 0.7827717662 * t - 0.808675766 * x;
 
   return [L, A, B] as ColorSpace<'oklab'>;
 };
