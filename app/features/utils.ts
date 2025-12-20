@@ -2,8 +2,8 @@ export const shallowEqual = (a: unknown, b: unknown): boolean => {
   if (Object.is(a, b)) return true;
   if (a == null || b == null || typeof a !== 'object' || typeof b !== 'object') return false;
 
-  const keysA = Reflect.ownKeys(a as object);
-  const keysB = Reflect.ownKeys(b as object);
+  const keysA = Object.keys(a as object);
+  const keysB = Object.keys(b as object);
   if (keysA.length !== keysB.length) return false;
 
   for (const key of keysA) {
