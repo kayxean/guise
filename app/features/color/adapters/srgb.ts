@@ -131,3 +131,29 @@ export const hwbToHsv: ColorFn<'hwb', 'hsv'> = (input) => {
 
   return [H, S, V] as ColorSpace<'hsv'>;
 };
+
+export const rgbToHex = (input: ColorSpace<'rgb'>, denote = false): string => {
+  const r = Math.round(input[0] * 255);
+  const g = Math.round(input[1] * 255);
+  const b = Math.round(input[2] * 255);
+
+  const hex = ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+
+  return denote ? hex : `#${hex}`;
+};
+
+export const hexToRgb = (input: string): ColorSpace<'rgb'> => {
+  let clean = input.startsWith('#') ? input.slice(1) : input;
+
+  if (clean.length === 3) {
+    clean = clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2];
+  }
+
+  const num = Number.parseInt(clean, 16);
+
+  const r = ((num >> 16) & 255) / 255;
+  const g = ((num >> 8) & 255) / 255;
+  const b = (num & 255) / 255;
+
+  return [r, g, b] as ColorSpace<'rgb'>;
+};

@@ -1,4 +1,4 @@
-import type { ColorFn, ColorMode, ColorSpace } from './types';
+import type { ColorFn, ColorHue, ColorMode, ColorSpace } from './types';
 import { xyz50ToXyz65, xyz65ToXyz50 } from './adapters/cat';
 import { labToXyz50, xyz50ToLab } from './adapters/d50';
 import { lrgbToXyz65, oklabToXyz65, xyz65ToLrgb, xyz65ToOklab } from './adapters/d65';
@@ -61,6 +61,12 @@ const DIRECT: { [T in ColorMode]?: Partial<{ [X in Exclude<ColorMode, T>]: Color
   },
 };
 
+const HUE_BASE: Partial<{ [T in ColorMode]: (input: ColorSpace<T>) => ColorSpace<ColorHue> }> = {
+  rgb: (input) => hsvToHsl(rgbToHsv(input)),
+  lab: (input) => labToLch(input),
+  oklab: (input) => oklabToOklch(input),
+};
+
 const handleMissingMode = (mode: string, type: 'source' | 'target'): never => {
   throw new Error(`Unsupported ${type} mode: ${mode}`);
 };
@@ -83,12 +89,12 @@ const fromHub = <T extends ColorMode>(input: ColorSpace<'xyz50' | 'xyz65'>, mode
   return fn(input);
 };
 
-export const convert = <T extends ColorMode, R extends Exclude<ColorMode, T>>(
+export const convertColor = <T extends ColorMode, R extends Exclude<ColorMode, T>>(
   input: ColorSpace<T>,
   from: T,
   to: R,
 ): ColorSpace<R> => {
-  if (from === (to as unknown)) return input as any;
+  if (from === (to as unknown)) return input as never;
 
   const directMap = DIRECT[from];
   if (directMap) {
@@ -107,4 +113,14 @@ export const convert = <T extends ColorMode, R extends Exclude<ColorMode, T>>(
   }
 
   return fromHub(current, to);
+};
+
+export const convertHue = <T extends ColorMode>(input: ColorSpace<T>, mode: T): ColorSpace<ColorHue> => {
+  const huerizer = HUE_BASE[mode];
+
+  if (huerizer) {
+    return huerizer(input);
+  }
+
+  return input as ColorSpace<ColorHue>;
 };
