@@ -1,7 +1,13 @@
+import type { MetaFunction } from '@remix-run/node';
 import { Link } from '@remix-run/react';
-import { createMeta } from '~/routes';
 
-export const meta = createMeta('index');
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Guise' },
+    { name: 'description', content: 'Design with Every Hue' },
+    { tagName: 'link', rel: 'canonical', href: '/' },
+  ];
+};
 
 export default function HomePage() {
   return (
