@@ -49,3 +49,18 @@ export const chrome = stylex.defineConsts({
   app_button_hover: '#3c4043',
   app_button_icon: '#9aa0a6',
 });
+
+export const terminal = stylex.defineConsts({
+  background: '#020304',
+  foreground: '#f2f3f4"',
+  cursor: '#3090f0',
+  black: '#020304',
+  gray: '#a4a5a6',
+  white: '#f2f3f4',
+  red: '#e25099',
+  yellow: '#e0a278',
+  green: '#62c073',
+  cyan: '#4aacc0',
+  blue: '#6969f9',
+  magenta: '#a658f5',
+});
