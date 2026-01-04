@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createStore } from '~/features/store';
 import { terminal } from '../tokens.stylex';
 
@@ -24,7 +24,7 @@ const [useStore, api] = createStore<Record<string, number>>({});
 
 const Cell = memo(
   ({ id }: { id: string }) => {
-    const value = useStore(useCallback((s) => (s[id] as number) || 0, [id]));
+    const value = useStore((s) => (s[id] as number) || 0);
 
     return (
       <div {...stylex.props(styles.cell, value > 0 ? styles.activeCell : styles.inactiveCell)} id={`cell-${id}`}>
