@@ -1,14 +1,16 @@
-export const shallowEqual = (a: unknown, b: unknown): boolean => {
+export const shallowEqual = <T>(a: T, b: T): boolean => {
   if (Object.is(a, b)) return true;
-  if (a == null || b == null || typeof a !== 'object' || typeof b !== 'object') return false;
+  if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) return false;
 
-  const keysA = Object.keys(a as object);
-  const keysB = Object.keys(b as object);
+  const keysA = Object.keys(a) as Array<keyof T>;
+  const keysB = Object.keys(b) as Array<keyof T>;
   if (keysA.length !== keysB.length) return false;
 
-  for (const key of keysA) {
-    if (!Object.hasOwn(b, key)) return false;
-    if (!Object.is((a as Record<PropertyKey, unknown>)[key], (b as Record<PropertyKey, unknown>)[key])) return false;
+  for (let i = 0; i < keysA.length; i++) {
+    const key = keysA[i];
+    if (!Object.hasOwn(b as object, key as string) || !Object.is(a[key], b[key])) {
+      return false;
+    }
   }
   return true;
 };
