@@ -2,7 +2,6 @@ import type { ComponentType, KeyboardEvent } from 'react';
 import type { Icons } from './components/icons';
 import { createStore } from '~/features/store';
 import { CounterApp } from './contents/app-counter';
-import { KernelApp } from './contents/app-kernel';
 import { TodoApp } from './contents/app-todo';
 import { NewTabPage } from './contents/new-tab-page';
 
@@ -43,14 +42,6 @@ const [useTabStore, apiTabStore] = createStore<TabState>({
       title: 'Todo',
       icon: 'globe',
       content: TodoApp,
-    },
-    {
-      id: 4,
-      ntp: false,
-      url: 'localhost:5173/kernel',
-      title: 'Kernel',
-      icon: 'globe',
-      content: KernelApp,
     },
   ],
   tabActive: 1,
