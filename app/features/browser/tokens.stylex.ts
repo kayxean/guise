@@ -1,18 +1,17 @@
 import * as stylex from '@stylexjs/stylex';
 
-export const colors = stylex.defineVars({
-  background_tab: '#121314',
-  frame: '#020304',
-  bookmark_text: '#A4A5A6',
-  ntp_background: '#121314',
-  ntp_text: '#A4A5A6',
-  omnibox_background: '#242526',
-  omnibox_text: '#A4A5A6',
-  tab_background_text: '#A4A5A6',
-  tab_text: '#F2F3F4',
-  toolbar: '#121314',
-  toolbar_button_icon: '#727374',
-  toolbar_text: '#A4A5A6',
+export const dynamic = stylex.create({
+  bg: (color: string) => ({ backgroundColor: color }),
+  bg_hover: (color: string, hover: string) => ({
+    backgroundColor: { default: color, ':hover': hover },
+  }),
+  text: (color: string) => ({ color: color }),
+  text_hover: (color: string, hover: string) => ({
+    color: { default: color, ':hover': hover },
+  }),
+  shadow: (color: string) => ({ boxShadow: color }),
+  border: (color: string) => ({ borderColor: color }),
+  image: (color: string) => ({ backgroundImage: color }),
 });
 
 export const chrome = stylex.defineConsts({

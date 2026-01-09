@@ -2,13 +2,16 @@ import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { createToken } from '~/features/utils';
 import { Icon } from '../components/icons';
-import { chrome, colors } from '../tokens.stylex';
+import { useThemeStore } from '../themes';
+import { chrome, dynamic } from '../tokens.stylex';
 
 export function NewTabPage() {
   const input_id = useMemo(() => createToken(), []);
 
+  const ntp = useThemeStore((state) => state.ntp);
+
   return (
-    <div {...stylex.props(new_tab_page.layout)}>
+    <div {...stylex.props(new_tab_page.layout, dynamic.bg(ntp.background))}>
       <div {...stylex.props(navigation.layout)}>
         <a
           href="https://mail.google.com/mail/?tab=rm&ogbl"
@@ -31,14 +34,29 @@ export function NewTabPage() {
             href="https://labs.google.com/search?source=ntp"
             target="_blank"
             rel="noreferrer noopener"
-            {...stylex.props(navigation.button)}
+            {...stylex.props(
+              navigation.button,
+              dynamic.bg_hover(ntp.background, chrome.button_hover),
+            )}
           >
             <Icon name="search_labs" {...stylex.props(navigation.icon)} />
           </a>
-          <button type="button" {...stylex.props(navigation.button)}>
+          <button
+            type="button"
+            {...stylex.props(
+              navigation.button,
+              dynamic.bg_hover(ntp.background, chrome.button_hover),
+            )}
+          >
             <Icon name="apps" {...stylex.props(navigation.icon)} />
           </button>
-          <button type="button" {...stylex.props(navigation.button)}>
+          <button
+            type="button"
+            {...stylex.props(
+              navigation.button,
+              dynamic.bg_hover(ntp.background, chrome.button_hover),
+            )}
+          >
             <Icon name="person" {...stylex.props(navigation.person)} />
           </button>
         </div>
@@ -77,7 +95,12 @@ export function NewTabPage() {
       </div>
       <div {...stylex.props(search.layout)}>
         <div {...stylex.props(search.box)}>
-          <button type="button" aria-label="Search" tabIndex={-1} {...stylex.props(search.button_left, search.query)}>
+          <button
+            type="button"
+            aria-label="Search"
+            tabIndex={-1}
+            {...stylex.props(search.button_left, search.query)}
+          >
             <Icon name="search" {...stylex.props(search.icon)} />
           </button>
           <input
@@ -88,24 +111,41 @@ export function NewTabPage() {
             spellCheck="false"
             {...stylex.props(search.input)}
           />
-          <button type="button" aria-label="Microphone" {...stylex.props(search.button_right, search.mic)}>
+          <button
+            type="button"
+            aria-label="Microphone"
+            {...stylex.props(search.button_right, search.mic)}
+          >
             <Icon name="mic" {...stylex.props(search.icon)} />
           </button>
-          <button type="button" aria-label="Camera" {...stylex.props(search.button_right, search.camera)}>
+          <button
+            type="button"
+            aria-label="Camera"
+            {...stylex.props(search.button_right, search.camera)}
+          >
             <Icon name="camera" {...stylex.props(search.icon)} />
           </button>
-          <button type="button" {...stylex.props(search.button_right, search.ai_mode)}>
+          <button
+            type="button"
+            {...stylex.props(search.button_right, search.ai_mode)}
+          >
             <Icon name="search_spark" {...stylex.props(search.icon)} />
             <span {...stylex.props(search.ai_label)}>AI Mode</span>
           </button>
         </div>
       </div>
       <div {...stylex.props(shortcuts.layout)}>
-        <button type="button" {...stylex.props(shortcuts.button)}>
+        <button
+          type="button"
+          {...stylex.props(
+            shortcuts.button,
+            dynamic.bg_hover(ntp.background, chrome.button_hover),
+          )}
+        >
           <div {...stylex.props(shortcuts.view)}>
             <Icon name="add" {...stylex.props(shortcuts.icon)} />
           </div>
-          <span {...stylex.props(shortcuts.text)}>Add shortcut</span>
+          <span {...stylex.props(dynamic.text(ntp.text))}>Add shortcut</span>
         </button>
       </div>
     </div>
@@ -115,7 +155,6 @@ export function NewTabPage() {
 const new_tab_page = stylex.create({
   layout: {
     alignContent: 'baseline',
-    backgroundColor: colors.ntp_background,
     display: 'grid',
     gap: '1rem',
     minHeight: 'calc(100dvh - 7.625rem)',
@@ -153,10 +192,6 @@ const navigation = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.ntp_background,
-      ':hover': chrome.button_hover,
-    },
     borderRadius: '50%',
     color: chrome.ntp_button_icon,
     cursor: 'pointer',
@@ -313,10 +348,6 @@ const shortcuts = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.ntp_background,
-      ':hover': chrome.button_hover,
-    },
     borderRadius: '.375rem',
     display: 'inline-flex',
     color: chrome.ntp_button_icon,
@@ -338,8 +369,5 @@ const shortcuts = stylex.create({
   icon: {
     height: '1.25rem',
     width: '1.25rem',
-  },
-  text: {
-    color: colors.ntp_text,
   },
 });

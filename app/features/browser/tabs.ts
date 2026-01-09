@@ -52,7 +52,8 @@ export { useTabStore, apiTabStore };
 export const tabActions = {
   addTab() {
     apiTabStore.setState((s) => {
-      const maxId = s.tabsList.length > 0 ? Math.max(...s.tabsList.map((t) => t.id)) : 0;
+      const maxId =
+        s.tabsList.length > 0 ? Math.max(...s.tabsList.map((t) => t.id)) : 0;
 
       const newId = maxId + 1;
 
