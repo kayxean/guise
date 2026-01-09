@@ -1,6 +1,12 @@
 export const shallowEqual = <T>(a: T, b: T): boolean => {
   if (Object.is(a, b)) return true;
-  if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) return false;
+  if (
+    typeof a !== 'object' ||
+    a === null ||
+    typeof b !== 'object' ||
+    b === null
+  )
+    return false;
 
   const keysA = Object.keys(a) as Array<keyof T>;
   const keysB = Object.keys(b) as Array<keyof T>;
@@ -8,7 +14,10 @@ export const shallowEqual = <T>(a: T, b: T): boolean => {
 
   for (let i = 0; i < keysA.length; i++) {
     const key = keysA[i];
-    if (!Object.hasOwn(b as object, key as string) || !Object.is(a[key], b[key])) {
+    if (
+      !Object.hasOwn(b as object, key as string) ||
+      !Object.is(a[key], b[key])
+    ) {
       return false;
     }
   }
