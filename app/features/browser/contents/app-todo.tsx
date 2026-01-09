@@ -77,19 +77,32 @@ export function TodoApp() {
 
       <ul {...stylex.props(styles.list)}>
         {todos.map((todo) => (
-          <li key={todo.id} {...stylex.props(styles.item, stylex.defaultMarker())}>
+          <li
+            key={todo.id}
+            {...stylex.props(styles.item, stylex.defaultMarker())}
+          >
             <button
               type="button"
               onClick={() => toggleTodo(todo.id)}
               {...stylex.props(styles.button, styles.button_left)}
             >
               {todo.done ? (
-                <Icon name="radio_button_checked" {...stylex.props(styles.icon)} />
+                <Icon
+                  name="radio_button_checked"
+                  {...stylex.props(styles.icon)}
+                />
               ) : (
-                <Icon name="radio_button_unchecked" {...stylex.props(styles.icon)} />
+                <Icon
+                  name="radio_button_unchecked"
+                  {...stylex.props(styles.icon)}
+                />
               )}
             </button>
-            <p {...stylex.props(styles.text, todo.done && styles.text_disabled)}>{todo.text}</p>
+            <p
+              {...stylex.props(styles.text, todo.done && styles.text_disabled)}
+            >
+              {todo.text}
+            </p>
             <button
               type="button"
               tabIndex={-1}

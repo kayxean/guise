@@ -2,13 +2,17 @@ import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 import { createToken } from '~/features/utils';
 import { useTabStore } from '../tabs';
-import { chrome, colors } from '../tokens.stylex';
+import { useThemeStore } from '../themes';
+import { chrome, dynamic } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function Toolbar() {
   const [pageUrl, setPageUrl] = useState('');
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
+
+  const toolbar = useThemeStore((state) => state.toolbar);
+  const omnibox = useThemeStore((state) => state.omnibox);
 
   const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
   const hasPageUrl = tabsList.find((t) => t.id === tabActive)?.url;
@@ -21,37 +25,59 @@ export function Toolbar() {
   }, [hasPageUrl]);
 
   return (
-    <div role="menubar" {...stylex.props(toolbar.layout)}>
-      <button type="button" role="menuitem" aria-label="Back" {...stylex.props(toolbar.button)}>
-        <Icon name="arrow_back" {...stylex.props(toolbar.icon)} />
+    <div role="menubar" {...stylex.props(tool_bar.layout)}>
+      <button
+        type="button"
+        role="menuitem"
+        aria-label="Back"
+        {...stylex.props(
+          tool_bar.button,
+          dynamic.bg_hover(toolbar.default, chrome.button_hover),
+          dynamic.text(toolbar.icon),
+        )}
+      >
+        <Icon name="arrow_back" {...stylex.props(tool_bar.icon)} />
       </button>
       <button
         type="button"
         role="menuitem"
         aria-label="Refresh"
-        {...stylex.props(toolbar.button, toolbar.desktop_only)}
+        {...stylex.props(
+          tool_bar.button,
+          dynamic.bg_hover(toolbar.default, chrome.button_hover),
+          dynamic.text(toolbar.icon),
+          tool_bar.desktop_only,
+        )}
       >
-        <Icon name="refresh" {...stylex.props(toolbar.icon)} />
+        <Icon name="refresh" {...stylex.props(tool_bar.icon)} />
       </button>
-      <div role="menu" {...stylex.props(omnibox.layout)}>
-        <div role="none" {...stylex.props(omnibox.button_left)}>
+      <div role="menu" {...stylex.props(omni_box.layout)}>
+        <div role="none" {...stylex.props(omni_box.button_left)}>
           {isNewTabPage ? (
             <button
               type="button"
               role="menuitem"
               aria-label="Google Search"
-              {...stylex.props(omnibox.button, omnibox.action)}
+              {...stylex.props(
+                omni_box.button,
+                dynamic.bg_hover(toolbar.default, chrome.button_hover),
+                dynamic.text(omnibox.text),
+              )}
             >
-              <Icon name="google" {...stylex.props(omnibox.icon)} />
+              <Icon name="google" {...stylex.props(omni_box.icon)} />
             </button>
           ) : (
             <button
               type="button"
               role="menuitem"
               aria-label="Page Info"
-              {...stylex.props(omnibox.button, omnibox.action)}
+              {...stylex.props(
+                omni_box.button,
+                dynamic.bg_hover(toolbar.default, chrome.button_hover),
+                dynamic.text(omnibox.text),
+              )}
             >
-              <Icon name="page_info" {...stylex.props(omnibox.icon)} />
+              <Icon name="page_info" {...stylex.props(omni_box.icon)} />
             </button>
           )}
         </div>
@@ -63,25 +89,37 @@ export function Toolbar() {
           autoComplete="off"
           spellCheck="false"
           onChange={(e) => setPageUrl(e.target.value)}
-          {...stylex.props(omnibox.input)}
+          {...stylex.props(
+            omni_box.input,
+            dynamic.bg_hover(omnibox.background, chrome.input_hover),
+            dynamic.text(omnibox.text),
+          )}
         />
         {!isNewTabPage && (
-          <div role="none" {...stylex.props(omnibox.button_right)}>
+          <div role="none" {...stylex.props(omni_box.button_right)}>
             <button
               type="button"
               role="menuitem"
               aria-label="Install"
-              {...stylex.props(omnibox.button, omnibox.action_alt)}
+              {...stylex.props(
+                omni_box.button,
+                omni_box.action,
+                dynamic.text(omnibox.text),
+              )}
             >
-              <Icon name="install_desktop" {...stylex.props(omnibox.icon)} />
+              <Icon name="install_desktop" {...stylex.props(omni_box.icon)} />
             </button>
             <button
               type="button"
               role="menuitem"
               aria-label="Bookmark"
-              {...stylex.props(omnibox.button, omnibox.action_alt)}
+              {...stylex.props(
+                omni_box.button,
+                omni_box.action,
+                dynamic.text(omnibox.text),
+              )}
             >
-              <Icon name="star" {...stylex.props(omnibox.icon)} />
+              <Icon name="star" {...stylex.props(omni_box.icon)} />
             </button>
           </div>
         )}
@@ -90,26 +128,45 @@ export function Toolbar() {
         type="button"
         role="menuitem"
         aria-label="Media controls"
-        {...stylex.props(toolbar.button, toolbar.desktop_only)}
+        {...stylex.props(
+          tool_bar.button,
+          dynamic.bg_hover(toolbar.default, chrome.button_hover),
+          dynamic.text(toolbar.icon),
+          tool_bar.desktop_only,
+        )}
       >
-        <Icon name="queue_music" {...stylex.props(toolbar.icon)} />
+        <Icon name="queue_music" {...stylex.props(tool_bar.icon)} />
       </button>
       <button
         type="button"
         role="menuitem"
         aria-label="Profile"
-        {...stylex.props(toolbar.button, toolbar.desktop_only)}
+        {...stylex.props(
+          tool_bar.button,
+          dynamic.bg_hover(toolbar.default, chrome.button_hover),
+          dynamic.text(toolbar.icon),
+          tool_bar.desktop_only,
+        )}
       >
-        <Icon name="account_circle" {...stylex.props(toolbar.icon)} />
+        <Icon name="account_circle" {...stylex.props(tool_bar.icon)} />
       </button>
-      <button type="button" role="menuitem" aria-label="Settings" {...stylex.props(toolbar.button)}>
-        <Icon name="more_vert" {...stylex.props(toolbar.icon)} />
+      <button
+        type="button"
+        role="menuitem"
+        aria-label="Settings"
+        {...stylex.props(
+          tool_bar.button,
+          dynamic.bg_hover(toolbar.default, chrome.button_hover),
+          dynamic.text(toolbar.icon),
+        )}
+      >
+        <Icon name="more_vert" {...stylex.props(tool_bar.icon)} />
       </button>
     </div>
   );
 }
 
-const toolbar = stylex.create({
+const tool_bar = stylex.create({
   layout: {
     alignItems: 'center',
     display: 'flex',
@@ -127,12 +184,7 @@ const toolbar = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.toolbar,
-      ':hover': chrome.button_hover,
-    },
     borderRadius: '50%',
-    color: colors.toolbar_button_icon,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '2.25rem',
@@ -151,7 +203,7 @@ const toolbar = stylex.create({
   },
 });
 
-const omnibox = stylex.create({
+const omni_box = stylex.create({
   layout: {
     alignItems: 'center',
     display: 'flex',
@@ -159,12 +211,7 @@ const omnibox = stylex.create({
     position: 'relative',
   },
   input: {
-    backgroundColor: {
-      default: colors.omnibox_background,
-      ':hover': chrome.input_hover,
-    },
     borderRadius: '1.25rem',
-    color: colors.omnibox_text,
     fontSize: '.875rem',
     height: '2.25rem',
     outline: 'none',
@@ -201,7 +248,6 @@ const omnibox = stylex.create({
   button: {
     alignItems: 'center',
     borderRadius: '50%',
-    color: colors.omnibox_text,
     cursor: 'pointer',
     display: {
       default: 'none',
@@ -216,12 +262,6 @@ const omnibox = stylex.create({
     width: '1.125rem',
   },
   action: {
-    backgroundColor: {
-      default: colors.toolbar,
-      ':hover': chrome.button_hover,
-    },
-  },
-  action_alt: {
     backgroundColor: {
       default: chrome.transparent,
       ':hover': chrome.button_hover,

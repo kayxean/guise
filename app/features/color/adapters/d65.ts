@@ -56,7 +56,11 @@ export const oklabToXyz65: ColorFn<'oklab', 'xyz65'> = (input) => {
   const t = L - 0.1055613458 * A - 0.0638541728 * B;
   const x = L - 0.0894841775 * A - 1.291485548 * B;
 
-  const XYZ = multiplyMatrixVector(M_OKLAB_INV, [c * c * c, t * t * t, x * x * x]);
+  const XYZ = multiplyMatrixVector(M_OKLAB_INV, [
+    c * c * c,
+    t * t * t,
+    x * x * x,
+  ]);
 
   return XYZ as ColorSpace<'xyz65'>;
 };

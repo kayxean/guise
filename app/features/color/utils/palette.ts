@@ -1,5 +1,5 @@
-import type { ColorHue, ColorMode, ColorSpace } from './types';
-import { convertColor, convertHue } from './convert';
+import type { ColorHue, ColorMode, ColorSpace } from '../core/types';
+import { convertColor, convertHue } from '../core/convert';
 
 export const createHarmony = <T extends ColorMode>(
   input: ColorSpace<T>,
@@ -7,7 +7,15 @@ export const createHarmony = <T extends ColorMode>(
   variants: { name: string; ratios: number[] }[],
 ): { name: string; colors: ColorSpace<T>[] }[] => {
   const polarValues = convertHue(input, mode);
-  const polarMode = (mode === 'rgb' ? 'hsl' : mode === 'lab' ? 'lch' : mode === 'oklab' ? 'oklch' : mode) as ColorHue;
+  const polarMode = (
+    mode === 'rgb'
+      ? 'hsl'
+      : mode === 'lab'
+        ? 'lch'
+        : mode === 'oklab'
+          ? 'oklch'
+          : mode
+  ) as ColorHue;
 
   const hueIndex = polarMode === 'hsl' || polarMode === 'hwb' ? 0 : 2;
   const baseHue = polarValues[hueIndex];
@@ -24,7 +32,11 @@ export const createHarmony = <T extends ColorMode>(
       let h = (baseHue + ratios[j]) % 360;
       if (h < 0) h += 360;
 
-      const rotated = [polarValues[0], polarValues[1], polarValues[2]] as ColorSpace<ColorHue>;
+      const rotated = [
+        polarValues[0],
+        polarValues[1],
+        polarValues[2],
+      ] as ColorSpace<ColorHue>;
       rotated[hueIndex] = h;
 
       if (needsReversion) {
@@ -51,7 +63,12 @@ export const createShades = <T extends ColorMode>(
   const interpolate: ColorSpace<T>[] = [];
   const total = steps - 1;
 
-  const hueIndex = mode === 'hsl' || mode === 'hwb' ? 0 : mode === 'lch' || mode === 'oklch' ? 2 : -1;
+  const hueIndex =
+    mode === 'hsl' || mode === 'hwb'
+      ? 0
+      : mode === 'lch' || mode === 'oklch'
+        ? 2
+        : -1;
 
   const s0 = start[0];
   const s1 = start[1];
@@ -91,14 +108,23 @@ export const createShades = <T extends ColorMode>(
   return interpolate;
 };
 
-export const createScales = <T extends ColorMode>(stops: ColorSpace<T>[], mode: T, steps: number): ColorSpace<T>[] => {
+export const createScales = <T extends ColorMode>(
+  stops: ColorSpace<T>[],
+  mode: T,
+  steps: number,
+): ColorSpace<T>[] => {
   if (stops.length < 2) return stops;
 
   const interpolate: ColorSpace<T>[] = [];
   const totalSegments = stops.length - 1;
   const stepInterval = 1 / (steps - 1);
 
-  const hueIndex = mode === 'hsl' || mode === 'hwb' ? 0 : mode === 'lch' || mode === 'oklch' ? 2 : -1;
+  const hueIndex =
+    mode === 'hsl' || mode === 'hwb'
+      ? 0
+      : mode === 'lch' || mode === 'oklch'
+        ? 2
+        : -1;
 
   for (let i = 0; i < steps; i++) {
     const globalRatio = i * stepInterval;

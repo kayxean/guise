@@ -66,8 +66,17 @@ export function CounterApp() {
   };
 
   return (
-    <div role="application" tabIndex={-1} onKeyDown={onKeyDown} {...stylex.props(styles.layout)}>
-      <h1 tabIndex={-1} onDoubleClick={restoreCount} {...stylex.props(styles.count)}>
+    <div
+      role="application"
+      tabIndex={-1}
+      onKeyDown={onKeyDown}
+      {...stylex.props(styles.layout)}
+    >
+      <h1
+        tabIndex={-1}
+        onDoubleClick={restoreCount}
+        {...stylex.props(styles.count)}
+      >
         {count}
       </h1>
       <div {...stylex.props(styles.action)}>

@@ -50,7 +50,10 @@ async function generateMetadata(): Promise<void> {
       const rawMeta = extractMeta(file);
       if (!rawMeta) continue;
 
-      let routeKey = path.relative(ROUTES_DIR, file).replace(/\\/g, '/').slice(0, -4);
+      let routeKey = path
+        .relative(ROUTES_DIR, file)
+        .replace(/\\/g, '/')
+        .slice(0, -4);
       if (routeKey === '_index' || routeKey.endsWith('/index')) {
         const lastSlash = routeKey.lastIndexOf('/');
         routeKey = lastSlash === -1 ? 'index' : routeKey.slice(0, lastSlash);
@@ -58,13 +61,23 @@ async function generateMetadata(): Promise<void> {
         routeKey = routeKey.slice(0, -7) || 'index';
       }
 
-      const page: PageMetadata = { route: routeKey, title: '', description: '', canonical: '' };
+      const page: PageMetadata = {
+        route: routeKey,
+        title: '',
+        description: '',
+        canonical: '',
+      };
       const metaLen = rawMeta.length;
       for (let j = 0; j < metaLen; j++) {
         const tag = rawMeta[j];
         if ('title' in tag && typeof tag.title === 'string') {
           page.title = tag.title;
-        } else if ('name' in tag && tag.name === 'description' && 'content' in tag && typeof tag.content === 'string') {
+        } else if (
+          'name' in tag &&
+          tag.name === 'description' &&
+          'content' in tag &&
+          typeof tag.content === 'string'
+        ) {
           page.description = tag.content;
         } else if (
           'tagName' in tag &&
@@ -79,7 +92,10 @@ async function generateMetadata(): Promise<void> {
       }
 
       const pageMetadataHtml = injectMetadata(page);
-      const pageContent = baseContent.replace(HEAD_TAG_REGEX, (match) => `${match}${pageMetadataHtml}`);
+      const pageContent = baseContent.replace(
+        HEAD_TAG_REGEX,
+        (match) => `${match}${pageMetadataHtml}`,
+      );
 
       const fileName = page.route === 'index' ? 'index' : page.route;
       const targetFile = path.join(BUILD_DIR, `${fileName}.html`);
@@ -88,9 +104,14 @@ async function generateMetadata(): Promise<void> {
     }
 
     await Promise.all(writePromises);
-    console.log(`Successfully generated SEO pages for ${writePromises.length} routes.`);
+    console.log(
+      `Successfully generated SEO pages for ${writePromises.length} routes.`,
+    );
   } catch (error) {
-    console.error('Build failed:', error instanceof Error ? error.message : String(error));
+    console.error(
+      'Build failed:',
+      error instanceof Error ? error.message : String(error),
+    );
     process.exit(1);
   }
 }

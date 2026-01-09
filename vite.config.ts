@@ -1,8 +1,8 @@
+import type { UserConfig } from 'vite';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { vitePlugin as remix } from '@remix-run/dev';
 import stylex from '@stylexjs/unplugin';
-import type { UserConfig } from 'vite';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

@@ -1,11 +1,15 @@
 import * as stylex from '@stylexjs/stylex';
 import { useTabStore } from '../tabs';
-import { chrome, colors } from '../tokens.stylex';
+import { useThemeStore } from '../themes';
+import { chrome, dynamic } from '../tokens.stylex';
 import { Icon } from './icons';
 
 export function BookmarkBar() {
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
+
+  const toolbar = useThemeStore((state) => state.toolbar);
+  const bookmark = useThemeStore((state) => state.bookmark);
 
   const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
 
@@ -15,17 +19,45 @@ export function BookmarkBar() {
     <div
       role="menubar"
       aria-hidden={!isNewTabPage}
-      {...stylex.props(bookmark_bar.layout, !isNewTabPage && bookmark_bar.hidden)}
+      {...stylex.props(
+        bookmark_bar.layout,
+        !isNewTabPage && bookmark_bar.hidden,
+      )}
     >
       <div role="none" {...stylex.props(tabs_group.layout)}>
-        <button type="button" role="menuitem" aria-label="Tabs group" {...stylex.props(tabs_group.button)}>
+        <button
+          type="button"
+          role="menuitem"
+          aria-label="Tabs group"
+          {...stylex.props(
+            tabs_group.button,
+            dynamic.bg_hover(toolbar.default, chrome.button_hover),
+            dynamic.text(toolbar.icon),
+          )}
+        >
           <Icon name="grid_view" {...stylex.props(tabs_group.icon)} />
+          <span
+            {...stylex.props(
+              tabs_group.overlay,
+              dynamic.image(
+                `linear-gradient(90deg, ${toolbar.default} 70%, ${chrome.transparent})`,
+              ),
+            )}
+          />
         </button>
       </div>
 
       {bookmarks.map((b) => (
         <div key={b} role="none" {...stylex.props(bookmark_list.layout)}>
-          <button type="button" role="menuitem" {...stylex.props(bookmark_list.button)}>
+          <button
+            type="button"
+            role="menuitem"
+            {...stylex.props(
+              bookmark_list.button,
+              dynamic.bg_hover(toolbar.default, chrome.button_hover),
+              dynamic.text(bookmark.text),
+            )}
+          >
             <Icon name="globe" {...stylex.props(bookmark_list.icon)} />
             <span>{b}</span>
           </button>
@@ -33,7 +65,16 @@ export function BookmarkBar() {
       ))}
 
       <div role="none" {...stylex.props(bookmark_alt.layout)}>
-        <button type="button" role="menuitem" aria-label="All bookmarks" {...stylex.props(bookmark_alt.button)}>
+        <button
+          type="button"
+          role="menuitem"
+          aria-label="All bookmarks"
+          {...stylex.props(
+            bookmark_alt.button,
+            dynamic.bg_hover(toolbar.default, chrome.button_hover),
+            dynamic.text(bookmark.text),
+          )}
+        >
           <Icon name="folder" {...stylex.props(bookmark_alt.icon)} />
           <span>All Bookmarks</span>
         </button>
@@ -69,26 +110,10 @@ const tabs_group = stylex.create({
     left: 0,
     position: 'sticky',
     zIndex: 2,
-    ':after': {
-      backgroundImage: `linear-gradient(90deg, ${colors.toolbar} 70%, ${chrome.transparent})`,
-      bottom: '-.375rem',
-      content: '""',
-      left: '-.5rem',
-      pointerEvents: 'none',
-      position: 'absolute',
-      right: '-.5rem',
-      top: '-.375rem',
-      zIndex: -1,
-    },
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.toolbar,
-      ':hover': chrome.button_hover,
-    },
     borderRadius: '50%',
-    color: colors.toolbar_button_icon,
     cursor: 'pointer',
     display: 'inline-flex',
     height: '1.75rem',
@@ -99,6 +124,15 @@ const tabs_group = stylex.create({
     height: '1.25rem',
     width: '1.25rem',
   },
+  overlay: {
+    bottom: '-.375rem',
+    left: '-.5rem',
+    pointerEvents: 'none',
+    position: 'absolute',
+    right: '-.5rem',
+    top: '-.375rem',
+    zIndex: -1,
+  },
 });
 
 const bookmark_list = stylex.create({
@@ -108,12 +142,7 @@ const bookmark_list = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.toolbar,
-      ':hover': chrome.button_hover,
-    },
     borderRadius: '.875rem',
-    color: colors.bookmark_text,
     cursor: 'pointer',
     display: 'inline-flex',
     gap: '.375rem',
@@ -144,12 +173,7 @@ const bookmark_alt = stylex.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: {
-      default: colors.toolbar,
-      ':hover': chrome.button_hover,
-    },
     borderRadius: '.875rem',
-    color: colors.bookmark_text,
     cursor: 'pointer',
     display: 'inline-flex',
     gap: '.375rem',

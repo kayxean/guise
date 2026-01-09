@@ -1,6 +1,13 @@
 import type { LinksFunction } from '@remix-run/node';
 import type { ReactNode } from 'react';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useBeforeUnload } from '@remix-run/react';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useBeforeUnload,
+} from '@remix-run/react';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import styles from './style.css?url';
 
@@ -55,7 +62,13 @@ export function HydrateFallback() {
 function SplashScreen() {
   return (
     <div className="loading">
-      <svg aria-label="guise" role="img" width={128} height={96} viewBox="0 0 32 24">
+      <svg
+        aria-label="guise"
+        role="img"
+        width={128}
+        height={96}
+        viewBox="0 0 32 24"
+      >
         <path
           d="M15.4 4C20.7432 4 25.5076 6.47621 28.6096 10.3432C28.7344 10.4988 28.8 10.6932 28.8 10.8927C28.8 11.917 26.7088 12.434 26.0357 11.6619C23.4501 8.69561 19.6441 6.82105 15.4 6.82105C11.1559 6.82105 7.34988 8.69561 4.76426 11.6619C4.09121 12.434 2 11.917 2 10.8927C2 10.6932 2.06556 10.4988 2.19037 10.3432C5.29244 6.47621 10.0568 4 15.4 4Z"
           fill="currentColor"

@@ -16,7 +16,9 @@ interface UseStore<T extends State> {
   <U>(selector: Selector<T, U>): U;
 }
 
-export const createStore = <T extends State>(initialState: T): [UseStore<T>, StoreApi<T>] => {
+export const createStore = <T extends State>(
+  initialState: T,
+): [UseStore<T>, StoreApi<T>] => {
   let state = initialState;
   const listeners = new Set<() => void>();
   let idleHandle: number | null = null;
@@ -24,7 +26,10 @@ export const createStore = <T extends State>(initialState: T): [UseStore<T>, Sto
   const api: StoreApi<T> = {
     getState: () => state,
     setState: (updater) => {
-      const nextPartial = typeof updater === 'function' ? (updater as (s: T) => Partial<T>)(state) : updater;
+      const nextPartial =
+        typeof updater === 'function'
+          ? (updater as (s: T) => Partial<T>)(state)
+          : updater;
 
       let hasChanged = false;
 
@@ -83,7 +88,10 @@ export const createStore = <T extends State>(initialState: T): [UseStore<T>, Sto
 
         const nextSlice = sliceSelector(currentState);
 
-        if (cache.lastSlice !== undefined && shallowEqual(cache.lastSlice, nextSlice)) {
+        if (
+          cache.lastSlice !== undefined &&
+          shallowEqual(cache.lastSlice, nextSlice)
+        ) {
           cache.lastState = currentState;
           return cache.lastSlice;
         }
