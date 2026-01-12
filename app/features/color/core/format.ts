@@ -11,8 +11,6 @@ const format = (num: number, precision = 2): string => {
 export const formatCss = (
   mode: ColorMode,
   values: ColorSpace<ColorMode>,
-  percent?: boolean,
-  angle?: boolean,
 ): string => {
   const v1 = values[0];
   const v2 = values[1];
@@ -27,17 +25,17 @@ export const formatCss = (
   let c3: string;
 
   if (mode === 'hsl' || mode === 'hwb') {
-    c1 = angle ? `${format(v1)}deg` : format(v1);
-    c2 = percent ? `${format(v2 * 100)}%` : format(v2 * 100);
-    c3 = percent ? `${format(v3 * 100)}%` : format(v3 * 100);
+    c1 = `${format(v1)}deg`;
+    c2 = `${format(v2 * 100)}%`;
+    c3 = `${format(v3 * 100)}%`;
   } else if (mode === 'lab' || mode === 'lch') {
-    c1 = percent ? `${format(v1)}%` : format(v1);
+    c1 = `${format(v1)}%`;
     c2 = format(v2);
-    c3 = mode === 'lch' && angle ? `${format(v3)}deg` : format(v3);
+    c3 = mode === 'lch' ? `${format(v3)}deg` : format(v3);
   } else if (mode === 'oklab' || mode === 'oklch') {
-    c1 = percent ? `${format(v1 * 100)}%` : format(v1 * 100);
+    c1 = `${format(v1 * 100)}%`;
     c2 = format(v2, 4);
-    c3 = mode === 'oklch' && angle ? `${format(v3)}deg` : format(v3, 4);
+    c3 = mode === 'oklch' ? `${format(v3)}deg` : format(v3, 4);
   } else {
     throw new Error(`Unsupported mode: ${mode}`);
   }
