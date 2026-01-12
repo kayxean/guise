@@ -1,4 +1,4 @@
-import type { ColorFn, ColorMatrix, ColorSpace } from '../types';
+import type { ColorFn, ColorMatrix, ColorSpace } from '../core/types';
 import { multiplyMatrixVector } from './cat';
 
 const M_SRGB: ColorMatrix = [

@@ -1,4 +1,4 @@
-import type { ColorFn, ColorSpace } from '../types';
+import type { ColorFn, ColorSpace } from '../core/types';
 
 export const rgbToLrgb: ColorFn<'rgb', 'lrgb'> = (input) => {
   return input.map((c) => {
