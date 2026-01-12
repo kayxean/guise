@@ -1,4 +1,4 @@
-import type { ColorFn, ColorSpace, ColorValues } from '../types';
+import type { ColorFn, ColorSpace, ColorValues } from '../core/types';
 
 const EPSILON = 0.008856;
 const KAPPA = 903.3;

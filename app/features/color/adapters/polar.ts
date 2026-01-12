@@ -1,4 +1,4 @@
-import type { ColorFn, ColorSpace } from '../types';
+import type { ColorFn, ColorSpace } from '../core/types';
 
 const RAD_TO_DEG = 180 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180;

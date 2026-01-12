@@ -1,4 +1,9 @@
-import type { ColorFn, ColorMatrix, ColorSpace, ColorValues } from '../types';
+import type {
+  ColorFn,
+  ColorMatrix,
+  ColorSpace,
+  ColorValues,
+} from '../core/types';
 
 export const multiplyMatrixVector = (
   matrix: ColorMatrix,

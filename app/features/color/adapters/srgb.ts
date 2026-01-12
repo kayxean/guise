@@ -1,4 +1,4 @@
-import type { ColorFn, ColorSpace } from '../types';
+import type { ColorFn, ColorSpace } from '../core/types';
 
 export const rgbToHsv: ColorFn<'rgb', 'hsv'> = (input) => {
   const R = input[0];
