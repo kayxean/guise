@@ -1,7 +1,7 @@
-import type { MouseEvent as ReactMouseEvent } from 'react';
+import type { PointerEvent as ReactPointerEvent } from 'react';
 import type { ColorMode, ColorSpace } from './core/types';
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { xyz50ToXyz65, xyz65ToXyz50 } from './adapters/cat';
 import { lrgbToXyz65, xyz65ToLrgb } from './adapters/d65';
 import { lrgbToRgb, rgbToLrgb } from './adapters/gamma';
@@ -10,7 +10,12 @@ import { FROM_HUB, NATIVE_HUB, TO_HUB } from './core/convert';
 
 interface SquareProps {
   hsv: ColorSpace<'hsv'>;
-  onSelect: (color: ColorSpace<'xyz65'>) => void;
+  onSelect: (s: number, v: number) => void;
+}
+
+interface HueProps {
+  hsv: ColorSpace<'hsv'>;
+  onSelect: (h: number) => void;
 }
 
 interface PickerProps<T extends ColorMode> {
@@ -19,55 +24,80 @@ interface PickerProps<T extends ColorMode> {
   onUpdate: (color: ColorSpace<T>) => void;
 }
 
+const useRelativePointer = (onMove: (x: number, y: number) => void) => {
+  return useCallback(
+    (e: ReactPointerEvent<HTMLButtonElement>) => {
+      const el = e.currentTarget;
+      const trigger = (pe: PointerEvent | ReactPointerEvent) => {
+        const { left, top, width, height } = el.getBoundingClientRect();
+        onMove(
+          Math.max(0, Math.min(1, (pe.clientX - left) / width)),
+          Math.max(0, Math.min(1, (pe.clientY - top) / height)),
+        );
+      };
+
+      trigger(e);
+      const move = (pe: PointerEvent) => trigger(pe);
+      const up = () => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    },
+    [onMove],
+  );
+};
+
 export function SquarePicker({ hsv, onSelect }: SquareProps) {
-  const [hue, saturation, value] = hsv;
+  const [h, s, v] = hsv;
 
-  const containerRef = useRef<HTMLButtonElement>(null);
+  const bg = useMemo(() => {
+    const [r, g, b] = hsvToRgb([h, 1, 1] as ColorSpace<'hsv'>);
+    return `rgb(${r * 255}, ${g * 255}, ${b * 255})`;
+  }, [h]);
 
-  const hueBaseHub = lrgbToXyz65(
-    rgbToLrgb(hsvToRgb([hue, 1, 1] as ColorSpace<'hsv'>)),
+  const handleMove = useCallback(
+    (x: number, y: number) => {
+      onSelect(x, 1 - y);
+    },
+    [onSelect],
   );
 
-  const hueRgb = lrgbToRgb(xyz65ToLrgb(hueBaseHub));
-  const cssBackground = `rgb(${hueRgb[0] * 255}, ${hueRgb[1] * 255}, ${hueRgb[2] * 255})`;
-
-  const handleMove = (e: MouseEvent | ReactMouseEvent<HTMLButtonElement>) => {
-    if (!containerRef.current) return;
-
-    const { left, top, width, height } =
-      containerRef.current.getBoundingClientRect();
-
-    const s = Math.max(0, Math.min(1, (e.clientX - left) / width));
-    const v = Math.max(0, Math.min(1, 1 - (e.clientY - top) / height));
-
-    const hub: ColorSpace<'xyz65'> = lrgbToXyz65(
-      rgbToLrgb(hsvToRgb([hue, s, v] as ColorSpace<'hsv'>)),
-    );
-
-    onSelect(hub);
-  };
-
-  const onMouseDown = (e: ReactMouseEvent<HTMLButtonElement>) => {
-    handleMove(e);
-    const moveHandler = (me: MouseEvent) => handleMove(me);
-    const upHandler = () => {
-      window.removeEventListener('mousemove', moveHandler);
-      window.removeEventListener('mouseup', upHandler);
-    };
-    window.addEventListener('mousemove', moveHandler);
-    window.addEventListener('mouseup', upHandler);
-  };
+  const onPointerDown = useRelativePointer(handleMove);
 
   return (
-    <div {...stylex.props(square.layout)}>
+    <div {...stylex.props(squareStyles.layout)}>
       <button
-        aria-label="Select saturation and value"
+        onPointerDown={onPointerDown}
         type="button"
-        ref={containerRef}
-        onMouseDown={onMouseDown}
-        {...stylex.props(square.gradientArea(cssBackground))}
+        {...stylex.props(squareStyles.area(bg))}
       />
-      <span {...stylex.props(square.pointer(saturation, value))} />
+      <span {...stylex.props(squareStyles.pointer(s, v))} />
+    </div>
+  );
+}
+
+export function HuePicker({ hsv, onSelect }: HueProps) {
+  const [h] = hsv;
+
+  const handleMove = useCallback(
+    (x: number) => {
+      onSelect(x * 360);
+    },
+    [onSelect],
+  );
+
+  const onPointerDown = useRelativePointer(handleMove);
+
+  return (
+    <div {...stylex.props(hueStyles.layout)}>
+      <button
+        onPointerDown={onPointerDown}
+        type="button"
+        {...stylex.props(hueStyles.track)}
+      />
+      <span {...stylex.props(hueStyles.pointer(h))} />
     </div>
   );
 }
@@ -80,54 +110,107 @@ export function ColorPicker<T extends ColorMode>({
   const [hsv, setHsv] = useState<ColorSpace<'hsv'>>([
     0, 0, 0,
   ] as ColorSpace<'hsv'>);
+  const lastValidHue = useRef(0);
+  const isInteracting = useRef(false);
+  const interactionTimeout = useRef<number | null>(null);
 
   useEffect(() => {
+    if (isInteracting.current) return;
+
     const hub = TO_HUB[mode](color);
-    const nativeHub = NATIVE_HUB[mode];
-    setHsv(getHsv(hub, nativeHub));
+    const [h, s, v] = getHsvFromHub(hub, NATIVE_HUB[mode]);
+
+    setHsv((prev) => {
+      const [prevH, prevS, prevV] = prev;
+      const hueDist = Math.abs(((h - prevH + 540) % 360) - 180);
+
+      if (
+        hueDist < 0.1 &&
+        Math.abs(s - prevS) < 0.001 &&
+        Math.abs(v - prevV) < 0.001
+      ) {
+        return prev;
+      }
+
+      const isExtreme = s < 0.01 || v < 0.01;
+      if (!isExtreme) lastValidHue.current = h;
+
+      return [isExtreme ? lastValidHue.current : h, s, v] as ColorSpace<'hsv'>;
+    });
   }, [color, mode]);
 
-  const handleSquareSelect = (input: ColorSpace<'xyz65'>) => {
-    const targetHub = NATIVE_HUB[mode];
+  const coreUpdate = useCallback(
+    (h: number, s: number, v: number) => {
+      isInteracting.current = true;
+      lastValidHue.current = h;
 
-    const finalHub = targetHub === 'xyz50' ? xyz65ToXyz50(input) : input;
+      if (interactionTimeout.current)
+        window.clearTimeout(interactionTimeout.current);
+      interactionTimeout.current = window.setTimeout(() => {
+        isInteracting.current = false;
+      }, 100);
 
-    const updatedColor = FROM_HUB[mode](finalHub) as ColorSpace<T>;
+      const [r, g, b] = hsvToRgb([h, 1, 1] as ColorSpace<'hsv'>);
+      const lrgbHue = rgbToLrgb([r, g, b] as ColorSpace<'rgb'>);
+      const lrgbNeutral = [v, v, v] as ColorSpace<'lrgb'>;
 
-    onUpdate(updatedColor);
+      const finalLrgb = lrgbNeutral.map(
+        (chan, i) => (chan * (1 - s) + lrgbHue[i] * s) * v,
+      ) as ColorSpace<'lrgb'>;
 
-    const [_, s, v] = getHsv(input, 'xyz65');
-    setHsv((prev) => [prev[0], s, v] as ColorSpace<'hsv'>);
-  };
+      const hub65 = lrgbToXyz65(finalLrgb);
+      const target = NATIVE_HUB[mode];
+      const finalHub = target === 'xyz50' ? xyz65ToXyz50(hub65) : hub65;
+
+      onUpdate(FROM_HUB[mode](finalHub) as ColorSpace<T>);
+      setHsv([h, s, v] as ColorSpace<'hsv'>);
+    },
+    [mode, onUpdate],
+  );
+
+  const onSelectSquare = useCallback(
+    (s: number, v: number) => {
+      coreUpdate(hsv[0], s, v);
+    },
+    [hsv, coreUpdate],
+  );
+
+  const onSelectHue = useCallback(
+    (h: number) => {
+      coreUpdate(h, hsv[1], hsv[2]);
+    },
+    [hsv, coreUpdate],
+  );
 
   return (
     <div>
-      <SquarePicker hsv={hsv} onSelect={handleSquareSelect} />
+      <SquarePicker hsv={hsv} onSelect={onSelectSquare} />
+      <HuePicker hsv={hsv} onSelect={onSelectHue} />
     </div>
   );
 }
 
-const getHsv = (
+function getHsvFromHub(
   input: ColorSpace<'xyz50' | 'xyz65'>,
-  nativeHub: 'xyz50' | 'xyz65',
-): ColorSpace<'hsv'> => {
-  const input65 =
-    nativeHub === 'xyz50'
+  native: 'xyz50' | 'xyz65',
+): ColorSpace<'hsv'> {
+  const i65 =
+    native === 'xyz50'
       ? xyz50ToXyz65(input as ColorSpace<'xyz50'>)
       : (input as ColorSpace<'xyz65'>);
 
-  return rgbToHsv(lrgbToRgb(xyz65ToLrgb(input65)));
-};
+  return rgbToHsv(lrgbToRgb(xyz65ToLrgb(i65)));
+}
 
-const square = stylex.create({
+const squareStyles = stylex.create({
   layout: {
-    height: 300,
-    overflow: 'hidden',
+    aspectRatio: '18 / 9',
     position: 'relative',
+    touchAction: 'none',
     userSelect: 'none',
-    width: 300,
+    width: '100%',
   },
-  gradientArea: (color: string) => ({
+  area: (color: string) => ({
     backgroundColor: color,
     backgroundImage:
       'linear-gradient(#0000,#000), linear-gradient(90deg,#fff,#0000)',
@@ -136,18 +219,53 @@ const square = stylex.create({
     outline: 'none',
     width: '100%',
   }),
-  pointer: (x: number, y: number) => ({
+  pointer: (s: number, v: number) => ({
     borderColor: '#fff',
     borderRadius: '50%',
     borderStyle: 'solid',
     borderWidth: 1.875,
-    boxShadow: '0 0 4px rgba(0,0,0,0.4)',
+    boxShadow: '0 0 4px #0006',
     height: 16,
-    left: `${x * 100}%`,
+    left: `${s * 100}%`,
     pointerEvents: 'none',
     position: 'absolute',
-    top: `${(1 - y) * 100}%`,
+    top: `${(1 - v) * 100}%`,
     transform: 'translate(-50%, -50%)',
     width: 16,
+  }),
+});
+
+const hueStyles = stylex.create({
+  layout: {
+    height: 16,
+    marginTop: 12,
+    position: 'relative',
+    touchAction: 'none',
+    width: 300,
+  },
+  track: {
+    backgroundImage:
+      'linear-gradient(90deg,#f00 0%,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%)',
+    borderRadius: 8,
+    cursor: 'crosshair',
+    height: '100%',
+    outline: 'none',
+    width: '100%',
+  },
+  pointer: (h: number) => ({
+    backgroundColor: '#fff',
+    borderColor: '#000',
+    borderRadius: '50%',
+    borderStyle: 'solid',
+    borderWidth: 1.875,
+    boxShadow: '0 0 3px #0005',
+    height: 18,
+    left: `${(h / 360) * 100}%`,
+    pointerEvents: 'none',
+    position: 'absolute',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    transition: 'none',
+    width: 18,
   }),
 });
