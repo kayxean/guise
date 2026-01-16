@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 import { createToken } from '~/features/utils';
 import { useTabStore } from '../tabs';
-import { useThemeStore } from '../themes';
+import { useResolvedColor } from '../themes';
 import { chrome, dynamic } from '../tokens.stylex';
 import { Icon } from './icons';
 
@@ -11,8 +11,10 @@ export function Toolbar() {
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
 
-  const toolbar = useThemeStore((state) => state.toolbar);
-  const omnibox = useThemeStore((state) => state.omnibox);
+  const toolbarBg = useResolvedColor('toolbar', 'default');
+  const toolbarIcon = useResolvedColor('toolbar', 'icon');
+  const omniboxBg = useResolvedColor('omnibox', 'background');
+  const omniboxText = useResolvedColor('omnibox', 'text');
 
   const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
   const hasPageUrl = tabsList.find((t) => t.id === tabActive)?.url;
@@ -32,8 +34,8 @@ export function Toolbar() {
         aria-label="Back"
         {...stylex.props(
           tool_bar.button,
-          dynamic.bg_hover(toolbar.default, chrome.button_hover),
-          dynamic.text(toolbar.icon),
+          dynamic.bg_hover(toolbarBg, chrome.button_hover),
+          dynamic.text(toolbarIcon),
         )}
       >
         <Icon name="arrow_back" {...stylex.props(tool_bar.icon)} />
@@ -44,8 +46,8 @@ export function Toolbar() {
         aria-label="Refresh"
         {...stylex.props(
           tool_bar.button,
-          dynamic.bg_hover(toolbar.default, chrome.button_hover),
-          dynamic.text(toolbar.icon),
+          dynamic.bg_hover(toolbarBg, chrome.button_hover),
+          dynamic.text(toolbarIcon),
           tool_bar.desktop_only,
         )}
       >
@@ -60,8 +62,8 @@ export function Toolbar() {
               aria-label="Google Search"
               {...stylex.props(
                 omni_box.button,
-                dynamic.bg_hover(toolbar.default, chrome.button_hover),
-                dynamic.text(omnibox.text),
+                dynamic.bg_hover(toolbarBg, chrome.button_hover),
+                dynamic.text(omniboxText),
               )}
             >
               <Icon name="google" {...stylex.props(omni_box.icon)} />
@@ -73,8 +75,8 @@ export function Toolbar() {
               aria-label="Page Info"
               {...stylex.props(
                 omni_box.button,
-                dynamic.bg_hover(toolbar.default, chrome.button_hover),
-                dynamic.text(omnibox.text),
+                dynamic.bg_hover(toolbarBg, chrome.button_hover),
+                dynamic.text(omniboxText),
               )}
             >
               <Icon name="page_info" {...stylex.props(omni_box.icon)} />
@@ -91,8 +93,8 @@ export function Toolbar() {
           onChange={(e) => setPageUrl(e.target.value)}
           {...stylex.props(
             omni_box.input,
-            dynamic.bg_hover(omnibox.background, chrome.input_hover),
-            dynamic.text(omnibox.text),
+            dynamic.bg_hover(omniboxBg, chrome.input_hover),
+            dynamic.text(omniboxText),
           )}
         />
         {!isNewTabPage && (
@@ -104,7 +106,7 @@ export function Toolbar() {
               {...stylex.props(
                 omni_box.button,
                 omni_box.action,
-                dynamic.text(omnibox.text),
+                dynamic.text(omniboxText),
               )}
             >
               <Icon name="install_desktop" {...stylex.props(omni_box.icon)} />
@@ -116,7 +118,7 @@ export function Toolbar() {
               {...stylex.props(
                 omni_box.button,
                 omni_box.action,
-                dynamic.text(omnibox.text),
+                dynamic.text(omniboxText),
               )}
             >
               <Icon name="star" {...stylex.props(omni_box.icon)} />
@@ -130,8 +132,8 @@ export function Toolbar() {
         aria-label="Media controls"
         {...stylex.props(
           tool_bar.button,
-          dynamic.bg_hover(toolbar.default, chrome.button_hover),
-          dynamic.text(toolbar.icon),
+          dynamic.bg_hover(toolbarBg, chrome.button_hover),
+          dynamic.text(toolbarIcon),
           tool_bar.desktop_only,
         )}
       >
@@ -143,8 +145,8 @@ export function Toolbar() {
         aria-label="Profile"
         {...stylex.props(
           tool_bar.button,
-          dynamic.bg_hover(toolbar.default, chrome.button_hover),
-          dynamic.text(toolbar.icon),
+          dynamic.bg_hover(toolbarBg, chrome.button_hover),
+          dynamic.text(toolbarIcon),
           tool_bar.desktop_only,
         )}
       >
@@ -156,8 +158,8 @@ export function Toolbar() {
         aria-label="Settings"
         {...stylex.props(
           tool_bar.button,
-          dynamic.bg_hover(toolbar.default, chrome.button_hover),
-          dynamic.text(toolbar.icon),
+          dynamic.bg_hover(toolbarBg, chrome.button_hover),
+          dynamic.text(toolbarIcon),
         )}
       >
         <Icon name="more_vert" {...stylex.props(tool_bar.icon)} />

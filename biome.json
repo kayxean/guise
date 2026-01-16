@@ -17,7 +17,13 @@
         "organizeImports": {
           "level": "on",
           "options": {
-            "groups": [{ "type": true }, ":NODE:", ":PACKAGE:", ":ALIAS:", ":PATH:"],
+            "groups": [
+              { "type": true },
+              ":NODE:",
+              ":PACKAGE:",
+              ":ALIAS:",
+              ":PATH:"
+            ],
             "identifierOrder": "natural"
           }
         }

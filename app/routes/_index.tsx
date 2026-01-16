@@ -15,7 +15,6 @@ export default function HomePage() {
       <h1>Guise</h1>
       <nav>
         <Link to="/chromium">Chromium</Link>
-        <Link to="/color">Color</Link>
       </nav>
     </article>
   );

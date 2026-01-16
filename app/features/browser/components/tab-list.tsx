@@ -2,7 +2,7 @@ import type { KeyboardEvent } from 'react';
 import * as stylex from '@stylexjs/stylex';
 import { useLayoutEffect, useRef } from 'react';
 import { tabActions, useTabStore } from '../tabs';
-import { useThemeStore } from '../themes';
+import { useResolvedColor } from '../themes';
 import { chrome, dynamic } from '../tokens.stylex';
 import { Icon } from './icons';
 
@@ -10,13 +10,12 @@ export function TabList() {
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
 
-  const frame = useThemeStore((state) => state.frame);
-  const toolbar = useThemeStore((state) => state.toolbar);
-  const tab = useThemeStore((state) => state.tab);
-  const background_tab = useThemeStore((state) => state.background_tab);
-  const tab_background_text = useThemeStore(
-    (state) => state.tab_background_text,
-  );
+  const frameBg = useResolvedColor('frame', 'default');
+  const toolbarBg = useResolvedColor('toolbar', 'default');
+  const toolbarIcon = useResolvedColor('toolbar', 'icon');
+  const tabText = useResolvedColor('tab', 'text');
+  const backgroundTabBg = useResolvedColor('background_tab', 'default');
+  const backgroundTabText = useResolvedColor('tab_background_text', 'default');
 
   const lastIntentRef = useRef<'mount' | 'keyboard' | 'mouse' | null>('mount');
   const tabRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -56,10 +55,7 @@ export function TabList() {
   }, [tabActive]);
 
   return (
-    <div
-      role="tablist"
-      {...stylex.props(tab_list.layout, dynamic.bg(frame.default))}
-    >
+    <div role="tablist" {...stylex.props(tab_list.layout, dynamic.bg(frameBg))}>
       <div role="none" {...stylex.props(tab_action.layout)}>
         <button
           type="button"
@@ -67,8 +63,8 @@ export function TabList() {
           aria-label="Tab options"
           {...stylex.props(
             tab_action.button,
-            dynamic.bg(toolbar.default),
-            dynamic.text(tab.text),
+            dynamic.bg(toolbarBg),
+            dynamic.text(tabText),
           )}
         >
           <Icon name="arrow_down" {...stylex.props(tab_action.icon)} />
@@ -76,7 +72,7 @@ export function TabList() {
             {...stylex.props(
               tab_action.overlay,
               dynamic.image(
-                `linear-gradient(90deg, ${frame.default} 70%, ${chrome.transparent})`,
+                `linear-gradient(90deg, ${frameBg} 70%, ${chrome.transparent})`,
               ),
             )}
           />
@@ -100,17 +96,15 @@ export function TabList() {
             onKeyDown={(e) => onTabKeyDown(e, t.id)}
             {...stylex.props(
               tab_item.layout,
+              isActive ? dynamic.bg(toolbarBg) : dynamic.bg(backgroundTabBg),
               isActive
-                ? dynamic.bg(toolbar.default)
-                : dynamic.bg(background_tab.default),
-              isActive
-                ? dynamic.text(tab.text)
-                : dynamic.text_hover(tab_background_text.default, tab.text),
+                ? dynamic.text(tabText)
+                : dynamic.text_hover(backgroundTabText, tabText),
             )}
           >
             <Icon
               name={t.icon}
-              {...stylex.props(tab_item.favicon, dynamic.text(toolbar.icon))}
+              {...stylex.props(tab_item.favicon, dynamic.text(toolbarIcon))}
             />
             <span {...stylex.props(tab_item.title)}>{t.title}</span>
             <button
@@ -125,14 +119,12 @@ export function TabList() {
               <Icon name="close_small" {...stylex.props(tab_item.icon)} />
             </button>
             {isActive && (
-              <div
-                {...stylex.props(tab_item.status, dynamic.bg(toolbar.default))}
-              >
+              <div {...stylex.props(tab_item.status, dynamic.bg(toolbarBg))}>
                 <span
                   {...stylex.props(
                     tab_item.corner,
                     tab_item.corner_left,
-                    dynamic.border(toolbar.default),
+                    dynamic.border(toolbarBg),
                   )}
                 ></span>
                 <span {...stylex.props(tab_item.space)}></span>
@@ -140,7 +132,7 @@ export function TabList() {
                   {...stylex.props(
                     tab_item.corner,
                     tab_item.corner_right,
-                    dynamic.border(toolbar.default),
+                    dynamic.border(toolbarBg),
                   )}
                 ></span>
               </div>
@@ -159,8 +151,8 @@ export function TabList() {
           }}
           {...stylex.props(
             new_tab.button,
-            dynamic.bg(background_tab.default),
-            dynamic.text(tab_background_text.default),
+            dynamic.bg(backgroundTabBg),
+            dynamic.text(backgroundTabText),
           )}
         >
           <Icon name="add_small" {...stylex.props(new_tab.icon)} />
@@ -168,7 +160,7 @@ export function TabList() {
             {...stylex.props(
               new_tab.overlay,
               dynamic.image(
-                `linear-gradient(-90deg, ${frame.default} 70%, ${chrome.transparent})`,
+                `linear-gradient(-90deg, ${frameBg} 70%, ${chrome.transparent})`,
               ),
             )}
           />

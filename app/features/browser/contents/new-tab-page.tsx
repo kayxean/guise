@@ -2,16 +2,17 @@ import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import { createToken } from '~/features/utils';
 import { Icon } from '../components/icons';
-import { useThemeStore } from '../themes';
+import { useResolvedColor } from '../themes';
 import { chrome, dynamic } from '../tokens.stylex';
 
 export function NewTabPage() {
   const input_id = useMemo(() => createToken(), []);
 
-  const ntp = useThemeStore((state) => state.ntp);
+  const ntpBg = useResolvedColor('ntp', 'background');
+  const ntpText = useResolvedColor('ntp', 'text');
 
   return (
-    <div {...stylex.props(new_tab_page.layout, dynamic.bg(ntp.background))}>
+    <div {...stylex.props(new_tab_page.layout, dynamic.bg(ntpBg))}>
       <div {...stylex.props(navigation.layout)}>
         <a
           href="https://mail.google.com/mail/?tab=rm&ogbl"
@@ -36,7 +37,7 @@ export function NewTabPage() {
             rel="noreferrer noopener"
             {...stylex.props(
               navigation.button,
-              dynamic.bg_hover(ntp.background, chrome.button_hover),
+              dynamic.bg_hover(ntpBg, chrome.button_hover),
             )}
           >
             <Icon name="search_labs" {...stylex.props(navigation.icon)} />
@@ -45,7 +46,7 @@ export function NewTabPage() {
             type="button"
             {...stylex.props(
               navigation.button,
-              dynamic.bg_hover(ntp.background, chrome.button_hover),
+              dynamic.bg_hover(ntpBg, chrome.button_hover),
             )}
           >
             <Icon name="apps" {...stylex.props(navigation.icon)} />
@@ -54,7 +55,7 @@ export function NewTabPage() {
             type="button"
             {...stylex.props(
               navigation.button,
-              dynamic.bg_hover(ntp.background, chrome.button_hover),
+              dynamic.bg_hover(ntpBg, chrome.button_hover),
             )}
           >
             <Icon name="person" {...stylex.props(navigation.person)} />
@@ -139,13 +140,13 @@ export function NewTabPage() {
           type="button"
           {...stylex.props(
             shortcuts.button,
-            dynamic.bg_hover(ntp.background, chrome.button_hover),
+            dynamic.bg_hover(ntpBg, chrome.button_hover),
           )}
         >
           <div {...stylex.props(shortcuts.view)}>
             <Icon name="add" {...stylex.props(shortcuts.icon)} />
           </div>
-          <span {...stylex.props(dynamic.text(ntp.text))}>Add shortcut</span>
+          <span {...stylex.props(dynamic.text(ntpText))}>Add shortcut</span>
         </button>
       </div>
     </div>
