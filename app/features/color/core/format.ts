@@ -8,16 +8,35 @@ const format = (num: number, precision = 2): string => {
   return (Math.round(num * factor) / factor).toString();
 };
 
-export const formatCss = (
-  mode: ColorMode,
-  values: ColorSpace<ColorMode>,
+export const formatCss = <T extends ColorMode>(
+  mode: T,
+  values: ColorSpace<T>,
+  alpha?: number,
+  asHex?: boolean,
 ): string => {
-  const v1 = values[0];
-  const v2 = values[1];
-  const v3 = values[2];
+  const [v1, v2, v3] = values;
+
+  if (mode === 'rgb' && asHex) {
+    const r = Math.round(v1 * 255);
+    const g = Math.round(v2 * 255);
+    const b = Math.round(v3 * 255);
+
+    let hex = ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+
+    if (alpha !== undefined && alpha < 1) {
+      const a = Math.round(alpha * 255);
+      const ah = ((1 << 8) | a).toString(16).slice(1);
+      hex += ah;
+    }
+
+    return `#${hex}`;
+  }
+
+  const a =
+    alpha !== undefined && alpha < 1 ? ` / ${format(alpha * 100)}%` : '';
 
   if (mode === 'rgb') {
-    return `rgb(${Math.round(v1 * 255)} ${Math.round(v2 * 255)} ${Math.round(v3 * 255)})`;
+    return `rgb(${Math.round(v1 * 255)} ${Math.round(v2 * 255)} ${Math.round(v3 * 255)}${a})`;
   }
 
   let c1: string;
@@ -40,5 +59,5 @@ export const formatCss = (
     throw new Error(`Unsupported mode: ${mode}`);
   }
 
-  return `${mode}(${c1} ${c2} ${c3})`;
+  return `${mode}(${c1} ${c2} ${c3}${a})`;
 };
