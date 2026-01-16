@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { useTabStore } from '../tabs';
-import { useThemeStore } from '../themes';
+import { useResolvedColor } from '../themes';
 import { chrome, dynamic } from '../tokens.stylex';
 import { Icon } from './icons';
 
@@ -8,8 +8,9 @@ export function BookmarkBar() {
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
 
-  const toolbar = useThemeStore((state) => state.toolbar);
-  const bookmark = useThemeStore((state) => state.bookmark);
+  const toolbarBg = useResolvedColor('toolbar', 'default');
+  const toolbarIcon = useResolvedColor('toolbar', 'icon');
+  const bookmarkText = useResolvedColor('bookmark', 'text');
 
   const isNewTabPage = tabsList.find((t) => t.id === tabActive)?.ntp;
 
@@ -31,8 +32,8 @@ export function BookmarkBar() {
           aria-label="Tabs group"
           {...stylex.props(
             tabs_group.button,
-            dynamic.bg_hover(toolbar.default, chrome.button_hover),
-            dynamic.text(toolbar.icon),
+            dynamic.bg_hover(toolbarBg, chrome.button_hover),
+            dynamic.text(toolbarIcon),
           )}
         >
           <Icon name="grid_view" {...stylex.props(tabs_group.icon)} />
@@ -40,7 +41,7 @@ export function BookmarkBar() {
             {...stylex.props(
               tabs_group.overlay,
               dynamic.image(
-                `linear-gradient(90deg, ${toolbar.default} 70%, ${chrome.transparent})`,
+                `linear-gradient(90deg, ${toolbarBg} 70%, ${chrome.transparent})`,
               ),
             )}
           />
@@ -54,8 +55,8 @@ export function BookmarkBar() {
             role="menuitem"
             {...stylex.props(
               bookmark_list.button,
-              dynamic.bg_hover(toolbar.default, chrome.button_hover),
-              dynamic.text(bookmark.text),
+              dynamic.bg_hover(toolbarBg, chrome.button_hover),
+              dynamic.text(bookmarkText),
             )}
           >
             <Icon name="globe" {...stylex.props(bookmark_list.icon)} />
@@ -71,8 +72,8 @@ export function BookmarkBar() {
           aria-label="All bookmarks"
           {...stylex.props(
             bookmark_alt.button,
-            dynamic.bg_hover(toolbar.default, chrome.button_hover),
-            dynamic.text(bookmark.text),
+            dynamic.bg_hover(toolbarBg, chrome.button_hover),
+            dynamic.text(bookmarkText),
           )}
         >
           <Icon name="folder" {...stylex.props(bookmark_alt.icon)} />
