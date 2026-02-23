@@ -1,47 +1,43 @@
-import type { ColorFn, ColorSpace, ColorValues } from '../core/types';
+import type { ColorArray } from '../types';
 
-const EPSILON = 0.008856;
-const KAPPA = 903.3;
+const EPSILON = 0.008856451679035631;
+const KAPPA = 903.2962962962963;
 
-const WHITE_D50: ColorValues = [0.96422, 1.0, 0.82521];
+const WHITE_D50_X = 0.96422;
+const WHITE_D50_Y = 1.0;
+const WHITE_D50_Z = 0.82521;
 
-const lab_f = (t: number): number => {
-  return t > EPSILON ? Math.cbrt(t) : t / KAPPA + 4 / 29;
-};
+const INV_D50_X = 1 / WHITE_D50_X;
+const INV_D50_Z = 1 / WHITE_D50_Z;
 
-const lab_inv_f = (f: number): number => {
-  const f_pow3 = f * f * f;
-  return f > 6 / 29 ? f_pow3 : 3 * (6 / 29) * (6 / 29) * (f - 4 / 29);
-};
+export function xyz50ToLab(input: ColorArray, output: ColorArray): void {
+  const xr = input[0] * INV_D50_X;
+  const yr = input[1];
+  const zr = input[2] * INV_D50_Z;
 
-export const xyz50ToLab: ColorFn<'xyz50', 'lab'> = (input) => {
-  const xr = input[0] / WHITE_D50[0];
-  const yr = input[1] / WHITE_D50[1];
-  const zr = input[2] / WHITE_D50[2];
+  const fx = xr > EPSILON ? Math.cbrt(xr) : (KAPPA * xr + 16) / 116;
+  const fy = yr > EPSILON ? Math.cbrt(yr) : (KAPPA * yr + 16) / 116;
+  const fz = zr > EPSILON ? Math.cbrt(zr) : (KAPPA * zr + 16) / 116;
 
-  const fx = lab_f(xr);
-  const fy = lab_f(yr);
-  const fz = lab_f(zr);
+  output[0] = 116 * fy - 16;
+  output[1] = 500 * (fx - fy);
+  output[2] = 200 * (fy - fz);
+}
 
-  const L = 116 * fy - 16;
-  const A = 500 * (fx - fy);
-  const B = 200 * (fy - fz);
+export function labToXyz50(input: ColorArray, output: ColorArray): void {
+  const l = input[0];
+  const a = input[1];
+  const b = input[2];
 
-  return [L, A, B] as ColorSpace<'lab'>;
-};
+  const fy = (l + 16) / 116;
+  const fx = a / 500 + fy;
+  const fz = fy - b / 200;
 
-export const labToXyz50: ColorFn<'lab', 'xyz50'> = (input) => {
-  const fy = (input[0] + 16) / 116;
-  const fx = input[1] / 500 + fy;
-  const fz = fy - input[2] / 200;
+  const fx3 = fx * fx * fx;
+  const fy3 = fy * fy * fy;
+  const fz3 = fz * fz * fz;
 
-  const xr = lab_inv_f(fx);
-  const yr = lab_inv_f(fy);
-  const zr = lab_inv_f(fz);
-
-  const X = xr * WHITE_D50[0];
-  const Y = yr * WHITE_D50[1];
-  const Z = zr * WHITE_D50[2];
-
-  return [X, Y, Z] as ColorSpace<'xyz50'>;
-};
+  output[0] = (fx3 > EPSILON ? fx3 : (116 * fx - 16) / KAPPA) * WHITE_D50_X;
+  output[1] = (l > KAPPA * EPSILON ? fy3 : l / KAPPA) * WHITE_D50_Y;
+  output[2] = (fz3 > EPSILON ? fz3 : (116 * fz - 16) / KAPPA) * WHITE_D50_Z;
+}

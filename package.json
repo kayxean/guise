@@ -5,7 +5,7 @@
   "engines": {
     "node": ">=25.x"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@10.30.1",
   "scripts": {
     "build": "remix vite:build && node scripts/build.ts",
     "check": "biome check --write",
@@ -17,16 +17,16 @@
     "@remix-run/node": "^2.17.4",
     "@remix-run/react": "^2.17.4",
     "@stylexjs/stylex": "^0.17.5",
-    "isbot": "^5.1.34",
+    "isbot": "^5.1.35",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.14",
+    "@biomejs/biome": "^2.4.4",
     "@remix-run/dev": "^2.17.4",
     "@stylexjs/unplugin": "^0.17.5",
-    "@types/node": "^25.2.3",
-    "@types/react": "^19.2.13",
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
     "lightningcss": "^1.31.1",

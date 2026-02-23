@@ -1,197 +1,146 @@
-import type { ColorHue, ColorMode, ColorSpace } from '../core/types';
-import { convertColor, convertHue } from '../core/convert';
+import type { Color, ColorSpace } from '../types';
+import { convertColor } from '../convert';
+import { createMatrix, dropMatrix } from '../shared';
 
-export const createHarmony = <T extends ColorMode>(
-  input: ColorSpace<T>,
-  mode: T,
+export function createHarmony<S extends ColorSpace>(
+  input: Color<S>,
   variants: { name: string; ratios: number[] }[],
-): { name: string; colors: ColorSpace<T>[] }[] => {
-  const polarValues = convertHue(input, mode);
-  const polarMode = (
-    mode === 'rgb'
-      ? 'hsl'
-      : mode === 'lab'
-        ? 'lch'
-        : mode === 'oklab'
-          ? 'oklch'
-          : mode
-  ) as ColorHue;
+): { name: string; colors: Color<S>[] }[] {
+  const { space, value, alpha = 1 } = input;
 
-  const hueIndex = polarMode === 'hsl' || polarMode === 'hwb' ? 0 : 2;
-  const baseHue = polarValues[hueIndex];
-  const needsReversion = mode === 'rgb' || mode === 'lab' || mode === 'oklab';
+  let polarSpace: ColorSpace;
+  let hIdx: number;
 
-  const interpolate: { name: string; colors: ColorSpace<T>[] }[] = [];
-
-  for (let i = 0; i < variants.length; i++) {
-    const variant = variants[i];
-    const ratios = variant.ratios;
-    const colors: ColorSpace<T>[] = [];
-
-    for (let j = 0; j < ratios.length; j++) {
-      let h = (baseHue + ratios[j]) % 360;
-      if (h < 0) h += 360;
-
-      const rotated = [
-        polarValues[0],
-        polarValues[1],
-        polarValues[2],
-      ] as ColorSpace<ColorHue>;
-      rotated[hueIndex] = h;
-
-      if (needsReversion) {
-        colors.push(convertColor(rotated, polarMode, mode) as ColorSpace<T>);
-      } else {
-        colors.push(rotated as unknown as ColorSpace<T>);
-      }
-    }
-
-    interpolate.push({ name: variant.name, colors });
+  if (space === 'oklch' || space === 'oklab') {
+    polarSpace = 'oklch';
+    hIdx = 2;
+  } else if (space === 'lch' || space === 'lab') {
+    polarSpace = 'lch';
+    hIdx = 2;
+  } else {
+    polarSpace = 'hsl';
+    hIdx = 0;
   }
 
-  return interpolate;
-};
+  const polarMat = createMatrix(polarSpace);
+  convertColor(value, polarMat, space, polarSpace);
 
-export const createShades = <T extends ColorMode>(
-  start: ColorSpace<T>,
-  end: ColorSpace<T>,
-  mode: T,
-  steps: number,
-): ColorSpace<T>[] => {
-  if (steps <= 1) return [start];
+  const baseH = polarMat[hIdx];
+  const results: { name: string; colors: Color<S>[] }[] = [];
 
-  const interpolate: ColorSpace<T>[] = [];
-  const total = steps - 1;
+  for (let i = 0; i < variants.length; i++) {
+    const { name, ratios } = variants[i];
+    const colors: Color<S>[] = [];
 
-  const hueIndex =
-    mode === 'hsl' || mode === 'hwb'
+    for (let j = 0; j < ratios.length; j++) {
+      let h = (baseH + ratios[j]) % 360;
+      if (h < 0) h += 360;
+
+      const newMat = createMatrix(space);
+      const originalH = polarMat[hIdx];
+
+      polarMat[hIdx] = h;
+      convertColor(polarMat, newMat, polarSpace, space);
+      polarMat[hIdx] = originalH;
+
+      colors.push({ space, value: newMat, alpha });
+    }
+    results.push({ name, colors });
+  }
+
+  dropMatrix(polarMat);
+  return results;
+}
+
+export function mixColor<S extends ColorSpace>(
+  start: Color<S>,
+  end: Color<S>,
+  t: number,
+): Color<S> {
+  const space = start.space;
+  const w = t < 0 ? 0 : t > 1 ? 1 : t;
+
+  const hIdx =
+    space === 'hsl' || space === 'hwb'
       ? 0
-      : mode === 'lch' || mode === 'oklch'
+      : space === 'lch' || space === 'oklch'
         ? 2
         : -1;
 
-  const s0 = start[0];
-  const s1 = start[1];
-  const s2 = start[2];
+  const sV = start.value;
+  const eV = end.value;
+  const res = createMatrix(space);
 
-  let e0 = end[0];
-  const e1 = end[1];
-  let e2 = end[2];
+  for (let c = 0; c < 3; c++) {
+    const startVal = sV[c];
+    let endVal = eV[c];
 
-  if (hueIndex === 0) {
-    const diff = e0 - s0;
-    if (diff > 180) e0 -= 360;
-    else if (diff < -180) e0 += 360;
-  } else if (hueIndex === 2) {
-    const diff = e2 - s2;
-    if (diff > 180) e2 -= 360;
-    else if (diff < -180) e2 += 360;
+    if (c === hIdx) {
+      const diff = endVal - startVal;
+      if (diff > 180) endVal -= 360;
+      else if (diff < -180) endVal += 360;
+
+      let h = startVal + (endVal - startVal) * w;
+      h %= 360;
+      if (h < 0) h += 360;
+      res[c] = h;
+    } else {
+      res[c] = startVal + (endVal - startVal) * w;
+    }
   }
 
-  const d0 = e0 - s0;
-  const d1 = e1 - s1;
-  const d2 = e2 - s2;
+  const sA = start.alpha ?? 1;
+  const eA = end.alpha ?? 1;
+
+  return { space, value: res, alpha: sA + (eA - sA) * w };
+}
+
+export function createShades<S extends ColorSpace>(
+  start: Color<S>,
+  end: Color<S>,
+  steps: number,
+): Color<S>[] {
+  if (steps <= 0) return [];
+  if (steps === 1) {
+    const val = createMatrix(start.space);
+    val.set(start.value);
+    return [{ space: start.space, value: val, alpha: start.alpha }];
+  }
+
+  const shades: Color<S>[] = [];
+  const invTotal = 1 / (steps - 1);
 
   for (let i = 0; i < steps; i++) {
-    const t = i / total;
-
-    let c0 = s0 + d0 * t;
-    const c1 = s1 + d1 * t;
-    let c2 = s2 + d2 * t;
-
-    if (hueIndex === 0) c0 = c0 < 0 ? c0 + 360 : c0 % 360;
-    else if (hueIndex === 2) c2 = c2 < 0 ? c2 + 360 : c2 % 360;
-
-    interpolate.push([c0, c1, c2] as ColorSpace<T>);
+    shades.push(mixColor(start, end, i * invTotal));
   }
 
-  return interpolate;
-};
+  return shades;
+}
 
-export const createScales = <T extends ColorMode>(
-  stops: ColorSpace<T>[],
-  mode: T,
+export function createScales<S extends ColorSpace>(
+  stops: Color<S>[],
   steps: number,
-): ColorSpace<T>[] => {
-  if (stops.length < 2) return stops;
+): Color<S>[] {
+  if (steps <= 0) return [];
+  if (stops.length < 2) {
+    return stops.map((s) => {
+      const val = createMatrix(s.space);
+      val.set(s.value);
+      return { space: s.space, value: val, alpha: s.alpha };
+    });
+  }
 
-  const interpolate: ColorSpace<T>[] = [];
+  const scale: Color<S>[] = [];
   const totalSegments = stops.length - 1;
   const stepInterval = 1 / (steps - 1);
 
-  const hueIndex =
-    mode === 'hsl' || mode === 'hwb'
-      ? 0
-      : mode === 'lch' || mode === 'oklch'
-        ? 2
-        : -1;
-
   for (let i = 0; i < steps; i++) {
-    const globalRatio = i * stepInterval;
-    const segmentRaw = globalRatio * totalSegments;
+    const segmentRaw = i * stepInterval * totalSegments;
+    let idx = segmentRaw | 0;
+    if (idx >= totalSegments) idx = totalSegments - 1;
 
-    let index = Math.floor(segmentRaw);
-    if (index >= totalSegments) index = totalSegments - 1;
-
-    const start = stops[index];
-    const end = stops[index + 1];
-    const t = segmentRaw - index;
-
-    const res = [0, 0, 0] as ColorSpace<T>;
-
-    for (let c = 0; c < 3; c++) {
-      if (c === hueIndex) {
-        const sH = start[c];
-        let eH = end[c];
-        const diff = eH - sH;
-
-        if (diff > 180) eH -= 360;
-        else if (diff < -180) eH += 360;
-
-        const h = sH + (eH - sH) * t;
-        res[c] = h < 0 ? h + 360 : h % 360;
-      } else {
-        res[c] = start[c] + (end[c] - start[c]) * t;
-      }
-    }
-
-    interpolate.push(res);
-  }
-  return interpolate;
-};
-
-export const mixColor = <T extends ColorMode>(
-  start: ColorSpace<T>,
-  end: ColorSpace<T>,
-  mode: T,
-  t: number,
-): ColorSpace<T> => {
-  const weight = t < 0 ? 0 : t > 1 ? 1 : t;
-
-  const hueIndex =
-    mode === 'hsl' || mode === 'hwb'
-      ? 0
-      : mode === 'lch' || mode === 'oklch'
-        ? 2
-        : -1;
-
-  const res = [0, 0, 0] as ColorSpace<T>;
-
-  for (let c = 0; c < 3; c++) {
-    if (c === hueIndex) {
-      const sH = start[c];
-      let eH = end[c];
-      const diff = eH - sH;
-
-      if (diff > 180) eH -= 360;
-      else if (diff < -180) eH += 360;
-
-      const h = sH + (eH - sH) * weight;
-      res[c] = h < 0 ? h + 360 : h % 360;
-    } else {
-      res[c] = start[c] + (end[c] - start[c]) * weight;
-    }
+    scale.push(mixColor(stops[idx], stops[idx + 1], segmentRaw - idx));
   }
 
-  return res;
-};
+  return scale;
+}

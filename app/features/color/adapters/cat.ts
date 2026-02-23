@@ -1,79 +1,33 @@
-import type {
-  ColorFn,
-  ColorMatrix,
-  ColorSpace,
-  ColorValues,
-} from '../core/types';
+import type { ColorArray } from '../types';
 
-export const multiplyMatrixVector = (
-  matrix: ColorMatrix,
-  vector: ColorValues,
-): ColorValues => {
-  const result: ColorValues = [0, 0, 0];
+const M_CAT_65_TO_50 = new Float32Array([
+  1.0478112, 0.0228866, -0.050127, 0.0295424, 0.9904844, -0.0170491, -0.0092345,
+  0.0150436, 0.7521316,
+]);
 
-  for (let i = 0; i < 3; i++) {
-    result[i] =
-      matrix[i][0] * vector[0] +
-      matrix[i][1] * vector[1] +
-      matrix[i][2] * vector[2];
-  }
+const M_CAT_50_TO_65 = new Float32Array([
+  0.9555766, -0.0230393, 0.0631636, -0.0282895, 1.0099416, 0.0210077, 0.0122982,
+  -0.020483, 1.3299098,
+]);
 
-  return result;
-};
+export function multiplyMatrixVector(
+  matrix: Float32Array,
+  vector: ColorArray,
+  output: ColorArray,
+): void {
+  const v0 = vector[0],
+    v1 = vector[1],
+    v2 = vector[2];
 
-const M_BRADFORD: ColorMatrix = [
-  [0.8951, 0.2664, -0.1614],
-  [-0.7502, 1.7135, 0.0367],
-  [0.0389, -0.0685, 1.0296],
-];
+  output[0] = matrix[0] * v0 + matrix[1] * v1 + matrix[2] * v2;
+  output[1] = matrix[3] * v0 + matrix[4] * v1 + matrix[5] * v2;
+  output[2] = matrix[6] * v0 + matrix[7] * v1 + matrix[8] * v2;
+}
 
-const M_BRADFORD_INV: ColorMatrix = [
-  [0.98699, -0.14705, 0.15996],
-  [0.43231, 0.51836, 0.04929],
-  [-0.00853, 0.04006, 0.96848],
-];
+export function xyz65ToXyz50(input: ColorArray, output: ColorArray): void {
+  multiplyMatrixVector(M_CAT_65_TO_50, input, output);
+}
 
-const WHITE_D65: ColorValues = [0.95047, 1.0, 1.08883];
-const WHITE_D50: ColorValues = [0.96422, 1.0, 0.82521];
-
-const LMS_D65 = multiplyMatrixVector(M_BRADFORD, WHITE_D65);
-const LMS_D50 = multiplyMatrixVector(M_BRADFORD, WHITE_D50);
-
-const SCALE_D65_TO_D50: ColorValues = [
-  LMS_D50[0] / LMS_D65[0],
-  LMS_D50[1] / LMS_D65[1],
-  LMS_D50[2] / LMS_D65[2],
-];
-const SCALE_D50_TO_D65: ColorValues = [
-  LMS_D65[0] / LMS_D50[0],
-  LMS_D65[1] / LMS_D50[1],
-  LMS_D65[2] / LMS_D50[2],
-];
-
-export const xyz65ToXyz50: ColorFn<'xyz65', 'xyz50'> = (input) => {
-  const lms65 = multiplyMatrixVector(M_BRADFORD, input);
-
-  const lms50_0 = lms65[0] * SCALE_D65_TO_D50[0];
-  const lms50_1 = lms65[1] * SCALE_D65_TO_D50[1];
-  const lms50_2 = lms65[2] * SCALE_D65_TO_D50[2];
-
-  return multiplyMatrixVector(M_BRADFORD_INV, [
-    lms50_0,
-    lms50_1,
-    lms50_2,
-  ]) as ColorSpace<'xyz50'>;
-};
-
-export const xyz50ToXyz65: ColorFn<'xyz50', 'xyz65'> = (input) => {
-  const lms50 = multiplyMatrixVector(M_BRADFORD, input);
-
-  const lms65_0 = lms50[0] * SCALE_D50_TO_D65[0];
-  const lms65_1 = lms50[1] * SCALE_D50_TO_D65[1];
-  const lms65_2 = lms50[2] * SCALE_D50_TO_D65[2];
-
-  return multiplyMatrixVector(M_BRADFORD_INV, [
-    lms65_0,
-    lms65_1,
-    lms65_2,
-  ]) as ColorSpace<'xyz65'>;
-};
+export function xyz50ToXyz65(input: ColorArray, output: ColorArray): void {
+  multiplyMatrixVector(M_CAT_50_TO_65, input, output);
+}

@@ -1,159 +1,124 @@
-import type { ColorMode, ColorSpace } from '../core/types';
-import { xyz50ToXyz65 } from '../adapters/cat';
-import { convertColor, NATIVE_HUB, TO_HUB } from '../core/convert';
+import type { Color, ColorSpace } from '../types';
+import { convertColor } from '../convert';
+import { createMatrix, dropMatrix } from '../shared';
 import { createScales } from './palette';
 
 const APCA_SCALE = 1.14;
 const DARK_THRESH = 0.022;
 const DARK_CLAMP = 1414 / 1000;
 
-export const getLuminanceD65 = <T extends ColorMode>(
-  color: ColorSpace<T>,
-  mode: T,
-): number => {
-  let xyz = TO_HUB[mode](color);
+export function getLuminanceD65(color: Color): number {
+  const xyz = createMatrix('xyz65');
+  convertColor(color.value, xyz, color.space, 'xyz65');
+  const y = xyz[1];
+  dropMatrix(xyz);
+  return y;
+}
 
-  if (NATIVE_HUB[mode] === 'xyz50') {
-    xyz = xyz50ToXyz65(xyz as ColorSpace<'xyz50'>);
-  }
+function getSapcV(y: number): number {
+  return y > DARK_THRESH ? y : y + (DARK_THRESH - y) ** DARK_CLAMP;
+}
 
-  return xyz[1];
-};
+function calculateLc(v_t: number, v_b: number): number {
+  return v_b > v_t
+    ? (v_b ** 0.56 - v_t ** 0.57) * APCA_SCALE
+    : (v_b ** 0.65 - v_t ** 0.62) * APCA_SCALE;
+}
 
-export const checkContrast = <T extends ColorMode>(
-  text: ColorSpace<T>,
-  background: ColorSpace<T>,
-  mode: T,
-): number => {
-  const yt = getLuminanceD65(text, mode);
-  const yb = getLuminanceD65(background, mode);
+export function checkContrast(text: Color, background: Color): number {
+  const vt = getSapcV(getLuminanceD65(text));
+  const vb = getSapcV(getLuminanceD65(background));
+  const Lc = calculateLc(vt, vb);
 
-  const vt = yt > DARK_THRESH ? yt : yt + (DARK_THRESH - yt) ** DARK_CLAMP;
-  const vb = yb > DARK_THRESH ? yb : yb + (DARK_THRESH - yb) ** DARK_CLAMP;
+  const res = Math.abs(Lc) < 0.001 ? 0 : Lc * 100;
+  return Math.round(res * 100) / 100;
+}
 
-  let contrast = 0;
-
-  if (vb > vt) {
-    contrast = (vb ** 0.56 - vt ** 0.57) * APCA_SCALE;
-  } else {
-    contrast = (vb ** 0.65 - vt ** 0.62) * APCA_SCALE;
-  }
-
-  const res = Math.abs(contrast) < 0.1 ? 0 : contrast * 100;
-
-  return Number(res.toFixed(2));
-};
-
-export const getContrastRating = (contrast: number): string => {
+export function getContrastRating(contrast: number): string {
   const rate = Math.abs(contrast);
-
   if (rate >= 90) return 'platinum';
   if (rate >= 75) return 'gold';
   if (rate >= 60) return 'silver';
   if (rate >= 45) return 'bronze';
   if (rate >= 30) return 'ui';
-
   return 'fail';
-};
+}
 
-export const checkContrastBulk = <T extends ColorMode>(
-  background: ColorSpace<T>,
-  colors: ColorSpace<T>[],
-  mode: T,
-): { color: ColorSpace<T>; contrast: number; rating: string }[] => {
-  const interpolate: {
-    color: ColorSpace<T>;
-    contrast: number;
-    rating: string;
-  }[] = [];
-
-  for (let i = 0; i < colors.length; i++) {
-    const color = colors[i];
-    const contrast = checkContrast(color, background, mode);
-    const rating = getContrastRating(contrast);
-
-    interpolate.push({ color, contrast, rating });
-  }
-
-  return interpolate;
-};
-
-export const matchContrast = <T extends ColorMode>(
-  color: ColorSpace<T>,
-  background: ColorSpace<T>,
-  mode: T,
+export function matchContrast<S extends ColorSpace>(
+  color: Color<S>,
+  background: Color,
   targetContrast: number,
-): ColorSpace<T> => {
-  const currentContrast = checkContrast(color, background, mode);
+): Color<S> {
+  const yb = getLuminanceD65(background);
+  const vb = getSapcV(yb);
+  const isDarkBg = yb < 0.5;
 
-  if (Math.abs(currentContrast) >= targetContrast) return color;
+  const oklchMat = createMatrix('oklch');
+  convertColor(color.value, oklchMat, color.space, 'oklch');
 
-  const needsReversion = mode !== 'oklch';
-  const polarValues = (
-    needsReversion
-      ? convertColor(color, mode, 'oklch' as Exclude<ColorMode, T>)
-      : color
-  ) as ColorSpace<'oklch'>;
+  const chroma = oklchMat[1];
+  const hue = oklchMat[2];
 
-  const lightness = polarValues[0];
-  const chroma = polarValues[1];
-  const hue = polarValues[2];
+  let low = isDarkBg ? oklchMat[0] : 0;
+  let high = isDarkBg ? 1 : oklchMat[0];
+  let bestL = oklchMat[0];
 
-  const luminance = getLuminanceD65(background, mode);
-  const isDark = luminance < 0.5;
+  const testMat = createMatrix('oklch');
+  testMat[1] = chroma;
+  testMat[2] = hue;
 
-  let low = isDark ? lightness : 0;
-  let high = isDark ? 1 : lightness;
-  let bestL = lightness;
+  const testCol: Color<'oklch'> = { space: 'oklch', value: testMat };
 
-  for (let i = 0; i < 10; i++) {
-    const t = (low + high) / 2;
-    const rotated = [t, chroma, hue] as ColorSpace<'oklch'>;
+  for (let i = 0; i < 12; i++) {
+    testMat[0] = (low + high) * 0.5;
+    const vt = getSapcV(getLuminanceD65(testCol));
+    const Lc = calculateLc(vt, vb);
 
-    const res = (
-      needsReversion
-        ? convertColor(rotated, 'oklch', mode as Exclude<ColorMode, 'oklch'>)
-        : rotated
-    ) as ColorSpace<T>;
-
-    const testContrast = checkContrast(res, background, mode);
-
-    if (Math.abs(testContrast) < targetContrast) {
-      if (isDark) low = t;
-      else high = t;
+    if (Math.abs(Lc * 100) < targetContrast) {
+      if (isDarkBg) low = testMat[0];
+      else high = testMat[0];
     } else {
-      bestL = t;
-      if (isDark) high = t;
-      else low = t;
+      bestL = testMat[0];
+      if (isDarkBg) high = testMat[0];
+      else low = testMat[0];
     }
   }
 
-  const rotated = [bestL, chroma, hue] as ColorSpace<'oklch'>;
+  const resValue = createMatrix(color.space);
+  testMat[0] = bestL;
+  convertColor(testMat, resValue, 'oklch', color.space);
 
-  if (needsReversion) {
-    return convertColor(
-      rotated,
-      'oklch',
-      mode as Exclude<ColorMode, 'oklch'>,
-    ) as ColorSpace<T>;
-  }
+  dropMatrix(oklchMat);
+  dropMatrix(testMat);
 
-  return rotated as unknown as ColorSpace<T>;
-};
+  return { space: color.space, value: resValue, alpha: color.alpha };
+}
 
-export const matchScales = <T extends ColorMode>(
-  stops: ColorSpace<T>[],
-  background: ColorSpace<T>,
-  mode: T,
+export function checkContrastBulk(
+  background: Color,
+  colors: Color[],
+): { color: Color; contrast: number; rating: string }[] {
+  const vb = getSapcV(getLuminanceD65(background));
+
+  return colors.map((color) => {
+    const vt = getSapcV(getLuminanceD65(color));
+    const Lc = calculateLc(vt, vb);
+    const contrast = Math.abs(Lc) < 0.001 ? 0 : Math.round(Lc * 10000) / 100;
+
+    return {
+      color,
+      contrast,
+      rating: getContrastRating(contrast),
+    };
+  });
+}
+
+export function matchScales<S extends ColorSpace>(
+  stops: Color<S>[],
+  background: Color,
   targetContrast: number,
   steps: number,
-): ColorSpace<T>[] => {
-  const scale = createScales(stops, mode, steps);
-  const interpolate: ColorSpace<T>[] = [];
-
-  for (let i = 0; i < scale.length; i++) {
-    interpolate.push(matchContrast(scale[i], background, mode, targetContrast));
-  }
-
-  return interpolate;
-};
+): Color<S>[] {
+  const scale = createScales(stops, steps);
+  return scale.map((s) => matchContrast(s, background, targetContrast));
+}

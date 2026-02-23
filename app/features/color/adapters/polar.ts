@@ -1,62 +1,33 @@
-import type { ColorFn, ColorSpace } from '../core/types';
+import type { ColorArray } from '../types';
 
 const RAD_TO_DEG = 180 / Math.PI;
 const DEG_TO_RAD = Math.PI / 180;
 
-export const lchToLab: ColorFn<'lch', 'lab'> = (input) => {
-  const L = input[0];
-  const c = input[1];
-  const h = input[2];
-
-  const d = h * DEG_TO_RAD;
-
-  const A = c * Math.cos(d);
-  const B = c * Math.sin(d);
-
-  return [L, A, B] as ColorSpace<'lab'>;
-};
-
-export const labToLch: ColorFn<'lab', 'lch'> = (input) => {
-  const L = input[0];
+function toPolar(input: ColorArray, output: ColorArray): void {
   const a = input[1];
   const b = input[2];
 
-  const C = Math.sqrt(a * a + b * b);
+  const chroma = Math.sqrt(a * a + b * b);
+  let hue = Math.atan2(b, a) * RAD_TO_DEG;
 
-  let H = Math.atan2(b, a) * RAD_TO_DEG;
+  if (hue < 0) hue += 360;
 
-  if (H < 0) {
-    H += 360;
-  }
+  output[0] = input[0];
+  output[1] = chroma;
+  output[2] = hue;
+}
 
-  return [L, C, H] as ColorSpace<'lch'>;
-};
-
-export const oklchToOklab: ColorFn<'oklch', 'oklab'> = (input) => {
+function toCartesian(input: ColorArray, output: ColorArray): void {
   const L = input[0];
-  const c = input[1];
-  const h = input[2];
+  const C = input[1];
+  const hRad = input[2] * DEG_TO_RAD;
 
-  const d = h * DEG_TO_RAD;
+  output[0] = L;
+  output[1] = C * Math.cos(hRad);
+  output[2] = C * Math.sin(hRad);
+}
 
-  const A = c * Math.cos(d);
-  const B = c * Math.sin(d);
-
-  return [L, A, B] as ColorSpace<'oklab'>;
-};
-
-export const oklabToOklch: ColorFn<'oklab', 'oklch'> = (input) => {
-  const L = input[0];
-  const a = input[1];
-  const b = input[2];
-
-  const C = Math.sqrt(a * a + b * b);
-
-  let H = Math.atan2(b, a) * RAD_TO_DEG;
-
-  if (H < 0) {
-    H += 360;
-  }
-
-  return [L, C, H] as ColorSpace<'oklch'>;
-};
+export const labToLch = toPolar;
+export const oklabToOklch = toPolar;
+export const lchToLab = toCartesian;
+export const oklchToOklab = toCartesian;

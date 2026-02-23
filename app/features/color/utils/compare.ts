@@ -1,57 +1,67 @@
-import type { ColorMode, ColorSpace } from '../core/types';
-import { convertColor } from '../core/convert';
+import type { Color, ColorArray } from '../types';
+import { convertColor } from '../convert';
+import { createMatrix, dropMatrix } from '../shared';
 
-export const isEqual = <T1 extends ColorMode, T2 extends ColorMode>(
-  colorA: ColorSpace<T1>,
-  modeA: T1,
-  colorB: ColorSpace<T2>,
-  modeB: T2,
-  tolerance = 0,
-): boolean => {
-  const isSameMode = modeA === (modeB as unknown as T1);
+export function isEqual(a: Color, b: Color, tolerance = 0.0001): boolean {
+  if (a === b) return true;
 
-  if (isSameMode) {
-    for (let i = 0; i < 3; i++) {
-      const diff = Math.abs(colorA[i] - colorB[i]);
-      if (diff > tolerance) return false;
-    }
-    return true;
+  const alphaA = a.alpha ?? 1;
+  const alphaB = b.alpha ?? 1;
+  if (Math.abs(alphaA - alphaB) > tolerance) return false;
+
+  const spaceA = a.space;
+  const spaceB = b.space;
+  const valA = a.value;
+
+  if (spaceA === spaceB) {
+    const valB = b.value;
+    return (
+      Math.abs(valA[0] - valB[0]) <= tolerance &&
+      Math.abs(valA[1] - valB[1]) <= tolerance &&
+      Math.abs(valA[2] - valB[2]) <= tolerance
+    );
   }
 
-  const convertedB = convertColor(colorB, modeB, modeA as Exclude<T1, T2>);
+  const tempMatrix = createMatrix(spaceA);
+  convertColor(b.value, tempMatrix, spaceB, spaceA);
 
-  for (let i = 0; i < 3; i++) {
-    const diff = Math.abs(colorA[i] - convertedB[i]);
-    if (diff > tolerance) return false;
+  const match =
+    Math.abs(valA[0] - tempMatrix[0]) <= tolerance &&
+    Math.abs(valA[1] - tempMatrix[1]) <= tolerance &&
+    Math.abs(valA[2] - tempMatrix[2]) <= tolerance;
+
+  dropMatrix(tempMatrix);
+  return match;
+}
+
+export function getDistance(a: Color, b: Color): number {
+  const spaceA = a.space;
+  const spaceB = b.space;
+
+  let matrixA: ColorArray = a.value;
+  let matrixB: ColorArray = b.value;
+
+  const tempA = spaceA !== 'oklab' ? createMatrix('oklab') : null;
+  const tempB = spaceB !== 'oklab' ? createMatrix('oklab') : null;
+
+  if (tempA) {
+    convertColor(a.value, tempA, spaceA, 'oklab');
+    matrixA = tempA;
   }
 
-  return true;
-};
+  if (tempB) {
+    convertColor(b.value, tempB, spaceB, 'oklab');
+    matrixB = tempB;
+  }
 
-export const getDistance = <T1 extends ColorMode, T2 extends ColorMode>(
-  colorA: ColorSpace<T1>,
-  modeA: T1,
-  colorB: ColorSpace<T2>,
-  modeB: T2,
-): number => {
-  const needsReversionA = modeA !== 'oklab';
-  const needsReversionB = modeB !== 'oklab';
+  const dL = matrixA[0] - matrixB[0];
+  const da = matrixA[1] - matrixB[1];
+  const db = matrixA[2] - matrixB[2];
 
-  const [l1, a1, b1] = (
-    needsReversionA
-      ? convertColor(colorA, modeA, 'oklab' as Exclude<ColorMode, T1>)
-      : colorA
-  ) as ColorSpace<'oklab'>;
+  const distance = Math.sqrt(dL * dL + da * da + db * db);
 
-  const [l2, a2, b2] = (
-    needsReversionB
-      ? convertColor(colorB, modeB, 'oklab' as Exclude<ColorMode, T2>)
-      : colorB
-  ) as ColorSpace<'oklab'>;
+  if (tempA) dropMatrix(tempA);
+  if (tempB) dropMatrix(tempB);
 
-  const dL = l1 - l2;
-  const dA = a1 - a2;
-  const dB = b1 - b2;
-
-  return Math.sqrt(dL * dL + dA * dA + dB * dB);
-};
+  return distance;
+}

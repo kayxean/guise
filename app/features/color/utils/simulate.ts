@@ -1,52 +1,50 @@
-import type { ColorMode, ColorSpace } from '../core/types';
-import { xyz50ToXyz65, xyz65ToXyz50 } from '../adapters/cat';
-import { FROM_HUB, NATIVE_HUB, TO_HUB } from '../core/convert';
+import type { Color, ColorSpace, DeficiencyType } from '../types';
+import { convertColor } from '../convert';
+import { createMatrix, dropMatrix } from '../shared';
+import { clampColor } from './gamut';
 
-export type DeficiencyType =
-  | 'protanopia'
-  | 'deuteranopia'
-  | 'tritanopia'
-  | 'achromatopsia';
-
-export const simulateDeficiency = <T extends ColorMode>(
-  color: ColorSpace<T>,
-  mode: T,
+export function simulateDeficiency<S extends ColorSpace>(
+  color: Color<S>,
   type: DeficiencyType,
-): ColorSpace<T> => {
-  let hub = TO_HUB[mode](color);
+): Color<S> {
+  const { space, alpha = 1 } = color;
 
-  if (NATIVE_HUB[mode] === 'xyz50') {
-    hub = xyz50ToXyz65(hub as ColorSpace<'xyz50'>);
+  const lrgbMat = createMatrix('lrgb');
+  convertColor(color.value, lrgbMat, space, 'lrgb');
+
+  const r = lrgbMat[0];
+  const g = lrgbMat[1];
+  const b = lrgbMat[2];
+
+  switch (type) {
+    case 'protanopia':
+      lrgbMat[0] = 0.56667 * r + 0.43333 * g;
+      lrgbMat[1] = 0.55833 * r + 0.44167 * g;
+      lrgbMat[2] = 0.0 * r + 0.24167 * g + 0.75833 * b;
+      break;
+    case 'deuteranopia':
+      lrgbMat[0] = 0.625 * r + 0.375 * g;
+      lrgbMat[1] = 0.7 * r + 0.3 * g;
+      lrgbMat[2] = 0.0 * r + 0.3 * g + 0.7 * b;
+      break;
+    case 'tritanopia':
+      lrgbMat[0] = 0.95 * r + 0.05 * g;
+      lrgbMat[1] = 0.0 * r + 0.43333 * g + 0.56667 * b;
+      lrgbMat[2] = 0.0 * r + 0.475 * g + 0.525 * b;
+      break;
+    case 'achromatopsia': {
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      lrgbMat[0] = lum;
+      lrgbMat[1] = lum;
+      lrgbMat[2] = lum;
+      break;
+    }
   }
 
-  const [x, y, z] = hub as ColorSpace<'xyz65'>;
-  let rx = x;
-  let ry = y;
-  let rz = z;
+  const resValue = createMatrix(space);
+  convertColor(lrgbMat, resValue, 'lrgb', space);
 
-  if (type === 'protanopia') {
-    rx = 0.112 * x + 0.888 * y;
-    ry = 0.112 * x + 0.888 * y;
-    rz = -0.001 * x + 0.001 * y + z;
-  } else if (type === 'deuteranopia') {
-    rx = 0.292 * x + 0.708 * y;
-    ry = 0.292 * x + 0.708 * y;
-    rz = -0.022 * x + 0.022 * y + z;
-  } else if (type === 'tritanopia') {
-    rx = 1.012 * x + 0.052 * y - 0.064 * z;
-    ry = 0.877 * y + 0.123 * z;
-    rz = 0.877 * y + 0.123 * z;
-  } else if (type === 'achromatopsia') {
-    rx = y;
-    ry = y;
-    rz = y;
-  }
+  dropMatrix(lrgbMat);
 
-  let res = [rx, ry, rz] as ColorSpace<'xyz50' | 'xyz65'>;
-
-  if (NATIVE_HUB[mode] === 'xyz50') {
-    res = xyz65ToXyz50(res as ColorSpace<'xyz65'>);
-  }
-
-  return FROM_HUB[mode](res);
-};
+  return clampColor({ space, value: resValue, alpha });
+}
