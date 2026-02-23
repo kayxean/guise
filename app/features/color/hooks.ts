@@ -13,43 +13,35 @@ export const useRelativePointer = (
       const el = containerRef.current;
       if (!el) return;
 
-      const originalCursor = el.style.cursor;
-      const originalUserSelect = el.style.userSelect;
+      const rect = el.getBoundingClientRect();
+      const originalCursor = document.body.style.cursor;
 
       if (cursor) {
-        el.style.cursor = cursor;
+        document.body.style.cursor = cursor;
       }
-      el.style.userSelect = 'none';
 
       el.setPointerCapture(e.pointerId);
 
-      const trigger = (pe: PointerEvent | React.PointerEvent) => {
-        const rect = el.getBoundingClientRect();
-
-        const x = Math.max(
-          0,
-          Math.min(1, (pe.clientX - rect.left) / rect.width),
-        );
-        const y = Math.max(
-          0,
-          Math.min(1, (pe.clientY - rect.top) / rect.height),
-        );
-
+      const trigger = (clientX: number, clientY: number) => {
+        const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
         onMoveRef.current(x, y);
       };
 
-      trigger(e);
+      trigger(e.clientX, e.clientY);
+
+      let frameId: number;
 
       const move = (pe: PointerEvent) => {
-        requestAnimationFrame(() => trigger(pe));
+        cancelAnimationFrame(frameId);
+        frameId = requestAnimationFrame(() => trigger(pe.clientX, pe.clientY));
       };
 
       const up = (pe: PointerEvent) => {
-        el.style.cursor = originalCursor;
-        el.style.userSelect = originalUserSelect;
+        document.body.style.cursor = originalCursor;
+        cancelAnimationFrame(frameId);
 
         el.releasePointerCapture(pe.pointerId);
-
         window.removeEventListener('pointermove', move);
         window.removeEventListener('pointerup', up);
       };
