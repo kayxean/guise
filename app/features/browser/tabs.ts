@@ -5,17 +5,21 @@ import { CounterApp } from './contents/app-counter';
 import { TodoApp } from './contents/app-todo';
 import { NewTabPage } from './contents/new-tab-page';
 
+interface Tab {
+  id: number;
+  ntp: boolean;
+  url: string | null;
+  title: string;
+  icon: Icons;
+  content: ComponentType;
+}
+
 interface TabState extends Record<string, unknown> {
-  tabsList: {
-    id: number;
-    ntp: boolean;
-    url: string | null;
-    title: string;
-    icon: Icons;
-    content: ComponentType;
-  }[];
+  tabsList: Tab[];
   tabActive: number;
 }
+
+let nextTabId = 4;
 
 const [useTabStore, apiTabStore] = createStore<TabState>({
   tabsList: [
@@ -52,13 +56,8 @@ export { useTabStore, apiTabStore };
 export const tabActions = {
   addTab() {
     apiTabStore.setState((s) => {
-      const maxId =
-        s.tabsList.length > 0 ? Math.max(...s.tabsList.map((t) => t.id)) : 0;
-
-      const newId = maxId + 1;
-
+      const newId = nextTabId++;
       return {
-        ...s,
         tabsList: [
           ...s.tabsList,
           {
@@ -77,13 +76,25 @@ export const tabActions = {
 
   closeTab(id: number) {
     apiTabStore.setState((s) => {
-      const closedIndex = s.tabsList.findIndex((t) => t.id === id);
-      const remaining = s.tabsList.filter((t) => t.id !== id);
+      const list = s.tabsList;
+      const len = list.length;
+      let closedIndex = -1;
 
+      for (let i = 0; i < len; i++) {
+        if (list[i].id === id) {
+          closedIndex = i;
+          break;
+        }
+      }
+
+      if (closedIndex === -1) return s;
+
+      const remaining = list.filter((t) => t.id !== id);
       let newActive = s.tabActive;
+
       if (id === s.tabActive) {
         if (remaining.length > 0) {
-          const fallbackIndex = Math.max(0, closedIndex - 1);
+          const fallbackIndex = closedIndex === 0 ? 0 : closedIndex - 1;
           newActive = remaining[fallbackIndex].id;
         } else {
           newActive = -1;
@@ -91,7 +102,6 @@ export const tabActions = {
       }
 
       return {
-        ...s,
         tabsList: remaining,
         tabActive: newActive,
       };
@@ -99,13 +109,17 @@ export const tabActions = {
   },
 
   activateTab(id: number) {
-    apiTabStore.setState((s) => ({ ...s, tabActive: id }));
+    if (apiTabStore.getState().tabActive !== id) {
+      apiTabStore.setState({ tabActive: id });
+    }
   },
 
-  navigateTab(event: KeyboardEvent<HTMLDivElement>, tabId: number) {
+  navigateTab(event: KeyboardEvent<HTMLElement>, tabId: number) {
     const { tabsList } = apiTabStore.getState();
-    const currentIndex = tabsList.findIndex((t) => t.id === tabId);
+    const len = tabsList.length;
+    if (len === 0) return;
 
+    const currentIndex = tabsList.findIndex((t) => t.id === tabId);
     let nextIndex = currentIndex;
 
     switch (event.key) {
@@ -122,12 +136,12 @@ export const tabActions = {
 
       case 'ArrowUp':
       case 'ArrowLeft':
-        nextIndex = currentIndex > 0 ? currentIndex - 1 : tabsList.length - 1;
+        nextIndex = (currentIndex - 1 + len) % len;
         break;
 
       case 'ArrowDown':
       case 'ArrowRight':
-        nextIndex = currentIndex < tabsList.length - 1 ? currentIndex + 1 : 0;
+        nextIndex = (currentIndex + 1) % len;
         break;
 
       case 'Home':
@@ -135,7 +149,7 @@ export const tabActions = {
         break;
 
       case 'End':
-        nextIndex = tabsList.length - 1;
+        nextIndex = len - 1;
         break;
 
       default:

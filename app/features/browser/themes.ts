@@ -105,81 +105,76 @@ const [useThemeStore, apiThemeStore] = createStore<ThemeState>({
 
 export { useThemeStore, apiThemeStore };
 
-export const updateThemePath = <T>(
+export function updateThemePath<T>(
   obj: T,
   path: string[],
   value: string,
-): T => {
-  const [first, ...rest] = path;
-  if (!first) return obj;
+  index = 0,
+): T {
+  const key = path[index] as keyof T;
 
-  const key = first as keyof T;
-
-  if (rest.length === 0) {
+  if (index === path.length - 1) {
     return { ...obj, [key]: value };
   }
 
   return {
     ...obj,
-    [key]: updateThemePath(obj[key], rest, value),
+    [key]: updateThemePath(obj[key], path, value, index + 1),
   };
-};
+}
 
-export const getThemeValue = (state: ThemeState, path: string[]): string => {
-  return path.reduce((acc: unknown, key: string) => {
-    return (acc as Record<string, unknown>)?.[key];
-  }, state) as string;
-};
+export function getThemeValue(state: ThemeState, path: string[]): string {
+  let current: unknown = state;
+  for (let i = 0; i < path.length; i++) {
+    current = (current as Record<string, unknown>)?.[path[i]];
+  }
+  return current as string;
+}
 
-export const resolveDynamicPath = (
+export function resolveDynamicPath(
   baseKey: keyof ThemeState,
   theme: ThemeState['theme'],
-): string[] => {
+): string[] {
   const { incognito, inactive } = theme;
 
-  const hasNesting = [
-    'frame',
-    'background_tab',
-    'tab_background_text',
-  ].includes(baseKey as string);
-
-  if (hasNesting) {
-    const path: string[] = [baseKey as string];
+  if (
+    baseKey === 'frame' ||
+    baseKey === 'background_tab' ||
+    baseKey === 'tab_background_text'
+  ) {
     if (incognito) {
-      path.push('incognito');
+      return inactive
+        ? [baseKey, 'incognito', 'inactive']
+        : [baseKey, 'incognito', 'default'];
     }
-    const stateKey = inactive ? 'inactive' : 'default';
-    path.push(stateKey);
-    return path;
+
+    return inactive ? [baseKey, 'inactive'] : [baseKey, 'default'];
   }
 
-  const simpleKeyMap: Partial<Record<keyof ThemeState, string>> = {
-    toolbar: 'default',
-    ntp: 'background',
-    omnibox: 'background',
-    bookmark: 'text',
-    tab: 'text',
-  };
-
-  if (baseKey in simpleKeyMap) {
-    return [baseKey as string, simpleKeyMap[baseKey] as string];
+  switch (baseKey) {
+    case 'toolbar':
+      return ['toolbar', 'default'];
+    case 'ntp':
+      return ['ntp', 'background'];
+    case 'omnibox':
+      return ['omnibox', 'background'];
+    case 'bookmark':
+      return ['bookmark', 'text'];
+    case 'tab':
+      return ['tab', 'text'];
+    default:
+      return [baseKey as string, 'default'];
   }
+}
 
-  return [baseKey as string, 'default'];
-};
-
-export const useResolvedColor = (
-  baseKey: keyof ThemeState,
-  subKey?: string,
-) => {
+export function useResolvedColor(baseKey: keyof ThemeState, subKey?: string) {
   return useThemeStore(
     useCallback(
       (state: ThemeState) => {
         const path = resolveDynamicPath(baseKey, state.theme);
 
         if (subKey) {
-          const specificPath = [...path.slice(0, -1), subKey];
-          return getThemeValue(state, specificPath);
+          path[path.length - 1] = subKey;
         }
 
         return getThemeValue(state, path);
@@ -187,4 +182,4 @@ export const useResolvedColor = (
       [baseKey, subKey],
     ),
   );
-};
+}

@@ -1,4 +1,4 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useMemo, useRef, useSyncExternalStore } from 'react';
 import { shallowEqual } from './utils';
 
 type State = Record<string, unknown>;
@@ -16,12 +16,33 @@ interface UseStore<T extends State> {
   <U>(selector: Selector<T, U>): U;
 }
 
-export const createStore = <T extends State>(
+function hasStateChanged<T extends State>(
+  current: T,
+  next: Partial<T>,
+): boolean {
+  const keys = Object.keys(next);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if (!Object.is(current[key], next[key as keyof T])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function notify(listeners: Set<() => void>) {
+  const list = Array.from(listeners);
+  for (let i = 0; i < list.length; i++) {
+    list[i]();
+  }
+}
+
+export function createStore<T extends State>(
   initialState: T,
-): [UseStore<T>, StoreApi<T>] => {
+): [UseStore<T>, StoreApi<T>] {
   let state = initialState;
   const listeners = new Set<() => void>();
-  let idleHandle: number | null = null;
+  let rafHandle: number | null = null;
 
   const api: StoreApi<T> = {
     getState: () => state,
@@ -31,47 +52,34 @@ export const createStore = <T extends State>(
           ? (updater as (s: T) => Partial<T>)(state)
           : updater;
 
-      let hasChanged = false;
-
-      for (const key in nextPartial) {
-        if (Object.hasOwn(nextPartial, key)) {
-          if (!Object.is(state[key], nextPartial[key as keyof T])) {
-            hasChanged = true;
-            break;
-          }
-        }
-      }
-
-      if (hasChanged) {
+      if (hasStateChanged(state, nextPartial)) {
         state = { ...state, ...nextPartial };
 
-        if (idleHandle !== null) cancelIdleCallback(idleHandle);
+        if (rafHandle !== null) {
+          cancelAnimationFrame(rafHandle);
+        }
 
-        idleHandle = requestIdleCallback(
-          () => {
-            idleHandle = null;
-            for (const l of listeners) {
-              l();
-            }
-          },
-          { timeout: 100 },
-        );
+        rafHandle = requestAnimationFrame(() => {
+          rafHandle = null;
+          notify(listeners);
+        });
       }
     },
     subscribe: (l) => {
       listeners.add(l);
       return () => {
         listeners.delete(l);
-        if (listeners.size === 0 && idleHandle !== null) {
-          cancelIdleCallback(idleHandle);
-          idleHandle = null;
+        if (listeners.size === 0 && rafHandle !== null) {
+          cancelAnimationFrame(rafHandle);
+          rafHandle = null;
         }
       };
     },
   };
 
   const useStore = (<U>(selector?: Selector<T, U>): U | T => {
-    const sliceSelector = (selector || ((s: T) => s)) as (state: T) => U;
+    const selectorRef = useRef(selector);
+    selectorRef.current = selector;
 
     const [getSnapshot, getServerSnapshot] = useMemo(() => {
       const cache = {
@@ -81,6 +89,9 @@ export const createStore = <T extends State>(
 
       const getCurrentSnapshot = (): U => {
         const currentState = api.getState();
+        const sliceSelector = (selectorRef.current || ((s: T) => s)) as (
+          state: T,
+        ) => U;
 
         if (currentState === cache.lastState && cache.lastSlice !== undefined) {
           return cache.lastSlice;
@@ -102,10 +113,10 @@ export const createStore = <T extends State>(
       };
 
       return [getCurrentSnapshot, getCurrentSnapshot];
-    }, [sliceSelector]);
+    }, []);
 
     return useSyncExternalStore(api.subscribe, getSnapshot, getServerSnapshot);
   }) as UseStore<T>;
 
   return [useStore, api];
-};
+}
