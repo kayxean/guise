@@ -36,6 +36,7 @@ export function ChromiumPicker({ baseKey, label }: ChromiumPickerProps) {
       apiThemeStore.setState((state: ThemeState) => {
         const category = activePath[0] as keyof ThemeState;
         return {
+          ...state,
           [category]: updateThemePath(
             state[category],
             activePath.slice(1),
