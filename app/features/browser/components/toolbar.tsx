@@ -11,7 +11,7 @@ export function Toolbar() {
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
 
-  const toolbarBg = useResolvedColor('toolbar', 'default');
+  const toolbarBg = useResolvedColor('toolbar');
   const toolbarIcon = useResolvedColor('toolbar', 'icon');
   const omniboxBg = useResolvedColor('omnibox', 'background');
   const omniboxText = useResolvedColor('omnibox', 'text');

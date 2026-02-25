@@ -29,6 +29,8 @@ export function ColorPicker({
     if (value !== lastUpdateRef.current) {
       picker.assign(parseColor(value));
       lastUpdateRef.current = value;
+
+      setView(picker.getValue());
     }
   }, [value, picker]);
 
