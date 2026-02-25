@@ -10,12 +10,12 @@ export function TabList() {
   const tabsList = useTabStore((state) => state.tabsList);
   const tabActive = useTabStore((state) => state.tabActive);
 
-  const frameBg = useResolvedColor('frame', 'default');
-  const toolbarBg = useResolvedColor('toolbar', 'default');
+  const frameBg = useResolvedColor('frame');
+  const toolbarBg = useResolvedColor('toolbar');
   const toolbarIcon = useResolvedColor('toolbar', 'icon');
   const tabText = useResolvedColor('tab', 'text');
-  const backgroundTabBg = useResolvedColor('background_tab', 'default');
-  const backgroundTabText = useResolvedColor('tab_background_text', 'default');
+  const backgroundTabBg = useResolvedColor('background_tab');
+  const backgroundTabText = useResolvedColor('tab_background_text');
 
   const lastIntentRef = useRef<'mount' | 'keyboard' | 'mouse' | null>('mount');
   const tabRefs = useRef<Record<number, HTMLDivElement | null>>({});
