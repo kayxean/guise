@@ -1,5 +1,4 @@
-import { useMemo, useRef, useSyncExternalStore } from 'react';
-import { shallowEqual } from './utils';
+import { useCallback, useSyncExternalStore } from 'react';
 
 type State = Record<string, unknown>;
 type Selector<T extends State, U> = (state: T) => U;
@@ -31,9 +30,8 @@ function hasStateChanged<T extends State>(
 }
 
 function notify(listeners: Set<() => void>) {
-  const list = Array.from(listeners);
-  for (let i = 0; i < list.length; i++) {
-    list[i]();
+  for (const listener of listeners) {
+    listener();
   }
 }
 
@@ -55,14 +53,12 @@ export function createStore<T extends State>(
       if (hasStateChanged(state, nextPartial)) {
         state = { ...state, ...nextPartial };
 
-        if (rafHandle !== null) {
-          cancelAnimationFrame(rafHandle);
+        if (rafHandle === null) {
+          rafHandle = requestAnimationFrame(() => {
+            rafHandle = null;
+            notify(listeners);
+          });
         }
-
-        rafHandle = requestAnimationFrame(() => {
-          rafHandle = null;
-          notify(listeners);
-        });
       }
     },
     subscribe: (l) => {
@@ -78,44 +74,12 @@ export function createStore<T extends State>(
   };
 
   const useStore = (<U>(selector?: Selector<T, U>): U | T => {
-    const selectorRef = useRef(selector);
-    selectorRef.current = selector;
+    const getSnapshot = useCallback(() => {
+      const currentState = api.getState();
+      return selector ? selector(currentState) : currentState;
+    }, [selector]);
 
-    const [getSnapshot, getServerSnapshot] = useMemo(() => {
-      const cache = {
-        lastState: undefined as T | undefined,
-        lastSlice: undefined as U | undefined,
-      };
-
-      const getCurrentSnapshot = (): U => {
-        const currentState = api.getState();
-        const sliceSelector = (selectorRef.current || ((s: T) => s)) as (
-          state: T,
-        ) => U;
-
-        if (currentState === cache.lastState && cache.lastSlice !== undefined) {
-          return cache.lastSlice;
-        }
-
-        const nextSlice = sliceSelector(currentState);
-
-        if (
-          cache.lastSlice !== undefined &&
-          shallowEqual(cache.lastSlice, nextSlice)
-        ) {
-          cache.lastState = currentState;
-          return cache.lastSlice;
-        }
-
-        cache.lastState = currentState;
-        cache.lastSlice = nextSlice;
-        return nextSlice;
-      };
-
-      return [getCurrentSnapshot, getCurrentSnapshot];
-    }, []);
-
-    return useSyncExternalStore(api.subscribe, getSnapshot, getServerSnapshot);
+    return useSyncExternalStore(api.subscribe, getSnapshot, getSnapshot);
   }) as UseStore<T>;
 
   return [useStore, api];
