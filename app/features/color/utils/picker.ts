@@ -65,7 +65,7 @@ export function createPicker(init: Color, target?: ColorSpace) {
     update: (x: number, y: number, type: 'sv' | 'h' | 'a') => {
       if (type === 'sv') {
         val.s = x;
-        val.v = 1 - y;
+        val.v = y;
       } else if (type === 'h') {
         val.h = x * 360;
       } else if (type === 'a') {
@@ -76,14 +76,20 @@ export function createPicker(init: Color, target?: ColorSpace) {
 
     assign: (next: Color) => {
       const nextVal = toPicker(next);
-      if (
-        nextVal.h === val.h &&
-        nextVal.s === val.s &&
-        nextVal.v === val.v &&
-        nextVal.a === val.a
-      ) {
-        return;
+
+      const hasNoColorInfo = nextVal.s < 0.01 || nextVal.v < 0.01;
+
+      if (hasNoColorInfo) {
+        nextVal.h = val.h;
       }
+
+      const hasChanged =
+        Math.abs(nextVal.h - val.h) > 0.01 ||
+        Math.abs(nextVal.s - val.s) > 0.001 ||
+        Math.abs(nextVal.v - val.v) > 0.001 ||
+        nextVal.a !== val.a;
+
+      if (!hasChanged) return;
 
       Object.assign(val, nextVal);
       notify();

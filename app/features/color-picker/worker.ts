@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
-import type { ColorArray } from './types';
-import { lrgbToRgb, rgbToLrgb } from './adapters/gamma';
-import { hsvToRgb } from './adapters/srgb';
+import type { ColorArray } from '~/color/types';
+import { lrgbToRgb, rgbToLrgb } from '~/color/adapters/gamma';
+import { hsvToRgb } from '~/color/adapters/srgb';
 
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
 let canvas: OffscreenCanvas | null = null;

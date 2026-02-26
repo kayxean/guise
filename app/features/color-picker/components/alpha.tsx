@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRelativePointer } from '../hooks';
 
 export function AlphaPicker({
@@ -12,8 +12,23 @@ export function AlphaPicker({
   onSelect: (a: number) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pointerRef = useRef<HTMLButtonElement>(null);
 
-  const handleMove = useCallback((nx: number) => onSelect(nx), [onSelect]);
+  useEffect(() => {
+    if (pointerRef.current) {
+      pointerRef.current.style.left = `${alpha * 100}%`;
+    }
+  }, [alpha]);
+
+  const handleMove = useCallback(
+    (nx: number) => {
+      if (pointerRef.current) {
+        pointerRef.current.style.left = `${nx * 100}%`;
+      }
+      onSelect(nx);
+    },
+    [onSelect],
+  );
 
   const trackDragHandler = useRelativePointer(
     containerRef,
@@ -27,25 +42,29 @@ export function AlphaPicker({
     'ew-resize',
   );
 
-  const left = `${alpha * 100}%`;
-
   return (
     <div ref={containerRef} {...stylex.props(styles.layout)}>
       <div {...stylex.props(styles.patterns)} />
+
       <button
         onPointerDown={trackDragHandler}
         type="button"
         tabIndex={-1}
         {...stylex.props(styles.track(color))}
       />
+
       <button
+        ref={pointerRef}
         onPointerDown={(e) => {
           e.stopPropagation();
           pointerDragHandler(e);
         }}
         type="button"
         tabIndex={-1}
-        {...stylex.props(styles.pointer(left))}
+        style={{
+          left: `${alpha * 100}%`,
+        }}
+        {...stylex.props(styles.pointerBase)}
       />
     </div>
   );
@@ -85,7 +104,7 @@ const styles = stylex.create({
     width: '100%',
     zIndex: 1,
   }),
-  pointer: (x: string) => ({
+  pointerBase: {
     backgroundColor: '#0000',
     borderColor: '#fff',
     borderRadius: '50%',
@@ -93,7 +112,6 @@ const styles = stylex.create({
     borderWidth: 2,
     cursor: 'ew-resize',
     height: 16,
-    left: x,
     outline: 'none',
     position: 'absolute',
     top: 7,
@@ -101,5 +119,5 @@ const styles = stylex.create({
     width: 16,
     willChange: 'left',
     zIndex: 2,
-  }),
+  },
 });

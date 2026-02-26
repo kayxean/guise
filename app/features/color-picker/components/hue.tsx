@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRelativePointer } from '../hooks';
 
 export function HuePicker({
@@ -10,9 +10,21 @@ export function HuePicker({
   onSelect: (h: number) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pointerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (pointerRef.current) {
+      pointerRef.current.style.left = `${(hue / 360) * 100}%`;
+    }
+  }, [hue]);
 
   const handleMove = useCallback(
-    (nx: number) => onSelect(nx * 360),
+    (nx: number) => {
+      if (pointerRef.current) {
+        pointerRef.current.style.left = `${nx * 100}%`;
+      }
+      onSelect(nx * 360);
+    },
     [onSelect],
   );
 
@@ -28,8 +40,6 @@ export function HuePicker({
     'ew-resize',
   );
 
-  const left = `${(hue / 360) * 100}%`;
-
   return (
     <div ref={containerRef} {...stylex.props(styles.layout)}>
       <button
@@ -39,13 +49,17 @@ export function HuePicker({
         {...stylex.props(styles.track)}
       />
       <button
+        ref={pointerRef}
         onPointerDown={(e) => {
           e.stopPropagation();
           pointerDragHandler(e);
         }}
         type="button"
         tabIndex={-1}
-        {...stylex.props(styles.pointer(left))}
+        style={{
+          left: `${(hue / 360) * 100}%`,
+        }}
+        {...stylex.props(styles.pointerBase)}
       />
     </div>
   );
@@ -69,7 +83,7 @@ const styles = stylex.create({
     outline: 'none',
     width: '100%',
   },
-  pointer: (x: string) => ({
+  pointerBase: {
     backgroundColor: '#0000',
     borderColor: '#fff',
     borderRadius: '50%',
@@ -77,7 +91,6 @@ const styles = stylex.create({
     borderWidth: 2,
     cursor: 'ew-resize',
     height: 16,
-    left: x,
     outline: 'none',
     position: 'absolute',
     top: 7,
@@ -85,5 +98,5 @@ const styles = stylex.create({
     width: 16,
     willChange: 'left',
     zIndex: 2,
-  }),
+  },
 });

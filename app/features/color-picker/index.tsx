@@ -1,11 +1,11 @@
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { formatCss } from '../format';
-import { parseColor } from '../parse';
-import { createPicker } from '../utils/picker';
-import { AlphaPicker } from './alpha';
-import { HuePicker } from './hue';
-import { SquarePicker } from './square';
+import { useEffect, useRef, useState } from 'react';
+import { formatCss } from '~/color/format';
+import { parseColor } from '~/color/parse';
+import { createPicker } from '~/color/utils/picker';
+import { AlphaPicker } from './components/alpha';
+import { HuePicker } from './components/hue';
+import { SquarePicker } from './components/square';
 
 interface ColorPickerProps {
   value: string;
@@ -20,7 +20,12 @@ export function ColorPicker({
   label,
   subLabel,
 }: ColorPickerProps) {
-  const picker = useMemo(() => createPicker(parseColor(value)), [value]);
+  const pickerRef = useRef<ReturnType<typeof createPicker> | null>(null);
+
+  if (!pickerRef.current) {
+    pickerRef.current = createPicker(parseColor(value));
+  }
+  const picker = pickerRef.current;
 
   const [view, setView] = useState(() => picker.getValue());
   const lastUpdateRef = useRef(value);
@@ -29,7 +34,6 @@ export function ColorPicker({
     if (value !== lastUpdateRef.current) {
       picker.assign(parseColor(value));
       lastUpdateRef.current = value;
-
       setView(picker.getValue());
     }
   }, [value, picker]);
@@ -46,13 +50,8 @@ export function ColorPicker({
     });
   }, [picker, onChange]);
 
-  const solidColor = useMemo(() => {
-    return formatCss(picker.getSolid());
-  }, [picker]);
-
-  const previewColor = useMemo(() => {
-    return formatCss(picker.getColor());
-  }, [picker]);
+  const solidColor = formatCss(picker.getSolid());
+  const previewColor = formatCss(picker.getColor());
 
   return (
     <div {...stylex.props(styles.layout)}>
@@ -67,7 +66,7 @@ export function ColorPicker({
         hue={view.h}
         x={view.s}
         y={view.v}
-        onSelect={(s, v) => picker.update(s, 1 - v, 'sv')}
+        onSelect={(s, v) => picker.update(s, v, 'sv')}
       />
 
       <HuePicker
