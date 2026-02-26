@@ -1,6 +1,6 @@
 import type { ThemeState } from '../themes';
 import { useCallback, useMemo } from 'react';
-import { ColorPicker } from '~/features/color/components/picker';
+import { ColorPicker } from '~/color-picker';
 import {
   apiThemeStore,
   getThemeValue,
