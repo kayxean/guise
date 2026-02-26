@@ -1,10 +1,13 @@
 import type { MetaFunction } from '@remix-run/node';
-import { Browser } from '~/features/browser';
+import { Browser } from '~/browser';
 
 export const meta: MetaFunction = () => {
   return [
     { title: 'Chromium' },
-    { name: 'description', content: 'Create a Chromium-based browser theme with ease' },
+    {
+      name: 'description',
+      content: 'Create a Chromium-based browser theme with ease',
+    },
     { tagName: 'link', rel: 'canonical', href: '/chromium' },
   ];
 };

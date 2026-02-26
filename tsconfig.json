@@ -15,6 +15,15 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
+      "~/color": ["./app/features/color"],
+      "~/color/*": ["./app/features/color/*"],
+
+      "~/browser": ["./app/features/browser"],
+      "~/browser/*": ["./app/features/browser/*"],
+
+      "~/color-picker": ["./app/features/color-picker"],
+      "~/color-picker/*": ["./app/features/color-picker/*"],
+
       "~/*": ["./app/*"]
     },
     "noEmit": true,

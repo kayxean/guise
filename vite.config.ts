@@ -38,6 +38,9 @@ export default {
   ],
   resolve: {
     alias: {
+      '~/color': resolve(__dirname, './app/features/color'),
+      '~/browser': resolve(__dirname, './app/features/browser'),
+      '~/color-picker': resolve(__dirname, './app/features/color-picker'),
       '~': resolve(__dirname, './app'),
     },
   },
