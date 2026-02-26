@@ -17,6 +17,7 @@ export function SquarePicker({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const isInitialized = useRef<boolean>(false);
+  const pointerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (workerRef.current) return;
@@ -40,12 +41,17 @@ export function SquarePicker({
         );
 
         isInitialized.current = true;
+
+        worker.postMessage({
+          type: 'RENDER',
+          payload: { hue, width: 182, height: 100 },
+        });
       } catch (e) {
         console.warn(e);
         isInitialized.current = true;
       }
     }
-  }, []);
+  }, [hue]);
 
   useEffect(() => {
     if (workerRef.current && isInitialized.current) {
@@ -57,7 +63,13 @@ export function SquarePicker({
   }, [hue]);
 
   const handleMove = useCallback(
-    (nx: number, ny: number) => onSelect(nx, 1 - ny),
+    (nx: number, ny: number) => {
+      if (pointerRef.current) {
+        pointerRef.current.style.left = `${nx * 100}%`;
+        pointerRef.current.style.top = `${ny * 100}%`;
+      }
+      onSelect(nx, 1 - ny);
+    },
     [onSelect],
   );
 
@@ -66,15 +78,11 @@ export function SquarePicker({
     handleMove,
     'crosshair',
   );
-
   const pointerDragHandler = useRelativePointer(
     containerRef,
     handleMove,
     'move',
   );
-
-  const left = `${x * 100}%`;
-  const top = `${(1 - y) * 100}%`;
 
   return (
     <div ref={containerRef} {...stylex.props(styles.layout)}>
@@ -91,13 +99,19 @@ export function SquarePicker({
         {...stylex.props(styles.track)}
       />
       <button
+        ref={pointerRef}
         onPointerDown={(e) => {
           e.stopPropagation();
           pointerDragHandler(e);
         }}
         type="button"
         tabIndex={-1}
-        {...stylex.props(styles.pointer(left, top))}
+        style={{
+          left: `${x * 100}%`,
+          top: `${(1 - y) * 100}%`,
+          position: 'absolute',
+        }}
+        {...stylex.props(styles.pointerBase)}
       />
     </div>
   );
@@ -128,7 +142,7 @@ const styles = stylex.create({
     top: 0,
     zIndex: 1,
   },
-  pointer: (x: string, y: string) => ({
+  pointerBase: {
     backgroundColor: '#0000',
     borderColor: '#fff',
     borderRadius: '50%',
@@ -136,13 +150,10 @@ const styles = stylex.create({
     borderWidth: 2,
     cursor: 'move',
     height: 16,
-    left: x,
     outline: 'none',
-    position: 'absolute',
-    top: y,
     transform: 'translate(-50%, -50%)',
     width: 16,
     willChange: 'left, top',
     zIndex: 2,
-  }),
+  },
 });
