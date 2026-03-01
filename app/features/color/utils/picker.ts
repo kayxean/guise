@@ -47,7 +47,7 @@ export function fromPicker<S extends ColorSpace>(
 
 export function createPicker(init: Color, target?: ColorSpace) {
   const val: PickerValue = toPicker(init);
-  const space: ColorSpace = target ?? init.space;
+  let space: ColorSpace = target ?? init.space;
   const subs = new Set<PickerSubscriber>();
 
   const notify = () => {
@@ -87,10 +87,12 @@ export function createPicker(init: Color, target?: ColorSpace) {
         Math.abs(nextVal.h - val.h) > 0.01 ||
         Math.abs(nextVal.s - val.s) > 0.001 ||
         Math.abs(nextVal.v - val.v) > 0.001 ||
-        nextVal.a !== val.a;
+        nextVal.a !== val.a ||
+        next.space !== space;
 
       if (!hasChanged) return;
 
+      space = next.space;
       Object.assign(val, nextVal);
       notify();
     },
@@ -102,7 +104,14 @@ export function createPicker(init: Color, target?: ColorSpace) {
       };
     },
 
+    setSpace: (nextSpace: ColorSpace) => {
+      if (nextSpace === space) return;
+      space = nextSpace;
+      notify();
+    },
+
     getValue: () => ({ ...val }),
+    getSpace: () => space,
     getHue: () => val.h,
     getSaturation: () => val.s,
     getBrightness: () => val.v,
