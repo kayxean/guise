@@ -10,11 +10,10 @@ function roundTo(val: number, precision: number): number {
 
 export function formatCss(
   color: Color,
-  alpha?: number,
   asHex?: boolean,
   precision = 2,
 ): string {
-  const { space, value } = color;
+  const { space, value, alpha } = color;
 
   if (asHex && space === 'rgb') {
     const r = (value[0] * 255 + 0.5) | 0;
@@ -54,10 +53,10 @@ export function formatCss(
     }
 
     case 'lab':
-      return `lab(${roundTo(value[0] * 100, precision)}% ${n2} ${n3}${suffix})`;
+      return `lab(${n1}% ${n2} ${n3}${suffix})`;
 
     case 'lch':
-      return `lch(${roundTo(value[0] * 100, precision)}% ${n2} ${n3}deg${suffix})`;
+      return `lch(${n1}% ${n2} ${n3}deg${suffix})`;
 
     case 'oklab': {
       const l = roundTo(value[0] * 100, precision);
