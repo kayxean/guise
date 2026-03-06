@@ -5,13 +5,16 @@ import { parseColor } from '~/color/parse';
 import { createPicker } from '~/color/utils/picker';
 import { AlphaPicker } from './components/alpha';
 import { HuePicker } from './components/hue';
+import { SpacePicker } from './components/space';
 import { SquarePicker } from './components/square';
+import { TextPicker } from './components/text';
 
 interface ColorPickerProps {
   value: string;
   onChange: (css: string) => void;
   label?: string;
   subLabel?: string;
+  asHex?: boolean;
 }
 
 export function ColorPicker({
@@ -19,6 +22,7 @@ export function ColorPicker({
   onChange,
   label,
   subLabel,
+  asHex,
 }: ColorPickerProps) {
   const pickerRef = useRef<ReturnType<typeof createPicker> | null>(null);
 
@@ -41,17 +45,17 @@ export function ColorPicker({
   useEffect(() => {
     return picker.subscribe((nextView, color) => {
       setView(nextView);
-      const newCss = formatCss(color);
+      const newCss = formatCss(color, asHex);
 
       if (newCss !== lastUpdateRef.current) {
         lastUpdateRef.current = newCss;
         onChange(newCss);
       }
     });
-  }, [picker, onChange]);
+  }, [picker, onChange, asHex]);
 
-  const solidColor = formatCss(picker.getSolid());
-  const previewColor = formatCss(picker.getColor());
+  const solidColor = formatCss(picker.getSolid(), asHex);
+  const previewColor = formatCss(picker.getColor(), asHex);
 
   return (
     <div {...stylex.props(styles.layout)}>
@@ -61,6 +65,13 @@ export function ColorPicker({
       )}
 
       <div {...stylex.props(styles.preview(previewColor))} />
+
+      <SpacePicker onSelect={(s) => picker.setSpace(s)} />
+
+      <TextPicker
+        color={value}
+        onChange={(next) => picker.assign(parseColor(next))}
+      />
 
       <SquarePicker
         hue={view.h}
