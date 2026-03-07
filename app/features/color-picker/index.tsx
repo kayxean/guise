@@ -1,5 +1,6 @@
+import type { ColorMode } from '~/color/types';
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { formatCss } from '~/color/format';
 import { parseColor } from '~/color/parse';
 import { createPicker } from '~/color/utils/picker';
@@ -9,29 +10,29 @@ import { SpacePicker } from './components/space';
 import { SquarePicker } from './components/square';
 import { TextPicker } from './components/text';
 
-interface ColorPickerProps {
-  value: string;
-  onChange: (css: string) => void;
-  label?: string;
-  subLabel?: string;
-  asHex?: boolean;
-}
-
 export function ColorPicker({
   value,
   onChange,
   label,
   subLabel,
-  asHex,
-}: ColorPickerProps) {
+  useHex = true,
+  allowedMode,
+}: {
+  value: string;
+  onChange: (css: string) => void;
+  label?: string;
+  subLabel?: string;
+  useHex?: boolean;
+  allowedMode?: ColorMode[];
+}) {
   const pickerRef = useRef<ReturnType<typeof createPicker> | null>(null);
-
   if (!pickerRef.current) {
     pickerRef.current = createPicker(parseColor(value));
   }
   const picker = pickerRef.current;
 
   const [view, setView] = useState(() => picker.getValue());
+  const [asHex, setAsHex] = useState(useHex);
   const lastUpdateRef = useRef(value);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export function ColorPicker({
     }
   }, [value, picker]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     return picker.subscribe((nextView, color) => {
       setView(nextView);
       const newCss = formatCss(color, asHex);
@@ -54,8 +55,8 @@ export function ColorPicker({
     });
   }, [picker, onChange, asHex]);
 
-  const solidColor = formatCss(picker.getSolid(), asHex);
   const previewColor = formatCss(picker.getColor(), asHex);
+  const solidColor = formatCss(picker.getSolid(), asHex);
 
   return (
     <div {...stylex.props(styles.layout)}>
@@ -66,11 +67,34 @@ export function ColorPicker({
 
       <div {...stylex.props(styles.preview(previewColor))} />
 
-      <SpacePicker onSelect={(s) => picker.setSpace(s)} />
+      <SpacePicker
+        allowedMode={allowedMode}
+        onSelect={(s) => {
+          const isHex = s === 'hex';
+          const nextSpace = isHex ? 'rgb' : s;
+
+          setAsHex(isHex);
+          picker.setSpace(nextSpace);
+
+          const currentColor = picker.getColor();
+          const newCss = formatCss(currentColor, isHex);
+
+          if (newCss !== lastUpdateRef.current) {
+            lastUpdateRef.current = newCss;
+            onChange(newCss);
+          }
+        }}
+      />
 
       <TextPicker
         color={value}
-        onChange={(next) => picker.assign(parseColor(next))}
+        onChange={(next) => {
+          try {
+            picker.assign(parseColor(next));
+          } catch (e) {
+            console.warn(e);
+          }
+        }}
       />
 
       <SquarePicker

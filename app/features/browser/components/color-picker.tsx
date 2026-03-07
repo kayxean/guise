@@ -33,17 +33,9 @@ export function ChromiumPicker({ baseKey, label }: ChromiumPickerProps) {
 
   const handleUpdate = useCallback(
     (newCss: string) => {
-      apiThemeStore.setState((state: ThemeState) => {
-        const category = activePath[0] as keyof ThemeState;
-        return {
-          ...state,
-          [category]: updateThemePath(
-            state[category],
-            activePath.slice(1),
-            newCss,
-          ),
-        };
-      });
+      apiThemeStore.setState((state) =>
+        updateThemePath(state, activePath, newCss),
+      );
     },
     [activePath],
   );
@@ -54,6 +46,7 @@ export function ChromiumPicker({ baseKey, label }: ChromiumPickerProps) {
       subLabel={subLabel}
       value={cssValue}
       onChange={handleUpdate}
+      allowedMode={['hex', 'rgb', 'hsl']}
     />
   );
 }

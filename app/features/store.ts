@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useRef, useSyncExternalStore } from 'react';
 
 type State = Record<string, unknown>;
 type Selector<T extends State, U> = (state: T) => U;
@@ -17,14 +17,23 @@ interface UseStore<T extends State> {
 
 function hasStateChanged<T extends State>(
   current: T,
-  next: Partial<T>,
+  nextPartial: Partial<T>,
 ): boolean {
-  const keys = Object.keys(next);
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    if (!Object.is(current[key], next[key as keyof T])) {
-      return true;
+  for (const key in nextPartial) {
+    const prev = current[key];
+    const next = nextPartial[key];
+
+    if (Object.is(prev, next)) continue;
+
+    if (prev instanceof Float32Array && next instanceof Float32Array) {
+      if (prev.length !== next.length) return true;
+      for (let i = 0; i < prev.length; i++) {
+        if (prev[i] !== next[i]) return true;
+      }
+      continue;
     }
+
+    return true;
   }
   return false;
 }
@@ -74,9 +83,26 @@ export function createStore<T extends State>(
   };
 
   const useStore = (<U>(selector?: Selector<T, U>): U | T => {
+    const apiState = api.getState();
+
+    const lastStateRef = useRef<T>(apiState);
+    const lastSelectedStateRef = useRef<U | T>(
+      selector ? selector(apiState) : apiState,
+    );
+
     const getSnapshot = useCallback(() => {
       const currentState = api.getState();
-      return selector ? selector(currentState) : currentState;
+
+      if (Object.is(currentState, lastStateRef.current)) {
+        return lastSelectedStateRef.current;
+      }
+
+      const nextSelection = selector ? selector(currentState) : currentState;
+
+      lastStateRef.current = currentState;
+      lastSelectedStateRef.current = nextSelection;
+
+      return nextSelection;
     }, [selector]);
 
     return useSyncExternalStore(api.subscribe, getSnapshot, getSnapshot);

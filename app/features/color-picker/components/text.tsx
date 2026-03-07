@@ -13,14 +13,18 @@ export function TextPicker({
     setBuffer(color);
   }, [color]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      onChange(buffer);
+  const commit = () => {
+    const clean = buffer.trim();
+    if (clean !== color) {
+      onChange(clean);
     }
   };
 
-  const handleBlur = () => {
-    onChange(buffer);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      commit();
+      (e.target as HTMLInputElement).blur();
+    }
   };
 
   return (
@@ -29,8 +33,9 @@ export function TextPicker({
         value={buffer}
         onChange={(e) => setBuffer(e.target.value)}
         onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
+        onBlur={commit}
         spellCheck={false}
+        autoComplete="off"
       />
     </div>
   );

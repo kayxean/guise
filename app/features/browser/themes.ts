@@ -105,30 +105,52 @@ const [useThemeStore, apiThemeStore] = createStore<ThemeState>({
 
 export { useThemeStore, apiThemeStore };
 
-export function updateThemePath<T>(
+export function updateThemePath<T extends Record<string, unknown>>(
   obj: T,
   path: string[],
   value: string,
-  index = 0,
 ): T {
-  const key = path[index] as keyof T;
+  if (path.length === 0) return obj;
 
-  if (index === path.length - 1) {
-    return { ...obj, [key]: value };
+  const newRoot = { ...obj };
+  let current: Record<string, unknown> = newRoot;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i];
+    const existingValue = current[key];
+
+    const nextValue = { ...(existingValue as Record<string, unknown>) };
+
+    current[key] = nextValue;
+    current = nextValue;
   }
 
-  return {
-    ...obj,
-    [key]: updateThemePath(obj[key], path, value, index + 1),
-  };
+  current[path[path.length - 1]] = value;
+
+  return newRoot;
 }
 
-export function getThemeValue(state: ThemeState, path: string[]): string {
+export function getThemeValue(
+  state: ThemeState,
+  path: string[],
+  subKeyOverride?: string,
+): string {
   let current: unknown = state;
-  for (let i = 0; i < path.length; i++) {
-    current = (current as Record<string, unknown>)?.[path[i]];
+  const lastIndex = path.length - 1;
+
+  for (let i = 0; i < lastIndex; i++) {
+    if (typeof current === 'object' && current !== null) {
+      current = (current as Record<string, unknown>)[path[i]];
+    }
   }
-  return current as string;
+
+  const finalKey = subKeyOverride ?? path[lastIndex];
+
+  if (typeof current === 'object' && current !== null) {
+    return (current as Record<string, string>)[finalKey] ?? '';
+  }
+
+  return '';
 }
 
 export function resolveDynamicPath(
@@ -172,12 +194,7 @@ export function useResolvedColor(baseKey: keyof ThemeState, subKey?: string) {
     useCallback(
       (state: ThemeState) => {
         const path = resolveDynamicPath(baseKey, state.theme);
-
-        if (subKey) {
-          path[path.length - 1] = subKey;
-        }
-
-        return getThemeValue(state, path);
+        return getThemeValue(state, path, subKey);
       },
       [baseKey, subKey],
     ),

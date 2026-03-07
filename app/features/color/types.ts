@@ -25,6 +25,10 @@ export type Color<S extends ColorSpace = ColorSpace> = {
 
 export type ColorAdapter = (input: ColorArray, output: ColorArray) => void;
 
+export type ColorMode =
+  | 'hex'
+  | Exclude<ColorSpace, 'hsv' | 'lrgb' | 'xyz65' | 'xyz50'>;
+
 export type DeficiencyType =
   | 'protanopia'
   | 'deuteranopia'
