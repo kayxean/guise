@@ -1,74 +1,79 @@
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useEffect, useRef } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { useRelativePointer } from '../hooks';
 
-export function AlphaPicker({
-  color,
-  alpha,
-  onSelect,
-}: {
-  color: string;
-  alpha: number;
-  onSelect: (a: number) => void;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const pointerRef = useRef<HTMLButtonElement>(null);
+export const AlphaPicker = memo(
+  ({
+    color,
+    alpha,
+    onSelect,
+  }: {
+    color: string;
+    alpha: number;
+    onSelect: (a: number) => void;
+  }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const pointerRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (pointerRef.current) {
-      pointerRef.current.style.left = `${alpha * 100}%`;
-    }
-  }, [alpha]);
-
-  const handleMove = useCallback(
-    (nx: number) => {
+    useEffect(() => {
       if (pointerRef.current) {
-        pointerRef.current.style.left = `${nx * 100}%`;
+        pointerRef.current.style.left = `${alpha * 100}%`;
       }
-      onSelect(nx);
-    },
-    [onSelect],
-  );
+    }, [alpha]);
 
-  const trackDragHandler = useRelativePointer(
-    containerRef,
-    handleMove,
-    'crosshair',
-  );
+    const handleMove = useCallback(
+      (nx: number) => {
+        if (pointerRef.current) {
+          pointerRef.current.style.left = `${nx * 100}%`;
+        }
+        onSelect(nx);
+      },
+      [onSelect],
+    );
 
-  const pointerDragHandler = useRelativePointer(
-    containerRef,
-    handleMove,
-    'ew-resize',
-  );
+    const trackDragHandler = useRelativePointer(
+      containerRef,
+      handleMove,
+      'crosshair',
+    );
 
-  return (
-    <div ref={containerRef} {...stylex.props(styles.layout)}>
-      <div {...stylex.props(styles.patterns)} />
+    const pointerDragHandler = useRelativePointer(
+      containerRef,
+      handleMove,
+      'ew-resize',
+    );
 
-      <button
-        onPointerDown={trackDragHandler}
-        type="button"
-        tabIndex={-1}
-        {...stylex.props(styles.track(color))}
-      />
+    return (
+      <div ref={containerRef} {...stylex.props(styles.layout)}>
+        <div {...stylex.props(styles.patterns)} />
 
-      <button
-        ref={pointerRef}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          pointerDragHandler(e);
-        }}
-        type="button"
-        tabIndex={-1}
-        style={{
-          left: `${alpha * 100}%`,
-        }}
-        {...stylex.props(styles.pointerBase)}
-      />
-    </div>
-  );
-}
+        <button
+          onPointerDown={trackDragHandler}
+          type="button"
+          tabIndex={-1}
+          {...stylex.props(styles.track(color))}
+        />
+
+        <button
+          ref={pointerRef}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            pointerDragHandler(e);
+          }}
+          type="button"
+          tabIndex={-1}
+          style={{
+            left: `${alpha * 100}%`,
+          }}
+          {...stylex.props(styles.pointerBase)}
+        />
+      </div>
+    );
+  },
+  (prev, next) => {
+    return prev.color === next.color;
+  },
+);
 
 const styles = stylex.create({
   layout: {

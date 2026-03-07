@@ -46,11 +46,14 @@ function render() {
   hsvToRgb(hsvInput, hRgb);
   rgbToLrgb(hRgb, hLrgb);
 
-  const hRL = hLrgb[0],
-    hGL = hLrgb[1],
-    hBL = hLrgb[2];
-  const wInv = 1 / (width - 1);
-  const hInv = 1 / (height - 1);
+  const hRL = hLrgb[0];
+  const hGL = hLrgb[1];
+  const hBL = hLrgb[2];
+
+  const wDiv = width > 1 ? width - 1 : 1;
+  const hDiv = height > 1 ? height - 1 : 1;
+  const wInv = 1 / wDiv;
+  const hInv = 1 / hDiv;
 
   for (let row = 0; row < height; row++) {
     const v = 1 - row * hInv;
@@ -94,8 +97,10 @@ self.onmessage = (e: MessageEvent) => {
         alpha: false,
         desynchronized: true,
       });
+      if (pendingFrame) {
+        requestAnimationFrame(render);
+      }
     }
-    return;
   }
 
   if (type === 'RENDER') {

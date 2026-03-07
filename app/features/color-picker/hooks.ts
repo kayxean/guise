@@ -5,13 +5,13 @@ export const useRelativePointer = (
   onMove: (x: number, y: number) => void,
   cursor?: React.CSSProperties['cursor'],
 ) => {
-  const onMoveRef = useRef<typeof onMove>(onMove);
+  const onMoveRef = useRef(onMove);
   onMoveRef.current = onMove;
 
   return useCallback(
     (e: React.PointerEvent) => {
       const el = containerRef.current;
-      if (!el) return;
+      if (!el || e.button !== 0) return;
 
       const rect = el.getBoundingClientRect();
       const originalCursor = document.body.style.cursor;
@@ -22,32 +22,34 @@ export const useRelativePointer = (
 
       el.setPointerCapture(e.pointerId);
 
-      const trigger = (clientX: number, clientY: number) => {
+      const update = (clientX: number, clientY: number) => {
         const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
         const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
         onMoveRef.current(x, y);
       };
 
-      trigger(e.clientX, e.clientY);
+      update(e.clientX, e.clientY);
 
-      let frameId: number;
+      let rafId = 0;
 
-      const move = (pe: PointerEvent) => {
-        cancelAnimationFrame(frameId);
-        frameId = requestAnimationFrame(() => trigger(pe.clientX, pe.clientY));
+      const onPointerMove = (pe: PointerEvent) => {
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => update(pe.clientX, pe.clientY));
       };
 
-      const up = (pe: PointerEvent) => {
+      const onPointerUp = (pe: PointerEvent) => {
+        cancelAnimationFrame(rafId);
         document.body.style.cursor = originalCursor;
-        cancelAnimationFrame(frameId);
 
         el.releasePointerCapture(pe.pointerId);
-        window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up);
+        el.removeEventListener('pointermove', onPointerMove);
+        el.removeEventListener('pointerup', onPointerUp);
+        el.removeEventListener('pointercancel', onPointerUp);
       };
 
-      window.addEventListener('pointermove', move);
-      window.addEventListener('pointerup', up);
+      el.addEventListener('pointermove', onPointerMove);
+      el.addEventListener('pointerup', onPointerUp);
+      el.addEventListener('pointercancel', onPointerUp);
     },
     [containerRef, cursor],
   );

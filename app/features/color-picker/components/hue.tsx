@@ -1,69 +1,68 @@
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useEffect, useRef } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { useRelativePointer } from '../hooks';
 
-export function HuePicker({
-  hue,
-  onSelect,
-}: {
-  hue: number;
-  onSelect: (h: number) => void;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const pointerRef = useRef<HTMLButtonElement>(null);
+export const HuePicker = memo(
+  ({ hue, onSelect }: { hue: number; onSelect: (h: number) => void }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const pointerRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (pointerRef.current) {
-      pointerRef.current.style.left = `${(hue / 360) * 100}%`;
-    }
-  }, [hue]);
-
-  const handleMove = useCallback(
-    (nx: number) => {
+    useEffect(() => {
       if (pointerRef.current) {
-        pointerRef.current.style.left = `${nx * 100}%`;
+        pointerRef.current.style.left = `${(hue / 360) * 100}%`;
       }
-      onSelect(nx * 360);
-    },
-    [onSelect],
-  );
+    }, [hue]);
 
-  const trackDragHandler = useRelativePointer(
-    containerRef,
-    handleMove,
-    'crosshair',
-  );
+    const handleMove = useCallback(
+      (nx: number) => {
+        if (pointerRef.current) {
+          pointerRef.current.style.left = `${nx * 100}%`;
+        }
+        onSelect(nx * 360);
+      },
+      [onSelect],
+    );
 
-  const pointerDragHandler = useRelativePointer(
-    containerRef,
-    handleMove,
-    'ew-resize',
-  );
+    const trackDragHandler = useRelativePointer(
+      containerRef,
+      handleMove,
+      'crosshair',
+    );
 
-  return (
-    <div ref={containerRef} {...stylex.props(styles.layout)}>
-      <button
-        onPointerDown={trackDragHandler}
-        type="button"
-        tabIndex={-1}
-        {...stylex.props(styles.track)}
-      />
-      <button
-        ref={pointerRef}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          pointerDragHandler(e);
-        }}
-        type="button"
-        tabIndex={-1}
-        style={{
-          left: `${(hue / 360) * 100}%`,
-        }}
-        {...stylex.props(styles.pointerBase)}
-      />
-    </div>
-  );
-}
+    const pointerDragHandler = useRelativePointer(
+      containerRef,
+      handleMove,
+      'ew-resize',
+    );
+
+    return (
+      <div ref={containerRef} {...stylex.props(styles.layout)}>
+        <button
+          onPointerDown={trackDragHandler}
+          type="button"
+          tabIndex={-1}
+          {...stylex.props(styles.track)}
+        />
+        <button
+          ref={pointerRef}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            pointerDragHandler(e);
+          }}
+          type="button"
+          tabIndex={-1}
+          style={{
+            left: `${(hue / 360) * 100}%`,
+          }}
+          {...stylex.props(styles.pointerBase)}
+        />
+      </div>
+    );
+  },
+  () => {
+    return true;
+  },
+);
 
 const styles = stylex.create({
   layout: {
