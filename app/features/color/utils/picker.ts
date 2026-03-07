@@ -50,36 +50,59 @@ export function createPicker(init: Color, target?: ColorSpace) {
   let space: ColorSpace = target ?? init.space;
   const subs = new Set<PickerSubscriber>();
 
+  const sharedColor: Color = {
+    space,
+    value: createMatrix(space),
+    alpha: val.a,
+  };
+
   const notify = () => {
-    const color = fromPicker(val, space);
-    const snap = { ...val };
+    const hsv = createMatrix('hsv');
+    hsv.set([val.h, val.s, val.v]);
+
+    convertColor(hsv, sharedColor.value, 'hsv', space);
+    sharedColor.space = space;
+    sharedColor.alpha = val.a;
+
+    const snap: PickerValue = { h: val.h, s: val.s, v: val.v, a: val.a };
 
     for (const fn of subs) {
-      fn(snap, color);
+      fn(snap, sharedColor);
     }
 
-    dropMatrix(color.value);
+    dropMatrix(hsv);
   };
 
   return {
     update: (x: number, y: number, type: 'sv' | 'h' | 'a') => {
+      let changed = false;
       if (type === 'sv') {
-        val.s = x;
-        val.v = y;
+        if (val.s !== x || val.v !== y) {
+          val.s = x;
+          val.v = y;
+          changed = true;
+        }
       } else if (type === 'h') {
-        val.h = x * 360;
+        const nextH = x * 360;
+        if (val.h !== nextH) {
+          val.h = nextH;
+          changed = true;
+        }
       } else if (type === 'a') {
-        val.a = x;
+        if (val.a !== x) {
+          val.a = x;
+          changed = true;
+        }
       }
-      notify();
+
+      if (changed) notify();
     },
 
     assign: (next: Color) => {
       const nextVal = toPicker(next);
 
-      const hasNoColorInfo = nextVal.s < 0.01 || nextVal.v < 0.01;
-
-      if (hasNoColorInfo) {
+      const isAchromatic = nextVal.s < 0.01 || nextVal.v < 0.01;
+      if (isAchromatic) {
         nextVal.h = val.h;
       }
 
@@ -93,7 +116,11 @@ export function createPicker(init: Color, target?: ColorSpace) {
       if (!hasChanged) return;
 
       space = next.space;
-      Object.assign(val, nextVal);
+      val.h = nextVal.h;
+      val.s = nextVal.s;
+      val.v = nextVal.v;
+      val.a = nextVal.a;
+
       notify();
     },
 
@@ -119,5 +146,10 @@ export function createPicker(init: Color, target?: ColorSpace) {
 
     getSolid: () => fromPicker({ ...val, a: 1 }, space),
     getColor: () => fromPicker(val, space),
+
+    dispose: () => {
+      dropMatrix(sharedColor.value);
+      subs.clear();
+    },
   };
 }

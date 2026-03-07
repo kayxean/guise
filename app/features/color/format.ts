@@ -8,6 +8,18 @@ function roundTo(val: number, precision: number): number {
   return Math.round(val * f) / f;
 }
 
+function toHex(r: number, g: number, b: number, a?: number): string {
+  const hex = ((r << 16) | (g << 8) | b).toString(16);
+  const padding = '000000'.slice(0, 6 - hex.length);
+
+  if (a !== undefined && a < 255) {
+    const alphaHex = a.toString(16);
+    const alphaPadding = alphaHex.length === 1 ? '0' : '';
+    return `#${padding}${hex}${alphaPadding}${alphaHex}`;
+  }
+  return `#${padding}${hex}`;
+}
+
 export function formatCss(
   color: Color,
   asHex?: boolean,
@@ -15,27 +27,16 @@ export function formatCss(
 ): string {
   const { space, value, alpha } = color;
 
-  if (asHex && space === 'rgb') {
+  if (asHex && (space === 'rgb' || space === 'lrgb')) {
     const r = (value[0] * 255 + 0.5) | 0;
     const g = (value[1] * 255 + 0.5) | 0;
     const b = (value[2] * 255 + 0.5) | 0;
-    const rgbHex = ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
-
-    if (alpha !== undefined && alpha < 1) {
-      const a = (alpha * 255 + 0.5) | 0;
-      return `#${rgbHex}${a.toString(16).padStart(2, '0')}`;
-    }
-    return `#${rgbHex}`;
+    const a = alpha !== undefined ? (alpha * 255 + 0.5) | 0 : undefined;
+    return toHex(r, g, b, a);
   }
 
-  const n1 = roundTo(value[0], precision);
-  const n2 = roundTo(value[1], precision);
-  const n3 = roundTo(value[2], precision);
-
-  let suffix = '';
-  if (alpha !== undefined && alpha < 1) {
-    suffix = ` / ${roundTo(alpha, precision)}`;
-  }
+  const hasAlpha = alpha !== undefined && alpha < 1;
+  const suffix = hasAlpha ? ` / ${roundTo(alpha, precision)}` : '';
 
   switch (space) {
     case 'rgb': {
@@ -47,37 +48,43 @@ export function formatCss(
 
     case 'hsl':
     case 'hwb': {
+      const h = roundTo(value[0], precision);
       const s = roundTo(value[1] * 100, precision);
       const b = roundTo(value[2] * 100, precision);
-      return `${space}(${n1}deg ${s}% ${b}%${suffix})`;
+      return `${space}(${h}deg ${s}% ${b}%${suffix})`;
     }
 
     case 'lab':
-      return `lab(${n1}% ${n2} ${n3}${suffix})`;
-
-    case 'lch':
-      return `lch(${n1}% ${n2} ${n3}deg${suffix})`;
-
     case 'oklab': {
-      const l = roundTo(value[0] * 100, precision);
-      return `oklab(${l}% ${n2} ${n3}${suffix})`;
+      const isOk = space === 'oklab';
+      const l = roundTo(isOk ? value[0] * 100 : value[0], precision);
+      const a = roundTo(value[1], precision);
+      const b = roundTo(value[2], precision);
+      return `${space}(${l}% ${a} ${b}${suffix})`;
     }
 
+    case 'lch':
     case 'oklch': {
-      const l = roundTo(value[0] * 100, precision);
-      return `oklch(${l}% ${n2} ${n3}deg${suffix})`;
+      const isOk = space === 'oklch';
+      const l = roundTo(isOk ? value[0] * 100 : value[0], precision);
+      const c = roundTo(value[1], precision);
+      const h = roundTo(value[2], precision);
+      return `${space}(${l}% ${c} ${h}deg${suffix})`;
     }
 
     case 'lrgb':
-      return `color(srgb-linear ${n1} ${n2} ${n3}${suffix})`;
-
     case 'xyz65':
-      return `color(xyz-d65 ${n1} ${n2} ${n3}${suffix})`;
-
-    case 'xyz50':
-      return `color(xyz-d50 ${n1} ${n2} ${n3}${suffix})`;
+    case 'xyz50': {
+      const name =
+        space === 'lrgb'
+          ? 'srgb-linear'
+          : space === 'xyz65'
+            ? 'xyz-d65'
+            : 'xyz-d50';
+      return `color(${name} ${roundTo(value[0], precision)} ${roundTo(value[1], precision)} ${roundTo(value[2], precision)}${suffix})`;
+    }
 
     default:
-      return `color(${space} ${n1} ${n2} ${n3}${suffix})`;
+      return `color(${space} ${roundTo(value[0], precision)} ${roundTo(value[1], precision)} ${roundTo(value[2], precision)}${suffix})`;
   }
 }
