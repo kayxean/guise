@@ -9,20 +9,33 @@ import {
   useThemeStore,
 } from '../themes';
 
-interface ChromiumPickerProps {
+export function ChromiumPicker({
+  baseKey,
+  path,
+  label,
+}: {
   baseKey: keyof ThemeState;
+  path?: string[];
   label?: string;
-}
+}) {
+  const themeContext = useThemeStore((s) => s.theme as ThemeState['theme']);
 
-export function ChromiumPicker({ baseKey, label }: ChromiumPickerProps) {
-  const themeContext = useThemeStore((s) => s.theme);
+  const activePath = useMemo(() => {
+    const p = path ?? resolveDynamicPath(baseKey, themeContext);
 
-  const activePath = useMemo(
-    () => resolveDynamicPath(baseKey, themeContext),
-    [baseKey, themeContext],
-  );
+    const isBaseLevel =
+      ['frame', 'background_tab', 'tab_background_text'].includes(p[0]) &&
+      p.length === 1;
 
-  const subLabel = useMemo(() => activePath.join(' / '), [activePath]);
+    const isIncognitoBranch =
+      p.includes('incognito') && p[p.length - 1] === 'incognito';
+
+    return isBaseLevel || isIncognitoBranch ? [...p, 'default'] : p;
+  }, [baseKey, themeContext, path]);
+
+  const manifestKey = useMemo(() => {
+    return activePath.filter((segment) => segment !== 'default').join('_');
+  }, [activePath]);
 
   const cssValue = useThemeStore(
     useCallback(
@@ -33,17 +46,36 @@ export function ChromiumPicker({ baseKey, label }: ChromiumPickerProps) {
 
   const handleUpdate = useCallback(
     (newCss: string) => {
+      if (path) {
+        const isIncognito = path.includes('incognito');
+        const isInactive = path.includes('inactive');
+
+        if (
+          themeContext.incognito !== isIncognito ||
+          themeContext.inactive !== isInactive
+        ) {
+          apiThemeStore.setState((state) => ({
+            ...state,
+            theme: {
+              ...state.theme,
+              incognito: isIncognito,
+              inactive: isInactive,
+            },
+          }));
+        }
+      }
+
       apiThemeStore.setState((state) =>
         updateThemePath(state, activePath, newCss),
       );
     },
-    [activePath],
+    [activePath, path, themeContext.incognito, themeContext.inactive],
   );
 
   return (
     <ColorPicker
       label={label}
-      subLabel={subLabel}
+      id={manifestKey}
       value={cssValue}
       onChange={handleUpdate}
       allowedMode={['hex', 'rgb', 'hsl']}

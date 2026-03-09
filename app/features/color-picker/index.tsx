@@ -14,14 +14,14 @@ export function ColorPicker({
   value,
   onChange,
   label,
-  subLabel,
+  id,
   useHex = true,
   allowedMode,
 }: {
   value: string;
   onChange: (css: string) => void;
   label?: string;
-  subLabel?: string;
+  id?: string;
   useHex?: boolean;
   allowedMode?: ColorMode[];
 }) {
@@ -60,12 +60,32 @@ export function ColorPicker({
 
   return (
     <div {...stylex.props(styles.layout)}>
-      {label && <div {...stylex.props(styles.label)}>{label}</div>}
-      {subLabel && (
-        <div {...stylex.props(styles.pathIndicator)}>{subLabel}</div>
-      )}
-
       <div {...stylex.props(styles.preview(previewColor))} />
+
+      {label && <div {...stylex.props(styles.label)}>{label}</div>}
+      {id && <div {...stylex.props(styles.pathIndicator)}>{id}</div>}
+
+      <div>
+        <code>{previewColor}</code>
+      </div>
+
+      <SquarePicker
+        hue={view.h}
+        x={view.s}
+        y={view.v}
+        onSelect={(s, v) => picker.update(s, v, 'sv')}
+      />
+
+      <HuePicker
+        hue={view.h}
+        onSelect={(h) => picker.update(h / 360, 0, 'h')}
+      />
+
+      <AlphaPicker
+        alpha={view.a}
+        color={solidColor}
+        onSelect={(a) => picker.update(a, 0, 'a')}
+      />
 
       <SpacePicker
         allowedMode={allowedMode}
@@ -88,6 +108,7 @@ export function ColorPicker({
 
       <TextPicker
         color={value}
+        id={id || 'text'}
         onChange={(next) => {
           try {
             picker.assign(parseColor(next));
@@ -95,24 +116,6 @@ export function ColorPicker({
             console.warn(e);
           }
         }}
-      />
-
-      <SquarePicker
-        hue={view.h}
-        x={view.s}
-        y={view.v}
-        onSelect={(s, v) => picker.update(s, v, 'sv')}
-      />
-
-      <HuePicker
-        hue={view.h}
-        onSelect={(h) => picker.update(h / 360, 0, 'h')}
-      />
-
-      <AlphaPicker
-        alpha={view.a}
-        color={solidColor}
-        onSelect={(a) => picker.update(a, 0, 'a')}
       />
     </div>
   );
@@ -139,7 +142,7 @@ const styles = stylex.create({
     fontFamily: 'Google Sans Code, monospace',
     fontSize: '.75rem',
     marginBottom: '4px',
-    textTransform: 'uppercase',
+    textTransform: 'lowercase',
   },
   preview: (color: string) => ({
     backgroundColor: color,
