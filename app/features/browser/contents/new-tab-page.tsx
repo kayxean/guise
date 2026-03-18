@@ -35,28 +35,19 @@ export function NewTabPage() {
             href="https://labs.google.com/search?source=ntp"
             target="_blank"
             rel="noreferrer noopener"
-            {...stylex.props(
-              navigation.button,
-              dynamic.bg_hover(ntpBg, chrome.button_hover),
-            )}
+            {...stylex.props(navigation.button, dynamic.bg_hover(ntpBg, chrome.button_hover))}
           >
             <Icon name="search_labs" {...stylex.props(navigation.icon)} />
           </a>
           <button
             type="button"
-            {...stylex.props(
-              navigation.button,
-              dynamic.bg_hover(ntpBg, chrome.button_hover),
-            )}
+            {...stylex.props(navigation.button, dynamic.bg_hover(ntpBg, chrome.button_hover))}
           >
             <Icon name="apps" {...stylex.props(navigation.icon)} />
           </button>
           <button
             type="button"
-            {...stylex.props(
-              navigation.button,
-              dynamic.bg_hover(ntpBg, chrome.button_hover),
-            )}
+            {...stylex.props(navigation.button, dynamic.bg_hover(ntpBg, chrome.button_hover))}
           >
             <Icon name="person" {...stylex.props(navigation.person)} />
           </button>
@@ -126,10 +117,7 @@ export function NewTabPage() {
           >
             <Icon name="camera" {...stylex.props(search.icon)} />
           </button>
-          <button
-            type="button"
-            {...stylex.props(search.button_right, search.ai_mode)}
-          >
+          <button type="button" {...stylex.props(search.button_right, search.ai_mode)}>
             <Icon name="search_spark" {...stylex.props(search.icon)} />
             <span {...stylex.props(search.ai_label)}>AI Mode</span>
           </button>
@@ -138,10 +126,7 @@ export function NewTabPage() {
       <div {...stylex.props(shortcuts.layout)}>
         <button
           type="button"
-          {...stylex.props(
-            shortcuts.button,
-            dynamic.bg_hover(ntpBg, chrome.button_hover),
-          )}
+          {...stylex.props(shortcuts.button, dynamic.bg_hover(ntpBg, chrome.button_hover))}
         >
           <div {...stylex.props(shortcuts.view)}>
             <Icon name="add" {...stylex.props(shortcuts.icon)} />

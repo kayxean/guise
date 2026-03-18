@@ -15,10 +15,7 @@ interface UseStore<T extends State> {
   <U>(selector: Selector<T, U>): U;
 }
 
-function hasStateChanged<T extends State>(
-  current: T,
-  nextPartial: Partial<T>,
-): boolean {
+function hasStateChanged<T extends State>(current: T, nextPartial: Partial<T>): boolean {
   for (const key in nextPartial) {
     const prev = current[key];
     const next = nextPartial[key];
@@ -44,9 +41,7 @@ function notify(listeners: Set<() => void>) {
   }
 }
 
-export function createStore<T extends State>(
-  initialState: T,
-): [UseStore<T>, StoreApi<T>] {
+export function createStore<T extends State>(initialState: T): [UseStore<T>, StoreApi<T>] {
   let state = initialState;
   const listeners = new Set<() => void>();
   let rafHandle: number | null = null;
@@ -55,9 +50,7 @@ export function createStore<T extends State>(
     getState: () => state,
     setState: (updater) => {
       const nextPartial =
-        typeof updater === 'function'
-          ? (updater as (s: T) => Partial<T>)(state)
-          : updater;
+        typeof updater === 'function' ? (updater as (s: T) => Partial<T>)(state) : updater;
 
       if (hasStateChanged(state, nextPartial)) {
         state = { ...state, ...nextPartial };
@@ -86,9 +79,7 @@ export function createStore<T extends State>(
     const apiState = api.getState();
 
     const lastStateRef = useRef<T>(apiState);
-    const lastSelectedStateRef = useRef<U | T>(
-      selector ? selector(apiState) : apiState,
-    );
+    const lastSelectedStateRef = useRef<U | T>(selector ? selector(apiState) : apiState);
 
     const getSnapshot = useCallback(() => {
       const currentState = api.getState();

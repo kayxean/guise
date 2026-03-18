@@ -24,11 +24,9 @@ export function ChromiumPicker({
     const p = path ?? resolveDynamicPath(baseKey, themeContext);
 
     const isBaseLevel =
-      ['frame', 'background_tab', 'tab_background_text'].includes(p[0]) &&
-      p.length === 1;
+      ['frame', 'background_tab', 'tab_background_text'].includes(p[0]) && p.length === 1;
 
-    const isIncognitoBranch =
-      p.includes('incognito') && p[p.length - 1] === 'incognito';
+    const isIncognitoBranch = p.includes('incognito') && p[p.length - 1] === 'incognito';
 
     return isBaseLevel || isIncognitoBranch ? [...p, 'default'] : p;
   }, [baseKey, themeContext, path]);
@@ -38,10 +36,7 @@ export function ChromiumPicker({
   }, [activePath]);
 
   const cssValue = useThemeStore(
-    useCallback(
-      (state: ThemeState) => getThemeValue(state, activePath) ?? '#000000',
-      [activePath],
-    ),
+    useCallback((state: ThemeState) => getThemeValue(state, activePath) ?? '#000000', [activePath]),
   );
 
   const handleUpdate = useCallback(
@@ -50,10 +45,7 @@ export function ChromiumPicker({
         const isIncognito = path.includes('incognito');
         const isInactive = path.includes('inactive');
 
-        if (
-          themeContext.incognito !== isIncognito ||
-          themeContext.inactive !== isInactive
-        ) {
+        if (themeContext.incognito !== isIncognito || themeContext.inactive !== isInactive) {
           apiThemeStore.setState((state) => ({
             ...state,
             theme: {
@@ -65,9 +57,7 @@ export function ChromiumPicker({
         }
       }
 
-      apiThemeStore.setState((state) =>
-        updateThemePath(state, activePath, newCss),
-      );
+      apiThemeStore.setState((state) => updateThemePath(state, activePath, newCss));
     },
     [activePath, path, themeContext.incognito, themeContext.inactive],
   );

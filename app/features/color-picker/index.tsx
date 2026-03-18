@@ -1,9 +1,9 @@
-import type { ColorMode } from '~/color/types';
+import type { ColorMode } from '@kayxean/chromatrix/types';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { formatCss } from '~/color/format';
-import { parseColor } from '~/color/parse';
-import { createPicker } from '~/color/utils/picker';
+import { formatCss } from '@kayxean/chromatrix/format';
+import { parseColor } from '@kayxean/chromatrix/parse';
+import { createPicker } from '@kayxean/chromatrix/utils/picker';
 import { AlphaPicker } from './components/alpha';
 import { HuePicker } from './components/hue';
 import { SpacePicker } from './components/space';
@@ -76,16 +76,9 @@ export function ColorPicker({
         onSelect={(s, v) => picker.update(s, v, 'sv')}
       />
 
-      <HuePicker
-        hue={view.h}
-        onSelect={(h) => picker.update(h / 360, 0, 'h')}
-      />
+      <HuePicker hue={view.h} onSelect={(h) => picker.update(h / 360, 0, 'h')} />
 
-      <AlphaPicker
-        alpha={view.a}
-        color={solidColor}
-        onSelect={(a) => picker.update(a, 0, 'a')}
-      />
+      <AlphaPicker alpha={view.a} color={solidColor} onSelect={(a) => picker.update(a, 0, 'a')} />
 
       <SpacePicker
         allowedMode={allowedMode}

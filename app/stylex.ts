@@ -1,3 +1,3 @@
 if (import.meta.hot) {
-  import('virtual:stylex:runtime');
+  void import('virtual:stylex:runtime');
 }

@@ -74,25 +74,12 @@ export const SquarePicker = memo(
       [onSelect],
     );
 
-    const trackDragHandler = useRelativePointer(
-      containerRef,
-      handleMove,
-      'crosshair',
-    );
-    const pointerDragHandler = useRelativePointer(
-      containerRef,
-      handleMove,
-      'move',
-    );
+    const trackDragHandler = useRelativePointer(containerRef, handleMove, 'crosshair');
+    const pointerDragHandler = useRelativePointer(containerRef, handleMove, 'move');
 
     return (
       <div ref={containerRef} {...stylex.props(styles.layout)}>
-        <canvas
-          ref={canvasRef}
-          width={182}
-          height={100}
-          {...stylex.props(styles.canvas)}
-        />
+        <canvas ref={canvasRef} width={182} height={100} {...stylex.props(styles.canvas)} />
         <button
           onPointerDown={trackDragHandler}
           type="button"

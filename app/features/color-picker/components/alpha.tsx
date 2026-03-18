@@ -3,15 +3,7 @@ import { memo, useCallback, useEffect, useRef } from 'react';
 import { useRelativePointer } from '../hooks';
 
 export const AlphaPicker = memo(
-  ({
-    color,
-    alpha,
-    onSelect,
-  }: {
-    color: string;
-    alpha: number;
-    onSelect: (a: number) => void;
-  }) => {
+  ({ color, alpha, onSelect }: { color: string; alpha: number; onSelect: (a: number) => void }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const pointerRef = useRef<HTMLButtonElement>(null);
 
@@ -31,17 +23,9 @@ export const AlphaPicker = memo(
       [onSelect],
     );
 
-    const trackDragHandler = useRelativePointer(
-      containerRef,
-      handleMove,
-      'crosshair',
-    );
+    const trackDragHandler = useRelativePointer(containerRef, handleMove, 'crosshair');
 
-    const pointerDragHandler = useRelativePointer(
-      containerRef,
-      handleMove,
-      'ew-resize',
-    );
+    const pointerDragHandler = useRelativePointer(containerRef, handleMove, 'ew-resize');
 
     return (
       <div ref={containerRef} {...stylex.props(styles.layout)}>

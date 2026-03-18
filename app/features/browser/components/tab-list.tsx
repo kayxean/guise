@@ -61,19 +61,13 @@ export function TabList() {
           type="button"
           role="tab"
           aria-label="Tab options"
-          {...stylex.props(
-            tab_action.button,
-            dynamic.bg(toolbarBg),
-            dynamic.text(tabText),
-          )}
+          {...stylex.props(tab_action.button, dynamic.bg(toolbarBg), dynamic.text(tabText))}
         >
           <Icon name="arrow_down" {...stylex.props(tab_action.icon)} />
           <span
             {...stylex.props(
               tab_action.overlay,
-              dynamic.image(
-                `linear-gradient(90deg, ${frameBg} 70%, ${chrome.transparent})`,
-              ),
+              dynamic.image(`linear-gradient(90deg, ${frameBg} 70%, ${chrome.transparent})`),
             )}
           />
         </button>
@@ -97,15 +91,10 @@ export function TabList() {
             {...stylex.props(
               tab_item.layout,
               isActive ? dynamic.bg(toolbarBg) : dynamic.bg(backgroundTabBg),
-              isActive
-                ? dynamic.text(tabText)
-                : dynamic.text_hover(backgroundTabText, tabText),
+              isActive ? dynamic.text(tabText) : dynamic.text_hover(backgroundTabText, tabText),
             )}
           >
-            <Icon
-              name={t.icon}
-              {...stylex.props(tab_item.favicon, dynamic.text(toolbarIcon))}
-            />
+            <Icon name={t.icon} {...stylex.props(tab_item.favicon, dynamic.text(toolbarIcon))} />
             <span {...stylex.props(tab_item.title)}>{t.title}</span>
             <button
               type="button"
@@ -159,9 +148,7 @@ export function TabList() {
           <span
             {...stylex.props(
               new_tab.overlay,
-              dynamic.image(
-                `linear-gradient(-90deg, ${frameBg} 70%, ${chrome.transparent})`,
-              ),
+              dynamic.image(`linear-gradient(-90deg, ${frameBg} 70%, ${chrome.transparent})`),
             )}
           />
         </button>

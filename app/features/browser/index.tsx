@@ -8,11 +8,7 @@ export function Browser() {
       <aside {...stylex.props(styles.sidebar)}>
         <div {...stylex.props(styles.scrollArea)}>
           <ChromiumPicker baseKey="frame" path={['frame']} label="Frame" />
-          <ChromiumPicker
-            baseKey="frame"
-            path={['frame', 'inactive']}
-            label="Frame Inactive"
-          />
+          <ChromiumPicker baseKey="frame" path={['frame', 'inactive']} label="Frame Inactive" />
         </div>
       </aside>
 
