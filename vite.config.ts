@@ -1,4 +1,4 @@
-import type { UserConfig } from 'vite';
+import type { UserConfig } from 'vite-plus';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { vitePlugin as remix } from '@remix-run/dev';
@@ -12,9 +12,6 @@ export default {
     cssMinify: 'lightningcss',
   },
   clearScreen: false,
-  css: {
-    transformer: 'lightningcss',
-  },
   plugins: [
     stylex.vite({
       devMode: 'full',
@@ -36,9 +33,21 @@ export default {
       },
     }),
   ],
+  lint: {
+    ignorePatterns: ['dist/**'],
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+  },
+  fmt: {
+    ignorePatterns: ['dist/**'],
+    singleQuote: true,
+    semi: true,
+    experimentalSortPackageJson: true,
+  },
   resolve: {
     alias: {
-      '~/color': resolve(__dirname, './app/features/color'),
       '~/browser': resolve(__dirname, './app/features/browser'),
       '~/color-picker': resolve(__dirname, './app/features/color-picker'),
       '~': resolve(__dirname, './app'),
