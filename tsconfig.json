@@ -13,11 +13,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
-      "~/color": ["./app/features/color"],
-      "~/color/*": ["./app/features/color/*"],
-
       "~/browser": ["./app/features/browser"],
       "~/browser/*": ["./app/features/browser/*"],
 

@@ -103,11 +103,7 @@ export function Toolbar() {
               type="button"
               role="menuitem"
               aria-label="Install"
-              {...stylex.props(
-                omni_box.button,
-                omni_box.action,
-                dynamic.text(omniboxText),
-              )}
+              {...stylex.props(omni_box.button, omni_box.action, dynamic.text(omniboxText))}
             >
               <Icon name="install_desktop" {...stylex.props(omni_box.icon)} />
             </button>
@@ -115,11 +111,7 @@ export function Toolbar() {
               type="button"
               role="menuitem"
               aria-label="Bookmark"
-              {...stylex.props(
-                omni_box.button,
-                omni_box.action,
-                dynamic.text(omniboxText),
-              )}
+              {...stylex.props(omni_box.button, omni_box.action, dynamic.text(omniboxText))}
             >
               <Icon name="star" {...stylex.props(omni_box.icon)} />
             </button>

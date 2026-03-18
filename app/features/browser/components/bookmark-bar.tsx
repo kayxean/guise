@@ -20,10 +20,7 @@ export function BookmarkBar() {
     <div
       role="menubar"
       aria-hidden={!isNewTabPage}
-      {...stylex.props(
-        bookmark_bar.layout,
-        !isNewTabPage && bookmark_bar.hidden,
-      )}
+      {...stylex.props(bookmark_bar.layout, !isNewTabPage && bookmark_bar.hidden)}
     >
       <div role="none" {...stylex.props(tabs_group.layout)}>
         <button
@@ -40,9 +37,7 @@ export function BookmarkBar() {
           <span
             {...stylex.props(
               tabs_group.overlay,
-              dynamic.image(
-                `linear-gradient(90deg, ${toolbarBg} 70%, ${chrome.transparent})`,
-              ),
+              dynamic.image(`linear-gradient(90deg, ${toolbarBg} 70%, ${chrome.transparent})`),
             )}
           />
         </button>

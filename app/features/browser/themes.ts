@@ -130,11 +130,7 @@ export function updateThemePath<T extends Record<string, unknown>>(
   return newRoot;
 }
 
-export function getThemeValue(
-  state: ThemeState,
-  path: string[],
-  subKeyOverride?: string,
-): string {
+export function getThemeValue(state: ThemeState, path: string[], subKeyOverride?: string): string {
   let current: unknown = state;
   const lastIndex = path.length - 1;
 
@@ -159,15 +155,9 @@ export function resolveDynamicPath(
 ): string[] {
   const { incognito, inactive } = theme;
 
-  if (
-    baseKey === 'frame' ||
-    baseKey === 'background_tab' ||
-    baseKey === 'tab_background_text'
-  ) {
+  if (baseKey === 'frame' || baseKey === 'background_tab' || baseKey === 'tab_background_text') {
     if (incognito) {
-      return inactive
-        ? [baseKey, 'incognito', 'inactive']
-        : [baseKey, 'incognito', 'default'];
+      return inactive ? [baseKey, 'incognito', 'inactive'] : [baseKey, 'incognito', 'default'];
     }
 
     return inactive ? [baseKey, 'inactive'] : [baseKey, 'default'];

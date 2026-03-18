@@ -1,15 +1,6 @@
-import type { ColorMode } from '~/color/types';
+import type { ColorMode } from '@kayxean/chromatrix/types';
 
-const ALL_SPACES: ColorMode[] = [
-  'hex',
-  'rgb',
-  'hsl',
-  'hwb',
-  'lab',
-  'lch',
-  'oklab',
-  'oklch',
-];
+const ALL_SPACES: ColorMode[] = ['hex', 'rgb', 'hsl', 'hwb', 'lab', 'lch', 'oklab', 'oklch'];
 
 export function SpacePicker({
   onSelect,
@@ -18,9 +9,7 @@ export function SpacePicker({
   onSelect: (space: ColorMode) => void;
   allowedMode?: ColorMode[];
 }) {
-  const activeMode = allowedMode
-    ? ALL_SPACES.filter((s) => allowedMode.includes(s))
-    : ALL_SPACES;
+  const activeMode = allowedMode ? ALL_SPACES.filter((s) => allowedMode.includes(s)) : ALL_SPACES;
 
   return (
     <div>

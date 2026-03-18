@@ -23,17 +23,9 @@ export const HuePicker = memo(
       [onSelect],
     );
 
-    const trackDragHandler = useRelativePointer(
-      containerRef,
-      handleMove,
-      'crosshair',
-    );
+    const trackDragHandler = useRelativePointer(containerRef, handleMove, 'crosshair');
 
-    const pointerDragHandler = useRelativePointer(
-      containerRef,
-      handleMove,
-      'ew-resize',
-    );
+    const pointerDragHandler = useRelativePointer(containerRef, handleMove, 'ew-resize');
 
     return (
       <div ref={containerRef} {...stylex.props(styles.layout)}>

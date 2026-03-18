@@ -15,9 +15,7 @@ export const MATERIAL_ICONS = {
     'M6.4 19L5 17.6L10.6 12L5 6.4L6.4 5L12 10.6L17.6 5L19 6.4L13.4 12L19 17.6L17.6 19L12 13.4L6.4 19Z',
   ],
   add: ['M11 21V13H3V11H11V3H13V11H21V13H13V21H11Z'],
-  arrow_back: [
-    'M7.825 13L13.425 18.6L12 20L4 12L12 4L13.425 5.4L7.825 11H20V13H7.825Z',
-  ],
+  arrow_back: ['M7.825 13L13.425 18.6L12 20L4 12L12 4L13.425 5.4L7.825 11H20V13H7.825Z'],
   refresh: [
     'M12 20C9.76667 20 7.875 19.225 6.325 17.675C4.775 16.125 4 14.2333 4 12C4 9.76667 4.775 7.875 6.325 6.325C7.875 4.775 9.76667 4 12 4C13.15 4 14.25 4.2375 15.3 4.7125C16.35 5.1875 17.25 5.86667 18 6.75V4H20V11H13V9H17.2C16.6667 8.06667 15.9375 7.33333 15.0125 6.8C14.0875 6.26667 13.0833 6 12 6C10.3333 6 8.91667 6.58333 7.75 7.75C6.58333 8.91667 6 10.3333 6 12C6 13.6667 6.58333 15.0833 7.75 16.25C8.91667 17.4167 10.3333 18 12 18C13.2833 18 14.4417 17.6333 15.475 16.9C16.5083 16.1667 17.2333 15.2 17.65 14H19.75C19.2833 15.7667 18.3333 17.2083 16.9 18.325C15.4667 19.4417 13.8333 20 12 20Z',
   ],
@@ -88,19 +86,10 @@ export const MATERIAL_ICONS = {
 
 export type Icons = keyof typeof MATERIAL_ICONS;
 
-export function Icon({
-  name,
-  ...svg
-}: { name: Icons } & ComponentProps<'svg'>) {
+export function Icon({ name, ...svg }: { name: Icons } & ComponentProps<'svg'>) {
   const paths = MATERIAL_ICONS[name];
   return (
-    <svg
-      width={24}
-      height={24}
-      viewBox="0 0 24 24"
-      role="presentation"
-      {...svg}
-    >
+    <svg width={24} height={24} viewBox="0 0 24 24" role="presentation" {...svg}>
       {paths.map((shape) => (
         <path key={shape} d={shape} fill="currentColor" />
       ))}
