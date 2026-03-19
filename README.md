@@ -13,6 +13,6 @@ This is a web-based creative space for designing how applications look and feel.
 | ---------------- | --------------------------------------------------------------------------- |
 | `vp run dev`     | Starts the Remix development server with HMR and live reloading.            |
 | `vp run build`   | Compiles the application for production, outputting to the `build/` folder. |
-| `vp run preview` | Test the Vitest suite using the integrated test runner.                     |
+| `vp run preview` | Locally previews the production build to ensure deployment readiness.       |
 | `vp check`       | Analyzes the codebase for errors and style issues using Oxlint.             |
 | `vp check --fix` | Automatically fixes linting errors and formats code via Oxfmt.              |
