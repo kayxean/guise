@@ -7,9 +7,13 @@ import stylex from '@stylexjs/unplugin';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default {
+  appType: 'mpa',
   base: '/',
   build: {
     cssMinify: 'lightningcss',
+  },
+  css: {
+    transformer: 'lightningcss'
   },
   clearScreen: false,
   plugins: [
@@ -20,7 +24,6 @@ export default {
         type: 'commonJS',
         rootDir: resolve(__dirname, './app'),
       },
-      lightningcssOptions: { minify: true },
     }),
     remix({
       ssr: false,
@@ -55,5 +58,8 @@ export default {
   },
   server: {
     cors: true,
+  },
+  optimizeDeps: {
+    include: ['@kayxean/chromatrix', '@stylexjs/unplugin', '@stylexjs/stylex']
   },
 } satisfies UserConfig;
