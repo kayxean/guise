@@ -62,8 +62,8 @@ export function ColorPicker({
     <div {...stylex.props(styles.layout)}>
       <div {...stylex.props(styles.preview(previewColor))} />
 
-      {label && <div {...stylex.props(styles.label)}>{label}</div>}
-      {id && <div {...stylex.props(styles.pathIndicator)}>{id}</div>}
+      {label && <div>{label}</div>}
+      {id && <div>{id}</div>}
 
       <div>
         <code>{previewColor}</code>
@@ -82,6 +82,8 @@ export function ColorPicker({
 
       <SpacePicker
         allowedMode={allowedMode}
+        currentSpace={picker.getSpace()}
+        useHex={asHex}
         onSelect={(s) => {
           const isHex = s === 'hex';
           const nextSpace = isHex ? 'rgb' : s;
@@ -123,19 +125,6 @@ const styles = stylex.create({
     gap: '.75rem',
     padding: '1rem .5rem',
     width: '100%',
-  },
-  label: {
-    color: '#efefef',
-    fontSize: '.875rem',
-    fontWeight: 600,
-    textTransform: 'capitalize',
-  },
-  pathIndicator: {
-    color: '#666',
-    fontFamily: 'Google Sans Code, monospace',
-    fontSize: '.75rem',
-    marginBottom: '4px',
-    textTransform: 'lowercase',
   },
   preview: (color: string) => ({
     backgroundColor: color,
