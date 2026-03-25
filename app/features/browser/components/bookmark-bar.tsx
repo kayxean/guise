@@ -55,7 +55,7 @@ export function BookmarkBar() {
             )}
           >
             <Icon name="globe" {...stylex.props(bookmark_list.icon)} />
-            <span>{b}</span>
+            <span {...stylex.props(bookmark_list.title)}>{b}</span>
           </button>
         </div>
       ))}
@@ -72,7 +72,7 @@ export function BookmarkBar() {
           )}
         >
           <Icon name="folder" {...stylex.props(bookmark_alt.icon)} />
-          <span>All Bookmarks</span>
+          <span {...stylex.props(bookmark_alt.title)}>All Bookmarks</span>
         </button>
       </div>
     </div>
@@ -88,7 +88,9 @@ const bookmark_bar = stylex.create({
     height: '2.125rem',
     maxWidth: '100%',
     overflowX: 'auto',
-    padding: '0 .5rem .375rem .5rem',
+    paddingBottom: '.375rem',
+    paddingLeft: '.5rem',
+    paddingRight: '.5rem',
     position: 'relative',
     scrollbarWidth: 'none',
     '::-webkit-scrollbar': {
@@ -144,11 +146,18 @@ const bookmark_list = stylex.create({
     gap: '.375rem',
     height: '1.75rem',
     justifyContent: 'center',
-    padding: '0 .375rem',
+    paddingLeft: '.375rem',
+    paddingRight: '.375rem',
   },
   icon: {
     height: '1.125rem',
     width: '1.125rem',
+  },
+  title: {
+    display: 'inline-flex',
+    fontSize: '.875rem',
+    lineHeight: '1.125rem',
+    userSelect: 'none',
   },
 });
 
@@ -174,11 +183,17 @@ const bookmark_alt = stylex.create({
     display: 'inline-flex',
     gap: '.375rem',
     height: '1.75rem',
-    justifyContent: 'center',
-    padding: '0 .375rem',
+    paddingLeft: '.375rem',
+    paddingRight: '.375rem',
   },
   icon: {
     height: '1.125rem',
     width: '1.125rem',
+  },
+  title: {
+    display: 'inline-flex',
+    fontSize: '.875rem',
+    lineHeight: '1.125rem',
+    userSelect: 'none',
   },
 });

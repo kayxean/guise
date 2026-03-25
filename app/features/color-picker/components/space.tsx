@@ -25,7 +25,8 @@ export function SpacePicker({
           type="button"
           key={space}
           onClick={() => onSelect(space)}
-          {...stylex.props(styles.button, space === activeSpace ? styles.btnActive : styles.btn)}>
+          {...stylex.props(styles.button, space === activeSpace ? styles.btnActive : styles.btn)}
+        >
           {space}
         </button>
       ))}
@@ -36,7 +37,7 @@ export function SpacePicker({
 const styles = stylex.create({
   layout: {
     display: 'grid',
-    gap:'.75rem',
+    gap: '.75rem',
     gridTemplateColumns: 'repeat(3, 1fr)',
   },
   button: {
@@ -46,7 +47,10 @@ const styles = stylex.create({
     display: 'inline-flex',
     fontSize: '0.75rem',
     justifyContent: 'center',
-    padding: '0.5rem 1rem',
+    paddingBottom: '0.5rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
+    paddingTop: '0.5rem',
   },
   btn: {
     backgroundColor: '#323232',

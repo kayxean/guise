@@ -13,7 +13,7 @@ export default {
     cssMinify: 'lightningcss',
   },
   css: {
-    transformer: 'lightningcss'
+    transformer: 'lightningcss',
   },
   clearScreen: false,
   plugins: [
@@ -60,6 +60,6 @@ export default {
     cors: true,
   },
   optimizeDeps: {
-    include: ['@kayxean/chromatrix', '@stylexjs/unplugin', '@stylexjs/stylex']
+    include: ['@kayxean/chromatrix', '@stylexjs/unplugin', '@stylexjs/stylex'],
   },
 } satisfies UserConfig;

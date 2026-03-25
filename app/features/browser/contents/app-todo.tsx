@@ -112,7 +112,10 @@ const styles = stylex.create({
     display: 'grid',
     gap: '1rem',
     minHeight: 'calc(100dvh - 5.5rem)',
-    padding: '1rem .75rem',
+    paddingBottom: '1rem',
+    paddingLeft: '.75rem',
+    paddingRight: '.75rem',
+    paddingTop: '1rem',
     position: 'relative',
   },
   form: {
@@ -136,7 +139,10 @@ const styles = stylex.create({
     height: '2.25rem',
     lineHeight: 1,
     outline: 'none',
-    padding: '.063rem 1rem',
+    paddingBottom: '.063rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
+    paddingTop: '.063rem',
     width: '100%',
     '::placeholder': {
       color: chrome.omnibox_placeholder,
