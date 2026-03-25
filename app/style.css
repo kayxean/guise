@@ -1,4 +1,4 @@
-@layer reset {
+@layer base {
   *,
   *::before,
   *::after {
@@ -6,7 +6,7 @@
     min-width: 0;
   }
   * {
-    border: 0;
+    border: 0 solid;
     margin: 0;
     padding: 0;
   }
@@ -30,6 +30,12 @@
   a,
   button {
     -webkit-tap-highlight-color: #0000;
+  }
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
   }
 }
 

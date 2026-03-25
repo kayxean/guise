@@ -104,7 +104,10 @@ const styles = stylex.create({
     justifyContent: 'center',
     minHeight: 'calc(100dvh - 5.5rem)',
     outline: 'none',
-    padding: '1.5rem .75rem',
+    paddingBottom: '1.5rem',
+    paddingLeft: '.75rem',
+    paddingRight: '.75rem',
+    paddingTop: '1.5rem',
     position: 'relative',
   },
   count: {

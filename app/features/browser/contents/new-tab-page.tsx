@@ -131,7 +131,7 @@ export function NewTabPage() {
           <div {...stylex.props(shortcuts.view)}>
             <Icon name="add" {...stylex.props(shortcuts.icon)} />
           </div>
-          <span {...stylex.props(dynamic.text(ntpText))}>Add shortcut</span>
+          <span {...stylex.props(shortcuts.title, dynamic.text(ntpText))}>Add shortcut</span>
         </button>
       </div>
     </div>
@@ -154,7 +154,8 @@ const navigation = stylex.create({
     gap: '.875rem',
     height: '4rem',
     justifyContent: 'flex-end',
-    padding: '0 .875rem',
+    paddingLeft: '.875rem',
+    paddingRight: '.875rem',
   },
   link: {
     color: chrome.ntp_link,
@@ -164,7 +165,8 @@ const navigation = stylex.create({
     },
     fontSize: '.75rem',
     lineHeight: '1.5rem',
-    padding: '0 .125rem',
+    paddingLeft: '.125rem',
+    paddingRight: '.125rem',
     textDecoration: {
       default: 'none',
       ':hover': 'underline',
@@ -205,7 +207,10 @@ const doodle = stylex.create({
     color: chrome.ntp_doodle,
     display: 'flex',
     justifyContent: 'center',
-    padding: '1.5rem 1rem',
+    paddingBottom: '1.5rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
+    paddingTop: '1.5rem',
   },
   image: {
     height: {
@@ -224,7 +229,8 @@ const search = stylex.create({
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'center',
-    padding: '0 1rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
   },
   box: {
     position: 'relative',
@@ -318,7 +324,8 @@ const search = stylex.create({
     },
     backgroundColor: chrome.ntp_omnibox_ai_mode,
     borderRadius: '1rem',
-    padding: '0 .75rem 0 .5rem',
+    paddingLeft: '.5rem',
+    paddingRight: '.75rem',
     right: '.75rem',
   },
   ai_label: {
@@ -355,5 +362,11 @@ const shortcuts = stylex.create({
   icon: {
     height: '1.25rem',
     width: '1.25rem',
+  },
+  title: {
+    display: 'inline-flex',
+    fontSize: '.875rem',
+    lineHeight: '1.125rem',
+    userSelect: 'none',
   },
 });

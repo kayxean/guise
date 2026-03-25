@@ -123,7 +123,10 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     gap: '.75rem',
-    padding: '1rem .5rem',
+    paddingBottom: '.5rem',
+    paddingLeft: '.5rem',
+    paddingRight: '.5rem',
+    paddingTop: '.5rem',
     width: '100%',
   },
   preview: (color: string) => ({
