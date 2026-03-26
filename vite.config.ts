@@ -24,6 +24,9 @@ export default {
         type: 'commonJS',
         rootDir: resolve(__dirname, './app'),
       },
+      aliases: {
+        '~/*': [resolve(__dirname, './app/*')],
+      },
     }),
     remix({
       ssr: false,
