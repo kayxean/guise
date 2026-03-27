@@ -14,12 +14,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "~/browser": ["./app/features/browser"],
-      "~/browser/*": ["./app/features/browser/*"],
-
-      "~/color-picker": ["./app/features/color-picker"],
-      "~/color-picker/*": ["./app/features/color-picker/*"],
-
       "~/*": ["./app/*"]
     },
     "noEmit": true,
