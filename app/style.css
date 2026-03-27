@@ -39,19 +39,6 @@
   }
 }
 
-/* splash screen */
-.loading {
-  align-items: center;
-  background-color: #020304;
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  justify-content: center;
-  position: relative;
-  width: 100dvw;
-  z-index: 69;
-}
-
 /* stylex */
 @layer priority1, priority2, priority3, priority4, priority5;
 
