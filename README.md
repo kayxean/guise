@@ -1,6 +1,6 @@
 # Guise
 
-This is a web-based creative space for designing how applications look and feel. Built with [Remix](https://remix.run/), [Vite+](https://viteplus.dev/), and [StyleX](https://stylexjs.com/), it provides a browser-like playground and a collection of [color tools](https://github.com/kayxean/chromatrix) to experiment with. More design environments are on the way.
+An attempt at building my dream OS in the browser. Built using [Remix](https://remix.run/), [Vite+](https://viteplus.dev/), and [StyleX](https://stylexjs.com/) with [Chromatrix](https://github.com/kayxean/chromatrix) for matrix-driven color logic.
 
 > [!WARNING]
 > **Work in Progress**

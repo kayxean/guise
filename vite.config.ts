@@ -54,8 +54,6 @@ export default {
   },
   resolve: {
     alias: {
-      '~/browser': resolve(__dirname, './app/features/browser'),
-      '~/color-picker': resolve(__dirname, './app/features/color-picker'),
       '~': resolve(__dirname, './app'),
     },
   },
