@@ -227,6 +227,14 @@ function createCompositorStore(): CompositorStore {
 
       const leaves = getLeaves(newRoot);
       windowIds = leaves;
+    } else {
+      newRoot = { id: ws.windows[0], children: [null, null] };
+      for (let i = 1; i < ws.windows.length; i++) {
+        newRoot = splitNode(newRoot, i - 1, ws.windows[i]);
+      }
+      newRoot = splitNode(newRoot, ws.windows.length - 1, windowId);
+      const leaves = getLeaves(newRoot);
+      windowIds = leaves;
     }
 
     const layout = calculateLayout(newRoot);
@@ -359,47 +367,37 @@ function createCompositorStore(): CompositorStore {
 
     const sourceWs = state.workspaces[win.workspaceId];
 
+    let newSourceRoot: TreeNode | null = sourceWs.root ? removeLeaf(sourceWs.root, windowId) : null;
+
     const newSourceWs = {
       ...sourceWs,
       windows: sourceWs.windows.filter((id) => id !== windowId),
-      root: sourceWs.root ? removeLeaf(sourceWs.root, windowId) : null,
+      root: newSourceRoot,
     };
 
-    const addToTree = (node: TreeNode | null): TreeNode => {
-      if (!node) {
-        return { id: windowId, children: [null, null] };
-      }
-      if (isLeaf(node)) {
-        return {
-          id: `split_${windowId}`,
-          children: [
-            { id: node.id, children: [null, null] },
-            { id: windowId, children: [null, null] },
-          ],
-        };
-      }
-      const [left, right] = node.children;
-      if (!left) {
-        return { ...node, children: [{ id: windowId, children: [null, null] }, right] };
-      }
-      if (!right) {
-        return { ...node, children: [left, { id: windowId, children: [null, null] }] };
-      }
-      return { ...node, children: [addToTree(left), right] };
-    };
-
-    let newRoot: TreeNode | null = targetWs.root;
+    let newTargetRoot: TreeNode | null = null;
+    let targetWindowIds: string[] = [];
 
     if (targetWs.windows.length === 0) {
-      newRoot = { id: windowId, children: [null, null] };
+      newTargetRoot = { id: windowId, children: [null, null] };
+      targetWindowIds = [windowId];
     } else if (targetWs.root) {
-      newRoot = addToTree(targetWs.root);
+      const insertIndex = targetWs.windows.length - 1;
+      newTargetRoot = splitNode(targetWs.root, insertIndex, windowId);
+      targetWindowIds = getLeaves(newTargetRoot);
+    } else {
+      newTargetRoot = { id: targetWs.windows[0], children: [null, null] };
+      for (let i = 1; i < targetWs.windows.length; i++) {
+        newTargetRoot = splitNode(newTargetRoot, i - 1, targetWs.windows[i]);
+      }
+      newTargetRoot = splitNode(newTargetRoot, targetWs.windows.length - 1, windowId);
+      targetWindowIds = getLeaves(newTargetRoot);
     }
 
     const newTargetWs = {
       ...targetWs,
-      windows: [...targetWs.windows, windowId],
-      root: newRoot,
+      windows: targetWindowIds,
+      root: newTargetRoot,
     };
 
     const sourceLayout = calculateLayout(newSourceWs.root);
