@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useCompositor, compositorActions } from '~/lib/compositor/stores';
 import { handleKeyEvent, updateActiveWindowId } from '~/lib/compositor/dispatcher';
-import { getWorkspaceIds } from '~/lib/compositor/workspaces';
+import { getVisibleWorkspaceIds } from '~/lib/compositor/workspaces';
 
 function WindowComponent({ windowId }: { windowId: string }) {
   const state = useCompositor();
@@ -57,7 +57,7 @@ function WindowComponent({ windowId }: { windowId: string }) {
 
 function WorkspaceBar() {
   const state = useCompositor();
-  const workspaceIds = getWorkspaceIds(state.workspaces);
+  const workspaceIds = getVisibleWorkspaceIds(state.workspaces);
   const [optimisticActiveId, setOptimisticActiveId] = useState<string | null>(null);
 
   const handleSwitch = (id: string) => {

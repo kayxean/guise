@@ -153,14 +153,23 @@ function calculateLayout(
 function createCompositorStore(): CompositorStore {
   const defaultWorkspaces: Record<string, Workspace> = {
     '1': { id: '1', name: '1', isActive: true, windows: [], root: null },
-    '2': { id: '2', name: '2', isActive: false, windows: [], root: null },
-    '3': { id: '3', name: '3', isActive: false, windows: [], root: null },
-    '4': { id: '4', name: '4', isActive: false, windows: [], root: null },
-    '5': { id: '5', name: '5', isActive: false, windows: [], root: null },
-    '6': { id: '6', name: '6', isActive: false, windows: [], root: null },
-    '7': { id: '7', name: '7', isActive: false, windows: [], root: null },
-    '8': { id: '8', name: '8', isActive: false, windows: [], root: null },
-    '9': { id: '9', name: '9', isActive: false, windows: [], root: null },
+  };
+
+  const ensureWorkspace = (
+    workspaces: Record<string, Workspace>,
+    workspaceId: string,
+  ): Record<string, Workspace> => {
+    if (workspaces[workspaceId]) return workspaces;
+
+    const newWorkspaces = { ...workspaces };
+    newWorkspaces[workspaceId] = {
+      id: workspaceId,
+      name: workspaceId,
+      isActive: false,
+      windows: [],
+      root: null,
+    };
+    return newWorkspaces;
   };
 
   const initialState: CompositorState = {
@@ -362,10 +371,22 @@ function createCompositorStore(): CompositorStore {
   const moveWindowToWorkspace = (windowId: string, workspaceId: string): void => {
     const state = api.getState();
     const win = state.windows[windowId];
-    const targetWs = state.workspaces[workspaceId];
-    if (!win || !targetWs) return;
+    if (!win) return;
 
-    const sourceWs = state.workspaces[win.workspaceId];
+    let targetWorkspaceId = workspaceId;
+    let workspaces = state.workspaces;
+
+    if (
+      !workspaces[workspaceId] ||
+      (workspaces[workspaceId].windows.length === 0 && !workspaces[workspaceId].root)
+    ) {
+      workspaces = ensureWorkspace(workspaces, workspaceId);
+    }
+
+    const targetWs = workspaces[targetWorkspaceId];
+    const sourceWs = workspaces[win.workspaceId];
+
+    if (sourceWs.id === targetWorkspaceId) return;
 
     let newSourceRoot: TreeNode | null = sourceWs.root ? removeLeaf(sourceWs.root, windowId) : null;
 
@@ -421,7 +442,7 @@ function createCompositorStore(): CompositorStore {
           ...newWindows[id],
           position: rect.position,
           size: rect.size,
-          workspaceId: id === windowId ? workspaceId : newWindows[id].workspaceId,
+          workspaceId: id === windowId ? targetWorkspaceId : newWindows[id].workspaceId,
           isFocused: id === windowId,
         };
       }
@@ -430,11 +451,11 @@ function createCompositorStore(): CompositorStore {
     api.setState({
       windows: { ...state.windows, ...newWindows },
       workspaces: {
-        ...state.workspaces,
+        ...workspaces,
         [win.workspaceId]: newSourceWs,
-        [workspaceId]: newTargetWs,
+        [targetWorkspaceId]: newTargetWs,
       },
-      activeWorkspaceId: workspaceId,
+      activeWorkspaceId: targetWorkspaceId,
       activeWindowId: windowId,
       lastZIndex: state.lastZIndex + 1,
     });
@@ -442,19 +463,24 @@ function createCompositorStore(): CompositorStore {
 
   const switchWorkspace = (workspaceId: string): void => {
     const state = api.getState();
-    const ws = state.workspaces[workspaceId];
-    if (!ws) return;
+    let workspaces = state.workspaces;
+    let targetWorkspaceId = workspaceId;
 
-    const currentWs = state.workspaces[state.activeWorkspaceId];
+    if (!workspaces[workspaceId]) {
+      workspaces = ensureWorkspace(workspaces, workspaceId);
+    }
+
+    const ws = workspaces[targetWorkspaceId];
+    const currentWs = workspaces[state.activeWorkspaceId];
     const newActiveWindowId = ws.windows.length > 0 ? ws.windows[0] : null;
 
     api.setState({
       workspaces: {
-        ...state.workspaces,
+        ...workspaces,
         [state.activeWorkspaceId]: { ...currentWs, isActive: false },
-        [workspaceId]: { ...ws, isActive: true },
+        [targetWorkspaceId]: { ...ws, isActive: true },
       },
-      activeWorkspaceId: workspaceId,
+      activeWorkspaceId: targetWorkspaceId,
       activeWindowId: newActiveWindowId,
     });
 

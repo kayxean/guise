@@ -15,3 +15,12 @@ export const getActiveWorkspace = (workspaces: Record<string, Workspace>): Works
 export const getWorkspaceIds = (workspaces: Record<string, Workspace>): string[] => {
   return Object.keys(workspaces).sort();
 };
+
+export const getVisibleWorkspaceIds = (workspaces: Record<string, Workspace>): string[] => {
+  return Object.keys(workspaces)
+    .filter((id) => {
+      const ws = workspaces[id];
+      return ws.windows.length > 0 || ws.root !== null || ws.isActive;
+    })
+    .sort();
+};
