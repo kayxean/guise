@@ -3,6 +3,8 @@ import { workspaceStoreSubscribers } from './store';
 import type { Workspace, WindowState, WorkspaceState, WorkspaceActions } from './types';
 import { workspaceCompositorActions } from './compositor';
 
+const cachedActions: WorkspaceActions = workspaceCompositorActions;
+
 export function useActiveWorkspace(): Workspace | null {
   const activeWorkspaceId = useWorkspaceStoreKey('activeWorkspaceId');
   const workspaces = useWorkspaceStoreKey('workspaces');
@@ -36,7 +38,8 @@ export function useActiveWorkspaceId(): string {
 }
 
 export function useWorkspaceStore(): WorkspaceState & WorkspaceActions {
-  return { ...workspaceStoreSubscribers.getState(), ...workspaceCompositorActions };
+  const state = workspaceStoreSubscribers.getState();
+  return { ...state, ...cachedActions };
 }
 
 export function useWorkspaceStoreKey<K extends keyof WorkspaceState>(key: K): WorkspaceState[K] {

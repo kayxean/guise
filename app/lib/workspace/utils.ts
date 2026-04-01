@@ -52,17 +52,28 @@ export function getFloatingWindowsInWorkspace(
   windows: Record<string, WindowState>,
   workspaceId: string,
 ): WindowState[] {
-  return Object.values(windows).filter((w) => w.workspaceId === workspaceId && w.isFloating);
+  const result: WindowState[] = [];
+  for (const win of Object.values(windows)) {
+    if (win.workspaceId === workspaceId && win.isFloating) {
+      result.push(win);
+    }
+  }
+  return result;
 }
 
 export function getTopFloatingWindow(
   windows: Record<string, WindowState>,
   workspaceId: string,
 ): WindowState | null {
-  const floatingWindows = getFloatingWindowsInWorkspace(windows, workspaceId);
-  if (floatingWindows.length === 0) return null;
-
-  return floatingWindows.reduce((max, w) => (w.zIndex > max.zIndex ? w : max), floatingWindows[0]);
+  let top: WindowState | null = null;
+  for (const win of Object.values(windows)) {
+    if (win.workspaceId === workspaceId && win.isFloating) {
+      if (!top || win.zIndex > top.zIndex) {
+        top = win;
+      }
+    }
+  }
+  return top;
 }
 
 export function calculateZIndexWithFloating(
@@ -71,12 +82,24 @@ export function calculateZIndexWithFloating(
   lastZIndex: number,
   isTargetFloating: boolean,
 ): number {
-  const floatingWindows = getFloatingWindowsInWorkspace(windows, workspaceId);
-  const hasFloatingWindows = floatingWindows.length > 0;
+  if (isTargetFloating) {
+    return lastZIndex + 1;
+  }
 
-  if (hasFloatingWindows && !isTargetFloating) {
-    const minFloatingZIndex = Math.min(...floatingWindows.map((w) => w.zIndex));
-    return minFloatingZIndex - 1;
+  let minZIndex = Infinity;
+  let hasFloating = false;
+
+  for (const win of Object.values(windows)) {
+    if (win.workspaceId === workspaceId && win.isFloating) {
+      hasFloating = true;
+      if (win.zIndex < minZIndex) {
+        minZIndex = win.zIndex;
+      }
+    }
+  }
+
+  if (hasFloating) {
+    return minZIndex - 1;
   }
 
   return lastZIndex + 1;

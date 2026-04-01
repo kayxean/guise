@@ -2,7 +2,7 @@ import { memo } from 'react';
 import {
   useWindowByIdSelector,
   useActiveWindowId,
-  workspaceStoreActions,
+  workspaceCompositorActions,
   workspaceStoreSubscribers,
 } from '~/lib/workspace';
 
@@ -59,7 +59,7 @@ export const Window = memo(
       e.stopPropagation();
 
       const startX = e.clientX;
-      const activeWindowId = workspaceStoreActions.getActiveWindowId();
+      const activeWindowId = workspaceCompositorActions.getActiveWindowId();
       if (!activeWindowId) return;
 
       const state = workspaceStoreSubscribers.getState();
@@ -71,7 +71,7 @@ export const Window = memo(
       const minHeight = 100;
 
       const onMouseMove = (moveEvent: MouseEvent) => {
-        const activeId = workspaceStoreActions.getActiveWindowId();
+        const activeId = workspaceCompositorActions.getActiveWindowId();
         if (!activeId) return;
 
         let newWidth = startWidth;
@@ -100,7 +100,7 @@ export const Window = memo(
 
         const ratio = newWidth / (newWidth + startWidth);
         const clampedRatio = Math.max(0.1, Math.min(0.9, ratio));
-        workspaceStoreActions.updateWindowSplit(activeId, clampedRatio);
+        workspaceCompositorActions.updateWindowSplit(activeId, clampedRatio);
       };
 
       const onMouseUp = () => {
@@ -117,11 +117,11 @@ export const Window = memo(
       if (!e.altKey) return;
       e.preventDefault();
 
-      const activeWindowId = workspaceStoreActions.getActiveWindowId();
+      const activeWindowId = workspaceCompositorActions.getActiveWindowId();
       if (!activeWindowId) return;
 
       const onMouseMove = () => {
-        const currentId = workspaceStoreActions.getActiveWindowId();
+        const currentId = workspaceCompositorActions.getActiveWindowId();
         if (!currentId) return;
 
         const state = workspaceStoreSubscribers.getState();
@@ -131,7 +131,7 @@ export const Window = memo(
         const currentIndex = workspace.windows.indexOf(currentId);
         if (currentIndex > 0) {
           const prevWindowId = workspace.windows[currentIndex - 1];
-          workspaceStoreActions.swapWindows(currentId, prevWindowId);
+          workspaceCompositorActions.swapWindows(currentId, prevWindowId);
         }
       };
 
@@ -163,7 +163,7 @@ export const Window = memo(
           display: 'flex',
           flexDirection: 'column',
         }}
-        onMouseEnter={() => workspaceStoreActions.focusWindow(windowId)}
+        onMouseEnter={() => workspaceCompositorActions.focusWindow(windowId)}
       >
         <div
           style={{

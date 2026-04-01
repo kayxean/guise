@@ -1,5 +1,20 @@
 import type { TreeNode } from './types';
 
+const DEFAULT_SCREEN_WIDTH = 1920;
+const DEFAULT_SCREEN_HEIGHT = 1080;
+
+let cachedWidth: number | null = null;
+let cachedHeight: number | null = null;
+
+function getScreenDimensions(): { width: number; height: number } {
+  if (typeof window === 'undefined') {
+    return { width: DEFAULT_SCREEN_WIDTH, height: DEFAULT_SCREEN_HEIGHT };
+  }
+  cachedWidth = window.innerWidth;
+  cachedHeight = window.innerHeight;
+  return { width: cachedWidth, height: cachedHeight };
+}
+
 export function isLeaf(node: TreeNode): boolean {
   return !node.children[0] && !node.children[1];
 }
@@ -138,8 +153,7 @@ export function calculateLayout(
 ): Map<string, { position: { x: number; y: number }; size: { width: number; height: number } }> {
   const result = new Map();
   if (!root) return result;
-  const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
-  const h = typeof window !== 'undefined' ? window.innerHeight : 1080;
+  const { width: w, height: h } = getScreenDimensions();
   applyLayout(root, 0, 0, w, h, result);
   return result;
 }

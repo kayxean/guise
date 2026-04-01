@@ -1,4 +1,4 @@
-export { workspaceStoreActions, workspaceStoreSubscribers } from './store';
+export { workspaceStoreSubscribers } from './store';
 export { workspaceCompositorActions } from './compositor';
 export {
   useActiveWorkspace,

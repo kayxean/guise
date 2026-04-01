@@ -1,11 +1,12 @@
-import { workspaceStoreActions, workspaceStoreSubscribers } from '~/lib/workspace/store';
+import { workspaceStoreSubscribers } from '~/lib/workspace/store';
+import { workspaceCompositorActions } from '~/lib/workspace';
 import { getTopFloatingWindow } from './utils';
 
 export const getActiveWindowId = () => workspaceStoreSubscribers.getActiveWindowId();
 
 const getDispatcherHandlers = (): Record<string, () => void> => ({
-  j: () => workspaceStoreActions.cycleWindow('next'),
-  k: () => workspaceStoreActions.cycleWindow('prev'),
+  j: () => workspaceCompositorActions.cycleWindow('next'),
+  k: () => workspaceCompositorActions.cycleWindow('prev'),
   f: () => {
     const state = workspaceStoreSubscribers.getState();
     const activeWorkspaceId = state.activeWorkspaceId;
@@ -13,66 +14,66 @@ const getDispatcherHandlers = (): Record<string, () => void> => ({
     const topFloating = getTopFloatingWindow(state.windows, activeWorkspaceId);
 
     if (topFloating) {
-      workspaceStoreActions.setWindowFloating(topFloating.id, false);
+      workspaceCompositorActions.setWindowFloating(topFloating.id, false);
     } else {
       const activeWindowId = getActiveWindowId();
       if (activeWindowId) {
         const windowState = state.windows[activeWindowId];
         if (windowState) {
-          workspaceStoreActions.setWindowFloating(activeWindowId, !windowState.isFloating);
+          workspaceCompositorActions.setWindowFloating(activeWindowId, !windowState.isFloating);
         }
       }
     }
   },
-  n: () => workspaceStoreActions.createWindow('demo-app', `Window ${Date.now()}`),
+  n: () => workspaceCompositorActions.createWindow('demo-app', `Window ${Date.now()}`),
   w: () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.closeWindow(activeWindowId);
+    if (activeWindowId) workspaceCompositorActions.closeWindow(activeWindowId);
   },
-  '1': () => workspaceStoreActions.switchWorkspace('1'),
-  '2': () => workspaceStoreActions.switchWorkspace('2'),
-  '3': () => workspaceStoreActions.switchWorkspace('3'),
-  '4': () => workspaceStoreActions.switchWorkspace('4'),
-  '5': () => workspaceStoreActions.switchWorkspace('5'),
-  '6': () => workspaceStoreActions.switchWorkspace('6'),
-  '7': () => workspaceStoreActions.switchWorkspace('7'),
-  '8': () => workspaceStoreActions.switchWorkspace('8'),
-  '9': () => workspaceStoreActions.switchWorkspace('9'),
+  '1': () => workspaceCompositorActions.switchWorkspace('1'),
+  '2': () => workspaceCompositorActions.switchWorkspace('2'),
+  '3': () => workspaceCompositorActions.switchWorkspace('3'),
+  '4': () => workspaceCompositorActions.switchWorkspace('4'),
+  '5': () => workspaceCompositorActions.switchWorkspace('5'),
+  '6': () => workspaceCompositorActions.switchWorkspace('6'),
+  '7': () => workspaceCompositorActions.switchWorkspace('7'),
+  '8': () => workspaceCompositorActions.switchWorkspace('8'),
+  '9': () => workspaceCompositorActions.switchWorkspace('9'),
   '!': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '1');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '1');
   },
   '@': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '2');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '2');
   },
   '#': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '3');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '3');
   },
   $: () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '4');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '4');
   },
   '%': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '5');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '5');
   },
   '^': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '6');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '6');
   },
   '&': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '7');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '7');
   },
   '*': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '8');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '8');
   },
   '(': () => {
     const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceStoreActions.moveWindowToWorkspace(activeWindowId, '9');
+    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '9');
   },
 });
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import {
-  workspaceStoreActions,
+  workspaceCompositorActions,
   useActiveWindowIds,
   useActiveWorkspaceId,
   useAllWorkspaces,
@@ -14,7 +14,7 @@ function WorkspaceBar() {
   const activeWorkspaceId = useActiveWorkspaceId();
 
   const handleSwitch = (id: string) => {
-    workspaceStoreActions.switchWorkspace(id);
+    workspaceCompositorActions.switchWorkspace(id);
   };
 
   const visibleWorkspaceIds = useMemo(() => Object.keys(workspaces).sort(), [workspaces]);
@@ -125,7 +125,9 @@ export function Windows() {
         <WorkspaceBar />
         <div style={{ flex: 1 }} />
         <button
-          onClick={() => workspaceStoreActions.createWindow('demo-app', `Window ${Date.now()}`)}
+          onClick={() =>
+            workspaceCompositorActions.createWindow('demo-app', `Window ${Date.now()}`)
+          }
           style={{
             padding: '6px 16px',
             backgroundColor: '#007acc',

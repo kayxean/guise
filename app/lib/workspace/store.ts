@@ -1,5 +1,4 @@
 import type { WorkspaceState } from './types';
-import { workspaceCompositorActions } from './compositor';
 
 interface Subscribers {
   global: Set<() => void>;
@@ -31,7 +30,7 @@ let rafHandle: number | null = null;
 let pendingKeys: Set<keyof Subscribers> = new Set();
 let activeWindowIdRef: string | null = null;
 
-const notify = () => {
+const notify = (): void => {
   if (rafHandle === null) {
     rafHandle = requestAnimationFrame(() => {
       rafHandle = null;
@@ -63,36 +62,43 @@ export const setCompositor = (updater: Partial<WorkspaceState>): void => {
   const keys: (keyof Subscribers)[] = [];
   let hasActualChanges = false;
 
-  if ('activeWorkspaceId' in updater) {
+  const newActiveWorkspaceId = updater.activeWorkspaceId;
+  if (newActiveWorkspaceId !== undefined && newActiveWorkspaceId !== compositor.activeWorkspaceId) {
+    compositor.activeWorkspaceId = newActiveWorkspaceId;
     keys.push('activeWorkspaceId');
     hasActualChanges = true;
   }
-  if ('activeWindowId' in updater) {
+  const newActiveWindowId = updater.activeWindowId;
+  if (newActiveWindowId !== undefined && newActiveWindowId !== compositor.activeWindowId) {
+    compositor.activeWindowId = newActiveWindowId;
     keys.push('activeWindowId');
     hasActualChanges = true;
   }
 
-  if ('lastZIndex' in updater && updater.lastZIndex !== compositor.lastZIndex) {
+  const newLastZIndex = updater.lastZIndex;
+  if (newLastZIndex !== undefined && newLastZIndex !== compositor.lastZIndex) {
+    compositor.lastZIndex = newLastZIndex;
     keys.push('lastZIndex');
     hasActualChanges = true;
   }
-  if ('windows' in updater && updater.windows !== compositor.windows) {
+  const newWindows = updater.windows;
+  if (newWindows !== undefined && newWindows !== compositor.windows) {
+    compositor.windows = newWindows;
     keys.push('windows');
     hasActualChanges = true;
   }
-  if ('workspaces' in updater && updater.workspaces !== compositor.workspaces) {
+  const newWorkspaces = updater.workspaces;
+  if (newWorkspaces !== undefined && newWorkspaces !== compositor.workspaces) {
+    compositor.workspaces = newWorkspaces;
     keys.push('workspaces');
     hasActualChanges = true;
   }
 
   if (hasActualChanges) {
-    compositor = { ...compositor, ...updater };
     keys.forEach((key) => pendingKeys.add(key));
     notify();
   }
 };
-
-export const workspaceStoreActions = workspaceCompositorActions;
 
 export const workspaceStoreSubscribers = {
   subscribe,

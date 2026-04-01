@@ -1,5 +1,5 @@
 import { useEffect, useCallback, memo } from 'react';
-import { workspaceStoreActions } from '~/lib/workspace';
+import { workspaceCompositorActions } from '~/lib/workspace';
 import {
   useActiveWindowIds,
   useActiveWindowId,
@@ -47,7 +47,7 @@ const WindowComponent = memo(
           display: 'flex',
           flexDirection: 'column',
         }}
-        onMouseEnter={() => workspaceStoreActions.focusWindow(windowId)}
+        onMouseEnter={() => workspaceCompositorActions.focusWindow(windowId)}
       >
         <div
           style={{
@@ -79,7 +79,7 @@ function WorkspaceBar() {
   const activeWorkspaceId = useActiveWorkspaceId();
 
   const handleSwitch = (id: string) => {
-    workspaceStoreActions.switchWorkspace(id);
+    workspaceCompositorActions.switchWorkspace(id);
   };
 
   const visibleWorkspaceIds = Object.keys(workspaces).sort();
@@ -149,7 +149,9 @@ export function Compositor() {
         <WorkspaceBar />
         <div style={{ flex: 1 }} />
         <button
-          onClick={() => workspaceStoreActions.createWindow('demo-app', `Window ${Date.now()}`)}
+          onClick={() =>
+            workspaceCompositorActions.createWindow('demo-app', `Window ${Date.now()}`)
+          }
           style={{
             padding: '6px 16px',
             backgroundColor: '#007acc',
