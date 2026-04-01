@@ -1,18 +1,18 @@
 import * as stylex from '@stylexjs/stylex';
 import type { MetaFunction } from '@remix-run/node';
-import { CompositorV2 } from '~/components/compositor-v2';
+import { Windows } from '~/components/windows';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Compositor Playground V2 - Guise' },
-    { name: 'description', content: 'Compositor playground demo V2' },
+    { title: 'Compositor Playground - Guise' },
+    { name: 'description', content: 'Compositor playground demo' },
   ];
 };
 
-export default function PlaygroundV2Page() {
+export default function PlaygroundPage() {
   return (
     <div {...stylex.props(styles.container)}>
-      <CompositorV2 />
+      <Windows />
     </div>
   );
 }

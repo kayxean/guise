@@ -112,7 +112,7 @@ function WorkspaceBar() {
   );
 }
 
-export function CompositorV2() {
+export function Compositor() {
   const windowIds = useActiveWindowIds();
 
   const onKeyDown = useCallback((event: KeyboardEvent) => {
