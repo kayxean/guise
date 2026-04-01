@@ -1,5 +1,20 @@
 import type { TreeNode } from './types';
 
+const DEFAULT_SCREEN_WIDTH = 1920;
+const DEFAULT_SCREEN_HEIGHT = 1080;
+
+let cachedWidth: number | null = null;
+let cachedHeight: number | null = null;
+
+function getScreenDimensions(): { width: number; height: number } {
+  if (typeof window === 'undefined') {
+    return { width: DEFAULT_SCREEN_WIDTH, height: DEFAULT_SCREEN_HEIGHT };
+  }
+  cachedWidth = window.innerWidth;
+  cachedHeight = window.innerHeight;
+  return { width: cachedWidth, height: cachedHeight };
+}
+
 export function isLeaf(node: TreeNode): boolean {
   return !node.children[0] && !node.children[1];
 }
@@ -120,14 +135,16 @@ export function applyLayout(
   }
 
   const [left, right] = node.children;
+  const ratio = node.splitRatio ?? 0.5;
+
   if (w > h) {
-    const half = w / 2;
-    if (left) applyLayout(left, x, y, half, h, result);
-    if (right) applyLayout(right, x + half, y, half, h, result);
+    const splitWidth = w * ratio;
+    if (left) applyLayout(left, x, y, splitWidth, h, result);
+    if (right) applyLayout(right, x + splitWidth, y, w - splitWidth, h, result);
   } else {
-    const half = h / 2;
-    if (left) applyLayout(left, x, y, w, half, result);
-    if (right) applyLayout(right, x, y + half, w, half, result);
+    const splitHeight = h * ratio;
+    if (left) applyLayout(left, x, y, w, splitHeight, result);
+    if (right) applyLayout(right, x, y + splitHeight, w, h - splitHeight, result);
   }
 }
 
@@ -136,8 +153,71 @@ export function calculateLayout(
 ): Map<string, { position: { x: number; y: number }; size: { width: number; height: number } }> {
   const result = new Map();
   if (!root) return result;
-  const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
-  const h = typeof window !== 'undefined' ? window.innerHeight : 1080;
+  const { width: w, height: h } = getScreenDimensions();
   applyLayout(root, 0, 0, w, h, result);
   return result;
+}
+
+export function findParentNode(root: TreeNode, targetId: string): TreeNode | null {
+  if (!root.children[0] && !root.children[1]) return null;
+
+  const [left, right] = root.children;
+  if (left?.id === targetId || right?.id === targetId) {
+    return root;
+  }
+
+  if (left) {
+    const found = findParentNode(left, targetId);
+    if (found) return found;
+  }
+  if (right) {
+    const found = findParentNode(right, targetId);
+    if (found) return found;
+  }
+
+  return null;
+}
+
+export function updateNodeSplitRatio(root: TreeNode, windowId: string, ratio: number): TreeNode {
+  function update(node: TreeNode): TreeNode {
+    if (!node.children[0] && !node.children[1]) {
+      return node;
+    }
+
+    const [left, right] = node.children;
+    if (left?.id === windowId || right?.id === windowId) {
+      return { ...node, splitRatio: ratio };
+    }
+
+    const leftChild = left ? update(left) : null;
+    const rightChild = right ? update(right) : null;
+
+    if (leftChild !== left || rightChild !== right) {
+      return { ...node, children: [leftChild, rightChild] };
+    }
+    return node;
+  }
+
+  return update(root);
+}
+
+export function swapNodes(root: TreeNode, windowIdA: string, windowIdB: string): TreeNode {
+  function swap(node: TreeNode): TreeNode {
+    if (isLeaf(node)) {
+      if (node.id === windowIdA) return { ...node, id: windowIdB };
+      if (node.id === windowIdB) return { ...node, id: windowIdA };
+      return node;
+    }
+
+    const [left, right] = node.children;
+    const leftChild = left ? swap(left) : null;
+    const rightChild = right ? swap(right) : null;
+
+    if (leftChild !== left || rightChild !== right) {
+      return { ...node, children: [leftChild, rightChild] };
+    }
+    return node;
+  }
+
+  return swap(root);
 }

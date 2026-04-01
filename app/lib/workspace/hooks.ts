@@ -1,5 +1,9 @@
-import { useWorkspaceStoreKey, useWorkspaceStoreSelector } from './store';
-import type { Workspace, WindowState } from './types';
+import { useSyncExternalStore } from 'react';
+import { workspaceStoreSubscribers } from './store';
+import type { Workspace, WindowState, WorkspaceState, WorkspaceActions } from './types';
+import { workspaceCompositorActions } from './compositor';
+
+const cachedActions: WorkspaceActions = workspaceCompositorActions;
 
 export function useActiveWorkspace(): Workspace | null {
   const activeWorkspaceId = useWorkspaceStoreKey('activeWorkspaceId');
@@ -31,4 +35,26 @@ export function useAllWorkspaces(): Record<string, Workspace> {
 
 export function useActiveWorkspaceId(): string {
   return useWorkspaceStoreKey('activeWorkspaceId');
+}
+
+export function useWorkspaceStore(): WorkspaceState & WorkspaceActions {
+  const state = workspaceStoreSubscribers.getState();
+  return { ...state, ...cachedActions };
+}
+
+export function useWorkspaceStoreKey<K extends keyof WorkspaceState>(key: K): WorkspaceState[K] {
+  return useSyncExternalStore(
+    (onStoreChange: () => void) => workspaceStoreSubscribers.subscribeToKey(key, onStoreChange),
+    () => workspaceStoreSubscribers.getState()[key],
+    () => workspaceStoreSubscribers.getState()[key],
+  );
+}
+
+export function useWorkspaceStoreSelector<T>(selector: (state: WorkspaceState) => T): T {
+  return useSyncExternalStore(
+    (onStoreChange: () => void) =>
+      workspaceStoreSubscribers.subscribeToKey('windows', onStoreChange),
+    () => selector(workspaceStoreSubscribers.getState()),
+    () => selector(workspaceStoreSubscribers.getState()),
+  );
 }

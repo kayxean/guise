@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import type { MetaFunction } from '@remix-run/node';
-import { Compositor } from '~/components/Compositor';
+import { Windows } from '~/components/windows';
 
 export const meta: MetaFunction = () => {
   return [
@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
 export default function PlaygroundPage() {
   return (
     <div {...stylex.props(styles.container)}>
-      <Compositor />
+      <Windows />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 export interface TreeNode {
   id: string;
   children: [TreeNode | null, TreeNode | null];
+  splitRatio?: number;
 }
 
 export interface Workspace {
@@ -13,7 +14,10 @@ export interface Workspace {
 
 export interface WorkspaceState {
   workspaces: Record<string, Workspace>;
+  windows: Record<string, WindowState>;
   activeWorkspaceId: string;
+  activeWindowId: string | null;
+  lastZIndex: number;
 }
 
 export interface WorkspaceActions {
@@ -24,6 +28,9 @@ export interface WorkspaceActions {
   switchWorkspace: (workspaceId: string) => void;
   cycleWindow: (direction: 'next' | 'prev') => void;
   getActiveWindowId: () => string | null;
+  setWindowFloating: (windowId: string, isFloating: boolean) => void;
+  swapWindows: (windowIdA: string, windowIdB: string) => void;
+  updateWindowSplit: (windowId: string, ratio: number) => void;
 }
 
 export type WorkspaceStore = [() => WorkspaceState & WorkspaceActions, WorkspaceActions];
@@ -34,6 +41,7 @@ export interface WindowState {
   title: string;
   workspaceId: string;
   isFocused: boolean;
+  isFloating: boolean;
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
