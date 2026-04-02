@@ -1,5 +1,11 @@
+/**
+ * Defines the split orientation for a parent node in the tiling tree.
+ */
 export type SplitDirection = 'rows' | 'columns';
 
+/**
+ * A recursive node in the workspace tiling tree representing either a widow or a split.
+ */
 export type TreeNode =
   | {
       readonly type: 'leaf';
@@ -13,6 +19,9 @@ export type TreeNode =
       readonly children: readonly [TreeNode, TreeNode];
     };
 
+/**
+ * The internal state and geometry of a single application window.
+ */
 export interface WindowState {
   readonly id: string;
   readonly appId: string;
@@ -27,11 +36,22 @@ export interface WindowState {
     readonly height: number;
   };
   readonly zIndex: number;
-  readonly lastTiledSiblingId?: string | null;
-  readonly lastTiledDirection?: SplitDirection | null;
-  readonly lastTiledIsFirstChild?: boolean | null;
+  /**
+   * Tracks the tiling context of this window for every workspace it has visited.
+   */
+  readonly workspaceContexts?: Record<
+    string,
+    {
+      readonly siblingId: string | null;
+      readonly direction: SplitDirection | null;
+      readonly isFirstChild: boolean | null;
+    }
+  >;
 }
 
+/**
+ * A virtual desktop container that manages a hierarchical tiling tree of windows.
+ */
 export interface Workspace {
   readonly id: string;
   readonly name: string;
@@ -41,6 +61,9 @@ export interface Workspace {
   readonly gaps: number;
 }
 
+/**
+ * The global compositor state containing all windows, workspaces, and viewport settings.
+ */
 export interface State {
   readonly workspaces: Readonly<Record<string, Workspace>>;
   readonly windows: Readonly<Record<string, WindowState>>;
@@ -56,6 +79,9 @@ export interface State {
   };
 }
 
+/**
+ * Core compositor actions for manipulating windows and workspaces.
+ */
 export interface Actions {
   createWindow: (appId: string, title: string, focus?: boolean) => void;
   focusWindow: (windowId: string) => void;
@@ -67,4 +93,5 @@ export interface Actions {
   switchWorkspace: (workspaceId: string) => void;
   resizeSplit: (nodeId: string, newRatio: number) => void;
 }
+
 export type StateKey = keyof State;

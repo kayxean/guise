@@ -8,6 +8,7 @@ import {
   findSiblingId,
   getParentDirection,
   isWindowFirstChild,
+  nodeExistsInTree,
   syncWorkspaceLayout,
   swapWindowIds,
   updateNodeSplit,
@@ -87,18 +88,17 @@ export const closeWindow: Actions['closeWindow'] = (windowId) => {
   const newRoot = ws.root ? removeLeaf(ws.root, windowId) : null;
   const finalWindows = syncWorkspaceLayout({ ...ws, root: newRoot }, nextWindows, viewport);
 
-  // Focus management logic
+  // Identify which window should receive focus next.
   let nextFocusedId = state.activeWindowId;
   if (state.activeWindowId === windowId) {
-    // 1. Try to find a sibling in the tiling tree
+    // First, try to find a tiling sibling to keep focus within the local cluster.
     nextFocusedId = ws.root ? findNearestSiblingId(ws.root, windowId) : null;
 
-    // 2. Fallback: If no sibling found (e.g. was floating or last tiled window),
-    // focus any remaining window in the same workspace.
+    // If no sibling exists, focus the top-most remaining window in the workspace.
     if (!nextFocusedId) {
       const remainingWsWindows = Object.values(finalWindows)
         .filter((w) => w.workspaceId === win.workspaceId)
-        .sort((a, b) => b.zIndex - a.zIndex); // Prefer top-most (likely floating)
+        .sort((a, b) => b.zIndex - a.zIndex);
 
       nextFocusedId = remainingWsWindows.length > 0 ? remainingWsWindows[0].id : null;
     }
@@ -154,6 +154,17 @@ export const moveWindow: Actions['moveWindow'] = (windowId, targetWorkspaceId) =
 
   const viewport = getViewportRect(state);
   const sourceWs = state.workspaces[win.workspaceId];
+
+  // Capture context for the current workspace before leaving
+  const siblingId = sourceWs.root ? findSiblingId(sourceWs.root, windowId) : null;
+  const parentDir = sourceWs.root ? getParentDirection(sourceWs.root, windowId) : null;
+  const isFirst = sourceWs.root ? isWindowFirstChild(sourceWs.root, windowId) : null;
+
+  const nextContexts = {
+    ...win.workspaceContexts,
+    [sourceWs.id]: { siblingId, direction: parentDir, isFirstChild: isFirst },
+  };
+
   const sourceRoot = sourceWs.root ? removeLeaf(sourceWs.root, windowId) : null;
   const sourceWindowIds = getTreeLeafIds(sourceRoot);
 
@@ -170,6 +181,14 @@ export const moveWindow: Actions['moveWindow'] = (windowId, targetWorkspaceId) =
     };
   }
 
+  // Update window with captured context for source and transfer to target
+  const nextWin: WindowState = {
+    ...win,
+    workspaceId: targetWorkspaceId,
+    isFocused: true,
+    workspaceContexts: nextContexts,
+  };
+
   let targetWs = state.workspaces[targetWorkspaceId] || {
     id: targetWorkspaceId,
     name: targetWorkspaceId,
@@ -178,13 +197,30 @@ export const moveWindow: Actions['moveWindow'] = (windowId, targetWorkspaceId) =
     root: null,
     gaps: state.config.gaps,
   };
-  const targetRoot = addLeaf(targetWs.root, windowId, null, viewport);
+
+  const targetWsActiveWinId = targetWs.windowIds[0];
+  const targetWsnCtx = nextWin.workspaceContexts?.[targetWorkspaceId];
+  const siblingExistsInTarget =
+    targetWs.root && targetWsnCtx?.siblingId
+      ? nodeExistsInTree(targetWs.root, targetWsnCtx.siblingId)
+      : false;
+
+  const finalTargetId = siblingExistsInTarget
+    ? targetWsnCtx?.siblingId
+    : targetWsActiveWinId || null;
+
+  const targetRoot = addLeaf(
+    targetWs.root,
+    windowId,
+    finalTargetId || null,
+    viewport,
+    targetWsnCtx?.direction || null,
+    targetWsnCtx?.isFirstChild || null,
+  );
 
   let nextWindows = { ...state.windows };
-
-  nextWindows[windowId] = { ...win, workspaceId: targetWorkspaceId, isFocused: true };
   const nextZ = state.lastZIndex + 1;
-  nextWindows[windowId] = { ...nextWindows[windowId], zIndex: nextZ };
+  nextWindows[windowId] = { ...nextWin, zIndex: nextZ };
 
   nextWindows = syncWorkspaceLayout({ ...sourceWs, root: sourceRoot }, nextWindows, viewport);
   nextWindows = syncWorkspaceLayout({ ...targetWs, root: targetRoot }, nextWindows, viewport);
@@ -297,9 +333,10 @@ export const floatWindow: Actions['floatWindow'] = (windowId) => {
     nextWindows[windowId] = {
       ...win,
       isFloating: true,
-      lastTiledSiblingId: siblingId,
-      lastTiledDirection: parentDir,
-      lastTiledIsFirstChild: isFirst,
+      workspaceContexts: {
+        ...win.workspaceContexts,
+        [ws.id]: { siblingId, direction: parentDir, isFirstChild: isFirst },
+      },
       zIndex: state.lastZIndex + 1,
       rect: {
         x: viewport.width * 0.25,
@@ -309,22 +346,22 @@ export const floatWindow: Actions['floatWindow'] = (windowId) => {
       },
     };
   } else {
-    const targetId = win.lastTiledSiblingId;
+    const ctx = win.workspaceContexts?.[ws.id];
+    const targetId = ctx?.siblingId;
+    const siblingExists = targetId && ws.root ? nodeExistsInTree(ws.root, targetId) : false;
+
     newRoot = addLeaf(
       ws.root,
       windowId,
-      targetId || null,
+      siblingExists ? targetId || null : null,
       viewport,
-      win.lastTiledDirection,
-      win.lastTiledIsFirstChild,
+      ctx?.direction || null,
+      ctx?.isFirstChild || null,
     );
 
     nextWindows[windowId] = {
       ...win,
       isFloating: false,
-      lastTiledSiblingId: null,
-      lastTiledDirection: null,
-      lastTiledIsFirstChild: null,
     };
   }
 

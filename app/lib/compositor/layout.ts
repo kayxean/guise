@@ -70,6 +70,7 @@ export function addLeaf(
     );
   };
 
+  let targetFound = false;
   const splitRecursive = (node: TreeNode, rect: WindowState['rect']): TreeNode => {
     const isTarget =
       !targetId ||
@@ -77,6 +78,7 @@ export function addLeaf(
       (node.type === 'parent' && node.id === targetId);
 
     if (isTarget) {
+      targetFound = true;
       const splitDir = forcedDirection || calculateSmartDirection(rect);
       const newNode: TreeNode = { type: 'leaf', windowId: newWindowId };
       return {
@@ -128,7 +130,23 @@ export function addLeaf(
     return node;
   };
 
-  return splitRecursive(root, boundary);
+  const newRoot = splitRecursive(root, boundary);
+
+  // Fallback: If we had a target but didn't find it in this tree (e.g. moved from another workspace),
+  // split the root of the workspace.
+  if (targetId && !targetFound) {
+    const splitDir = forcedDirection || calculateSmartDirection(boundary);
+    const newNode: TreeNode = { type: 'leaf', windowId: newWindowId };
+    return {
+      type: 'parent',
+      id: generateId(),
+      direction: splitDir,
+      splitRatio: 0.5,
+      children: isFirstChild ? [newNode, root] : ([root, newNode] as const),
+    };
+  }
+
+  return newRoot;
 }
 
 /**
@@ -148,6 +166,23 @@ export function isWindowFirstChild(node: TreeNode, targetId: string): boolean | 
     (left.type === 'parent' ? isWindowFirstChild(left, targetId) : null) ||
     (right.type === 'parent' ? isWindowFirstChild(right, targetId) : null)
   );
+}
+
+/**
+ * Determines if a specific Node ID or Window ID exists anywhere within a tiling sub-tree.
+ */
+export function nodeExistsInTree(node: TreeNode, targetId: string): boolean {
+  if (node.type === 'leaf') return node.windowId === targetId;
+  if (node.id === targetId) return true;
+
+  // Only recurse if we are a parent node to avoid accessing undefined children.
+  if (node.type === 'parent') {
+    return (
+      nodeExistsInTree(node.children[0], targetId) || nodeExistsInTree(node.children[1], targetId)
+    );
+  }
+
+  return false;
 }
 
 /**
