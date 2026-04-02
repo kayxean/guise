@@ -1,5 +1,4 @@
-import type { WindowState, Workspace } from './types';
-import type { TreeNode } from './types';
+import type { WindowState, Workspace, TreeNode } from './types';
 import { calculateLayout, getLeaves, removeLeaf, splitNode } from './tree';
 
 const DEFAULT_SCREEN_WIDTH = 1920;
@@ -24,7 +23,7 @@ export const shallowEqual = (a: unknown, b: unknown): boolean => {
   return true;
 };
 
-export const ensureWorkspaceExists = (
+export const ensureWorkspace = (
   workspaces: Record<string, Workspace>,
   workspaceId: string,
 ): Record<string, Workspace> => {
@@ -41,14 +40,14 @@ export const ensureWorkspaceExists = (
   return result;
 };
 
-export function getScreenDimensions(): { width: number; height: number } {
+export function getScreen(): { width: number; height: number } {
   if (typeof window === 'undefined') {
     return { width: DEFAULT_SCREEN_WIDTH, height: DEFAULT_SCREEN_HEIGHT };
   }
   return { width: window.innerWidth, height: window.innerHeight };
 }
 
-export function getFloatingWindowsInWorkspace(
+export function getFloatingWindows(
   windows: Record<string, WindowState>,
   workspaceId: string,
 ): WindowState[] {
@@ -61,7 +60,7 @@ export function getFloatingWindowsInWorkspace(
   return result;
 }
 
-export function getTopFloatingWindow(
+export function getTopFloating(
   windows: Record<string, WindowState>,
   workspaceId: string,
 ): WindowState | null {
@@ -76,7 +75,7 @@ export function getTopFloatingWindow(
   return top;
 }
 
-export function calculateZIndexWithFloating(
+export function calculateZIndex(
   windows: Record<string, WindowState>,
   workspaceId: string,
   lastZIndex: number,
@@ -105,7 +104,7 @@ export function calculateZIndexWithFloating(
   return lastZIndex + 1;
 }
 
-export function applyLayoutToWindows(
+export function applyLayout(
   root: TreeNode | null,
   windows: Record<string, WindowState>,
 ): Record<string, WindowState> {
@@ -130,13 +129,13 @@ export function applyLayoutToWindows(
   return updatedWindows;
 }
 
-export function removeWindowFromTree(
+export function removeFromTree(
   workspace: Workspace,
   windowId: string,
   windows: Record<string, WindowState>,
 ): { workspace: Workspace; updatedWindows: Record<string, WindowState> } {
   const newRoot = workspace.root ? removeLeaf(workspace.root, windowId) : null;
-  const updatedWindows = applyLayoutToWindows(newRoot, windows);
+  const updatedWindows = applyLayout(newRoot, windows);
 
   return {
     workspace: {
@@ -148,7 +147,7 @@ export function removeWindowFromTree(
   };
 }
 
-export function addWindowToTree(
+export function addToTree(
   workspace: Workspace,
   windowId: string,
   windows: Record<string, WindowState>,
@@ -161,7 +160,7 @@ export function addWindowToTree(
     newRoot = { id: windowId, children: [null, null] };
   }
 
-  const updatedWindows = applyLayoutToWindows(newRoot, windows);
+  const updatedWindows = applyLayout(newRoot, windows);
 
   return {
     workspace: {
@@ -173,7 +172,7 @@ export function addWindowToTree(
   };
 }
 
-export function updateWindowPositionInTree(
+export function updatePosition(
   workspace: Workspace,
   windows: Record<string, WindowState>,
 ): { workspace: Workspace; updatedWindows: Record<string, WindowState> } {
@@ -181,7 +180,7 @@ export function updateWindowPositionInTree(
     return { workspace, updatedWindows: {} };
   }
 
-  const updatedWindows = applyLayoutToWindows(workspace.root, windows);
+  const updatedWindows = applyLayout(workspace.root, windows);
 
   return {
     workspace,
@@ -189,7 +188,7 @@ export function updateWindowPositionInTree(
   };
 }
 
-export function getWindowRectFromLayout(
+export function getRect(
   root: TreeNode | null,
   windowId: string,
 ): { position: { x: number; y: number }; size: { width: number; height: number } } | null {
@@ -199,7 +198,7 @@ export function getWindowRectFromLayout(
   return layout.get(windowId) ?? null;
 }
 
-export function recalculateAllWindowPositions(
+export function recalculatePositions(
   workspace: Workspace,
   windows: Record<string, WindowState>,
 ): Record<string, WindowState> {

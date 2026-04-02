@@ -1,34 +1,26 @@
-export { workspaceStoreSubscribers } from './store';
-export { workspaceCompositorActions } from './compositor';
+export { workspaceStore } from './store';
+export { compositorActions } from './compositor';
 export {
-  useActiveWorkspace,
-  useActiveWindowIds,
-  useWindowById,
-  useWindowByIdSelector,
-  useActiveWindowId,
-  useAllWorkspaces,
-  useActiveWorkspaceId,
-  useWorkspaceStore,
-  useWorkspaceStoreKey,
-  useWorkspaceStoreSelector,
+  useWorkspace,
+  useWindowIds,
+  useWindow,
+  useWindowSelector,
+  useWindowId,
+  useWorkspaces,
+  useWorkspaceId,
+  useStore,
+  useStoreKey,
+  useStoreSelector,
 } from './hooks';
 export {
-  getScreenDimensions,
-  getFloatingWindowsInWorkspace,
-  getTopFloatingWindow,
-  calculateZIndexWithFloating,
-  applyLayoutToWindows,
-  removeWindowFromTree,
-  addWindowToTree,
-  getWindowRectFromLayout,
-  recalculateAllWindowPositions,
+  getScreen,
+  getFloatingWindows,
+  getTopFloating,
+  calculateZIndex,
+  applyLayout,
+  removeFromTree,
+  addToTree,
+  getRect,
+  recalculatePositions,
 } from './utils';
-export type {
-  WorkspaceState,
-  WorkspaceActions,
-  WorkspaceStore,
-  WindowState,
-  CompositorState,
-  Workspace,
-  TreeNode,
-} from './types';
+export type { State, Actions, Store, WindowState, Workspace, TreeNode } from './types';

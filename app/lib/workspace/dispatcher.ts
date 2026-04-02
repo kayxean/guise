@@ -1,79 +1,87 @@
-import { workspaceStoreSubscribers } from '~/lib/workspace/store';
-import { workspaceCompositorActions } from '~/lib/workspace';
-import { getTopFloatingWindow } from './utils';
-
-export const getActiveWindowId = () => workspaceStoreSubscribers.getActiveWindowId();
+import { compositorActions } from './compositor';
+import { workspaceStore } from './store';
+import { getTopFloating } from './utils';
 
 const getDispatcherHandlers = (): Record<string, () => void> => ({
-  j: () => workspaceCompositorActions.cycleWindow('next'),
-  k: () => workspaceCompositorActions.cycleWindow('prev'),
+  j: () => compositorActions.cycleWindow('next'),
+  k: () => compositorActions.cycleWindow('prev'),
   f: () => {
-    const state = workspaceStoreSubscribers.getState();
+    const state = workspaceStore.getState();
     const activeWorkspaceId = state.activeWorkspaceId;
 
-    const topFloating = getTopFloatingWindow(state.windows, activeWorkspaceId);
+    const topFloating = getTopFloating(state.windows, activeWorkspaceId);
 
     if (topFloating) {
-      workspaceCompositorActions.setWindowFloating(topFloating.id, false);
+      compositorActions.setFloating(topFloating.id, false);
     } else {
-      const activeWindowId = getActiveWindowId();
+      const activeWindowId = state.activeWindowId;
       if (activeWindowId) {
         const windowState = state.windows[activeWindowId];
         if (windowState) {
-          workspaceCompositorActions.setWindowFloating(activeWindowId, !windowState.isFloating);
+          compositorActions.setFloating(activeWindowId, !windowState.isFloating);
         }
       }
     }
   },
-  n: () => workspaceCompositorActions.createWindow('demo-app', `Window ${Date.now()}`),
+  n: () => compositorActions.createWindow('demo-app', `Window ${Date.now()}`),
   w: () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.closeWindow(activeWindowId);
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.closeWindow(activeWindowId);
   },
-  '1': () => workspaceCompositorActions.switchWorkspace('1'),
-  '2': () => workspaceCompositorActions.switchWorkspace('2'),
-  '3': () => workspaceCompositorActions.switchWorkspace('3'),
-  '4': () => workspaceCompositorActions.switchWorkspace('4'),
-  '5': () => workspaceCompositorActions.switchWorkspace('5'),
-  '6': () => workspaceCompositorActions.switchWorkspace('6'),
-  '7': () => workspaceCompositorActions.switchWorkspace('7'),
-  '8': () => workspaceCompositorActions.switchWorkspace('8'),
-  '9': () => workspaceCompositorActions.switchWorkspace('9'),
+  '1': () => compositorActions.switchWorkspace('1'),
+  '2': () => compositorActions.switchWorkspace('2'),
+  '3': () => compositorActions.switchWorkspace('3'),
+  '4': () => compositorActions.switchWorkspace('4'),
+  '5': () => compositorActions.switchWorkspace('5'),
+  '6': () => compositorActions.switchWorkspace('6'),
+  '7': () => compositorActions.switchWorkspace('7'),
+  '8': () => compositorActions.switchWorkspace('8'),
+  '9': () => compositorActions.switchWorkspace('9'),
   '!': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '1');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '1');
   },
   '@': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '2');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '2');
   },
   '#': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '3');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '3');
   },
   $: () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '4');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '4');
   },
   '%': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '5');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '5');
   },
   '^': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '6');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '6');
   },
   '&': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '7');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '7');
   },
   '*': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '8');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '8');
   },
   '(': () => {
-    const activeWindowId = getActiveWindowId();
-    if (activeWindowId) workspaceCompositorActions.moveWindowToWorkspace(activeWindowId, '9');
+    const state = workspaceStore.getState();
+    const activeWindowId = state.activeWindowId;
+    if (activeWindowId) compositorActions.moveWindow(activeWindowId, '9');
   },
 });
 
@@ -91,7 +99,7 @@ export const handleKeyEvent = (event: KeyboardEvent): boolean => {
     return false;
   }
 
-  const key = event.key;
+  const key = event.key.toLowerCase();
   const handlersMap = getHandlers();
 
   if (handlersMap[key]) {

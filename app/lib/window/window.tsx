@@ -1,10 +1,5 @@
 import { memo } from 'react';
-import {
-  useWindowByIdSelector,
-  useActiveWindowId,
-  workspaceCompositorActions,
-  workspaceStoreSubscribers,
-} from '~/lib/workspace';
+import { useWindowSelector, useWindowId, compositorActions, workspaceStore } from '~/lib/workspace';
 
 const RESIZE_HANDLES = [
   {
@@ -49,8 +44,8 @@ function generateWindowColor(windowId: string): string {
 
 export const Window = memo(
   function Window({ windowId, children }: { windowId: string; children?: React.ReactNode }) {
-    const windowState = useWindowByIdSelector(windowId);
-    const activeWindowId = useActiveWindowId();
+    const windowState = useWindowSelector(windowId);
+    const activeWindowId = useWindowId();
     const isActive = activeWindowId === windowId;
 
     const onResizeStart = (direction: string) => (e: React.MouseEvent) => {
@@ -58,11 +53,10 @@ export const Window = memo(
       e.preventDefault();
       e.stopPropagation();
 
-      const startX = e.clientX;
-      const activeWindowId = workspaceCompositorActions.getActiveWindowId();
       if (!activeWindowId) return;
 
-      const state = workspaceStoreSubscribers.getState();
+      const startX = e.clientX;
+      const state = workspaceStore.getState();
       const window = state.windows[activeWindowId];
       if (!window) return;
 
@@ -71,8 +65,7 @@ export const Window = memo(
       const minHeight = 100;
 
       const onMouseMove = (moveEvent: MouseEvent) => {
-        const activeId = workspaceCompositorActions.getActiveWindowId();
-        if (!activeId) return;
+        if (!activeWindowId) return;
 
         let newWidth = startWidth;
         let newHeight = window.size.height;
@@ -100,7 +93,7 @@ export const Window = memo(
 
         const ratio = newWidth / (newWidth + startWidth);
         const clampedRatio = Math.max(0.1, Math.min(0.9, ratio));
-        workspaceCompositorActions.updateWindowSplit(activeId, clampedRatio);
+        compositorActions.splitWindow(activeWindowId, clampedRatio);
       };
 
       const onMouseUp = () => {
@@ -117,21 +110,19 @@ export const Window = memo(
       if (!e.altKey) return;
       e.preventDefault();
 
-      const activeWindowId = workspaceCompositorActions.getActiveWindowId();
       if (!activeWindowId) return;
 
       const onMouseMove = () => {
-        const currentId = workspaceCompositorActions.getActiveWindowId();
-        if (!currentId) return;
+        if (!activeWindowId) return;
 
-        const state = workspaceStoreSubscribers.getState();
+        const state = workspaceStore.getState();
         const workspace = state.workspaces[state.activeWorkspaceId];
         if (!workspace || workspace.windows.length <= 1) return;
 
-        const currentIndex = workspace.windows.indexOf(currentId);
+        const currentIndex = workspace.windows.indexOf(activeWindowId);
         if (currentIndex > 0) {
           const prevWindowId = workspace.windows[currentIndex - 1];
-          workspaceCompositorActions.swapWindows(currentId, prevWindowId);
+          compositorActions.swapWindow(activeWindowId, prevWindowId);
         }
       };
 
@@ -163,7 +154,7 @@ export const Window = memo(
           display: 'flex',
           flexDirection: 'column',
         }}
-        onMouseEnter={() => workspaceCompositorActions.focusWindow(windowId)}
+        onMouseEnter={() => compositorActions.focusWindow(windowId)}
       >
         <div
           style={{

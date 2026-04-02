@@ -1,11 +1,11 @@
 import { useEffect, useCallback, memo } from 'react';
-import { workspaceCompositorActions } from '~/lib/workspace';
+import { compositorActions } from '~/lib/workspace';
 import {
-  useActiveWindowIds,
-  useActiveWindowId,
-  useActiveWorkspaceId,
-  useAllWorkspaces,
-  useWindowByIdSelector,
+  useWindowIds,
+  useWindowId,
+  useWorkspaceId,
+  useWorkspaces,
+  useWindowSelector,
 } from '~/lib/workspace/hooks';
 import { handleKeyEvent } from '~/lib/workspace/dispatcher';
 
@@ -21,9 +21,9 @@ interface WindowComponentProps {
 
 const WindowComponent = memo(
   function WindowComponent({ windowId }: WindowComponentProps) {
-    const windowState = useWindowByIdSelector(windowId);
-    const activeWindowId = useActiveWindowId();
-    const activeWorkspaceId = useActiveWorkspaceId();
+    const windowState = useWindowSelector(windowId);
+    const activeWindowId = useWindowId();
+    const activeWorkspaceId = useWorkspaceId();
 
     if (!windowState || windowState.workspaceId !== activeWorkspaceId) {
       return null;
@@ -47,7 +47,7 @@ const WindowComponent = memo(
           display: 'flex',
           flexDirection: 'column',
         }}
-        onMouseEnter={() => workspaceCompositorActions.focusWindow(windowId)}
+        onMouseEnter={() => compositorActions.focusWindow(windowId)}
       >
         <div
           style={{
@@ -75,11 +75,11 @@ const WindowComponent = memo(
 );
 
 function WorkspaceBar() {
-  const workspaces = useAllWorkspaces();
-  const activeWorkspaceId = useActiveWorkspaceId();
+  const workspaces = useWorkspaces();
+  const activeWorkspaceId = useWorkspaceId();
 
   const handleSwitch = (id: string) => {
-    workspaceCompositorActions.switchWorkspace(id);
+    compositorActions.switchWorkspace(id);
   };
 
   const visibleWorkspaceIds = Object.keys(workspaces).sort();
@@ -113,7 +113,7 @@ function WorkspaceBar() {
 }
 
 export function Compositor() {
-  const windowIds = useActiveWindowIds();
+  const windowIds = useWindowIds();
 
   const onKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.altKey || event.shiftKey) {
@@ -149,9 +149,7 @@ export function Compositor() {
         <WorkspaceBar />
         <div style={{ flex: 1 }} />
         <button
-          onClick={() =>
-            workspaceCompositorActions.createWindow('demo-app', `Window ${Date.now()}`)
-          }
+          onClick={() => compositorActions.createWindow('demo-app', `Window ${Date.now()}`)}
           style={{
             padding: '6px 16px',
             backgroundColor: '#007acc',

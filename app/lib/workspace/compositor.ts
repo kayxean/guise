@@ -1,32 +1,31 @@
-import type { WindowState, Workspace, WorkspaceActions } from './types';
-import type { TreeNode } from './types';
+import type { WindowState, Workspace, Actions, TreeNode } from './types';
 import {
   getLeaves,
   splitNode,
-  splitNodeAtWindow,
+  splitAtWindow,
   removeLeaf,
   calculateLayout,
   findParentNode,
-  updateNodeSplitRatio,
+  updateSplitRatio,
   swapNodes,
 } from './tree';
 import {
-  getScreenDimensions,
-  calculateZIndexWithFloating,
-  applyLayoutToWindows,
-  removeWindowFromTree,
-  addWindowToTree,
-  getWindowRectFromLayout,
-  recalculateAllWindowPositions,
+  getScreen,
+  calculateZIndex,
+  applyLayout,
+  removeFromTree,
+  addToTree,
+  getRect,
+  recalculatePositions,
   generateId,
-  ensureWorkspaceExists,
+  ensureWorkspace,
 } from './utils';
-import { setCompositor, compositor } from './store';
+import { setStore, store } from './store';
 
 let lastKnownDimensions: { width: number; height: number } | null = null;
 
 export const recalculateWindowPositions = () => {
-  const currentDimensions = getScreenDimensions();
+  const currentDimensions = getScreen();
 
   if (
     lastKnownDimensions &&
@@ -37,14 +36,14 @@ export const recalculateWindowPositions = () => {
   }
   lastKnownDimensions = currentDimensions;
 
-  const activeWorkspace = compositor.workspaces[compositor.activeWorkspaceId];
+  const activeWorkspace = store.workspaces[store.activeWorkspaceId];
   if (!activeWorkspace?.root) return;
 
-  const updatedWindows = recalculateAllWindowPositions(activeWorkspace, compositor.windows);
+  const updatedWindows = recalculatePositions(activeWorkspace, store.windows);
 
   const hasChanges = Object.keys(updatedWindows).some((id) => {
     const newWin = updatedWindows[id];
-    const oldWin = compositor.windows[id];
+    const oldWin = store.windows[id];
     return (
       newWin.position.x !== oldWin.position.x ||
       newWin.position.y !== oldWin.position.y ||
@@ -54,7 +53,7 @@ export const recalculateWindowPositions = () => {
   });
 
   if (hasChanges) {
-    setCompositor({ windows: { ...compositor.windows, ...updatedWindows } });
+    setStore({ windows: { ...store.windows, ...updatedWindows } });
   }
 };
 
@@ -67,9 +66,9 @@ if (typeof window !== 'undefined') {
 }
 
 export const createWindow = (appId: string, title: string, shouldFocus = true): string => {
-  const activeWorkspace = compositor.workspaces[compositor.activeWorkspaceId];
+  const activeWorkspace = store.workspaces[store.activeWorkspaceId];
   const newWindowId = generateId();
-  const nextZIndex = compositor.lastZIndex + 1;
+  const nextZIndex = store.lastZIndex + 1;
 
   let layoutTree: TreeNode | null = null;
   let windowIdsInWorkspace: string[] = [];
@@ -78,12 +77,12 @@ export const createWindow = (appId: string, title: string, shouldFocus = true): 
     layoutTree = { id: newWindowId, children: [null, null] };
     windowIdsInWorkspace = [newWindowId];
   } else if (activeWorkspace.root) {
-    const focusedWindowId = compositor.activeWindowId;
+    const focusedWindowId = store.activeWindowId;
     const isFocusedWindowInActiveWorkspace =
       focusedWindowId && activeWorkspace.windows.includes(focusedWindowId);
 
     if (isFocusedWindowInActiveWorkspace) {
-      layoutTree = splitNodeAtWindow(activeWorkspace.root, focusedWindowId, newWindowId);
+      layoutTree = splitAtWindow(activeWorkspace.root, focusedWindowId, newWindowId);
     } else {
       const insertPosition = activeWorkspace.windows.length - 1;
       layoutTree = splitNode(activeWorkspace.root, insertPosition, newWindowId);
@@ -105,7 +104,7 @@ export const createWindow = (appId: string, title: string, shouldFocus = true): 
   const createdWindows: Record<string, WindowState> = {};
 
   for (const [id, rect] of layout) {
-    const existingWindow = compositor.windows[id];
+    const existingWindow = store.windows[id];
     const isNewWindow = id === newWindowId;
     createdWindows[id] = {
       ...existingWindow,
@@ -121,7 +120,7 @@ export const createWindow = (appId: string, title: string, shouldFocus = true): 
     id: newWindowId,
     appId,
     title,
-    workspaceId: compositor.activeWorkspaceId,
+    workspaceId: store.activeWorkspaceId,
     isFocused: shouldFocus,
     isFloating: false,
     position: layout.get(newWindowId)?.position ?? { x: 0, y: 0 },
@@ -138,13 +137,13 @@ export const createWindow = (appId: string, title: string, shouldFocus = true): 
     root: layoutTree,
   };
 
-  setCompositor({
-    windows: { ...compositor.windows, ...createdWindows },
+  setStore({
+    windows: { ...store.windows, ...createdWindows },
     workspaces: {
-      ...compositor.workspaces,
-      [compositor.activeWorkspaceId]: updatedActiveWorkspace,
+      ...store.workspaces,
+      [store.activeWorkspaceId]: updatedActiveWorkspace,
     },
-    activeWindowId: shouldFocus ? newWindowId : compositor.activeWindowId,
+    activeWindowId: shouldFocus ? newWindowId : store.activeWindowId,
     lastZIndex: nextZIndex,
   });
 
@@ -152,14 +151,14 @@ export const createWindow = (appId: string, title: string, shouldFocus = true): 
 };
 
 export const closeWindow = (windowId: string): void => {
-  const targetWindow = compositor.windows[windowId];
+  const targetWindow = store.windows[windowId];
   if (!targetWindow) return;
 
-  const sourceWorkspace = compositor.workspaces[targetWindow.workspaceId];
+  const sourceWorkspace = store.workspaces[targetWindow.workspaceId];
   const remainingWindowIds = sourceWorkspace.windows.filter((id) => id !== windowId);
 
   if (!sourceWorkspace.root || remainingWindowIds.length === 0) {
-    const removedWindows = { ...compositor.windows };
+    const removedWindows = { ...store.windows };
     delete removedWindows[windowId];
 
     for (const id of sourceWorkspace.windows) {
@@ -168,25 +167,25 @@ export const closeWindow = (windowId: string): void => {
       }
     }
 
-    const isActiveWorkspace = compositor.activeWorkspaceId === targetWindow.workspaceId;
-    const updatedWorkspaces = { ...compositor.workspaces };
+    const isActiveWorkspace = store.activeWorkspaceId === targetWindow.workspaceId;
+    const updatedWorkspaces = { ...store.workspaces };
     updatedWorkspaces[targetWindow.workspaceId] = {
       ...sourceWorkspace,
       windows: [],
       root: null,
     };
 
-    setCompositor({
+    setStore({
       windows: removedWindows,
       workspaces: updatedWorkspaces,
-      activeWindowId: isActiveWorkspace ? null : compositor.activeWindowId,
+      activeWindowId: isActiveWorkspace ? null : store.activeWindowId,
     });
     return;
   }
 
   let layoutTree = removeLeaf(sourceWorkspace.root, windowId);
   const layout = calculateLayout(layoutTree);
-  const closedWindows: Record<string, WindowState> = { ...compositor.windows };
+  const closedWindows: Record<string, WindowState> = { ...store.windows };
 
   delete closedWindows[windowId];
 
@@ -199,22 +198,22 @@ export const closeWindow = (windowId: string): void => {
 
   const closedWindowIndex = sourceWorkspace.windows.indexOf(windowId);
   const nextFocusedWindowId =
-    compositor.activeWindowId === windowId
+    store.activeWindowId === windowId
       ? remainingWindowIds.length > 0
         ? remainingWindowIds[Math.max(0, closedWindowIndex - 1)]
         : null
-      : compositor.activeWindowId;
+      : store.activeWindowId;
 
   if (remainingWindowIds.length === 0) {
-    const isActiveWorkspace = compositor.activeWorkspaceId === targetWindow.workspaceId;
-    const updatedWorkspaces = { ...compositor.workspaces };
+    const isActiveWorkspace = store.activeWorkspaceId === targetWindow.workspaceId;
+    const updatedWorkspaces = { ...store.workspaces };
     updatedWorkspaces[targetWindow.workspaceId] = {
       ...sourceWorkspace,
       windows: [],
       root: null,
     };
 
-    setCompositor({
+    setStore({
       windows: closedWindows,
       workspaces: updatedWorkspaces,
       activeWindowId: isActiveWorkspace ? null : nextFocusedWindowId,
@@ -222,10 +221,10 @@ export const closeWindow = (windowId: string): void => {
     return;
   }
 
-  setCompositor({
-    windows: { ...compositor.windows, ...closedWindows },
+  setStore({
+    windows: { ...store.windows, ...closedWindows },
     workspaces: {
-      ...compositor.workspaces,
+      ...store.workspaces,
       [targetWindow.workspaceId]: {
         ...sourceWorkspace,
         windows: remainingWindowIds,
@@ -237,25 +236,25 @@ export const closeWindow = (windowId: string): void => {
 };
 
 export const focusWindow = (windowId: string): void => {
-  const targetWindow = compositor.windows[windowId];
+  const targetWindow = store.windows[windowId];
   if (!targetWindow) return;
 
-  if (targetWindow.workspaceId !== compositor.activeWorkspaceId) {
+  if (targetWindow.workspaceId !== store.activeWorkspaceId) {
     return;
   }
 
-  const nextZIndex = calculateZIndexWithFloating(
-    compositor.windows,
-    compositor.activeWorkspaceId,
-    compositor.lastZIndex,
+  const nextZIndex = calculateZIndex(
+    store.windows,
+    store.activeWorkspaceId,
+    store.lastZIndex,
     targetWindow.isFloating,
   );
 
-  const updatedWindows = { ...compositor.windows };
-  if (compositor.activeWindowId && compositor.activeWindowId !== windowId) {
-    const prevWindow = updatedWindows[compositor.activeWindowId];
+  const updatedWindows = { ...store.windows };
+  if (store.activeWindowId && store.activeWindowId !== windowId) {
+    const prevWindow = updatedWindows[store.activeWindowId];
     if (prevWindow) {
-      updatedWindows[compositor.activeWindowId] = {
+      updatedWindows[store.activeWindowId] = {
         ...prevWindow,
         isFocused: false,
       };
@@ -264,7 +263,7 @@ export const focusWindow = (windowId: string): void => {
 
   updatedWindows[windowId] = { ...targetWindow, isFocused: true, zIndex: nextZIndex };
 
-  setCompositor({
+  setStore({
     windows: updatedWindows,
     activeWindowId: windowId,
     activeWorkspaceId: targetWindow.workspaceId,
@@ -272,22 +271,22 @@ export const focusWindow = (windowId: string): void => {
   });
 };
 
-export const moveWindowToWorkspace = (windowId: string, targetWorkspaceId: string): void => {
-  const movingWindow = compositor.windows[windowId];
+export const moveWindow = (windowId: string, targetWorkspaceId: string): void => {
+  const movingWindow = store.windows[windowId];
   if (!movingWindow) return;
 
-  let workspaces = compositor.workspaces;
+  let stores = store.workspaces;
   let destinationWorkspaceId = targetWorkspaceId;
 
   if (
-    !workspaces[targetWorkspaceId] ||
-    (workspaces[targetWorkspaceId].windows.length === 0 && !workspaces[targetWorkspaceId].root)
+    !stores[targetWorkspaceId] ||
+    (stores[targetWorkspaceId].windows.length === 0 && !stores[targetWorkspaceId].root)
   ) {
-    workspaces = ensureWorkspaceExists(workspaces, targetWorkspaceId);
+    stores = ensureWorkspace(stores, targetWorkspaceId);
   }
 
-  const targetWorkspace = workspaces[destinationWorkspaceId];
-  const sourceWorkspace = workspaces[movingWindow.workspaceId];
+  const targetWorkspace = stores[destinationWorkspaceId];
+  const sourceWorkspace = stores[movingWindow.workspaceId];
 
   if (sourceWorkspace.id === destinationWorkspaceId) return;
 
@@ -329,7 +328,7 @@ export const moveWindowToWorkspace = (windowId: string, targetWorkspaceId: strin
   const sourceLayout = calculateLayout(sourceWorkspaceAfterMove.root);
   const targetLayout = calculateLayout(targetWorkspaceAfterMove.root);
 
-  const movedWindows = { ...compositor.windows };
+  const movedWindows = { ...store.windows };
 
   for (const [id, rect] of sourceLayout) {
     if (movedWindows[id]) {
@@ -353,52 +352,52 @@ export const moveWindowToWorkspace = (windowId: string, targetWorkspaceId: strin
     }
   }
 
-  const workspacesAfterMove = { ...workspaces };
-  workspacesAfterMove[movingWindow.workspaceId] = {
+  const storesAfterMove = { ...stores };
+  storesAfterMove[movingWindow.workspaceId] = {
     ...sourceWorkspaceAfterMove,
     windows: sourceWorkspaceAfterMove.windows,
     root: sourceWorkspaceAfterMove.root,
   };
-  workspacesAfterMove[destinationWorkspaceId] = targetWorkspaceAfterMove;
+  storesAfterMove[destinationWorkspaceId] = targetWorkspaceAfterMove;
 
-  setCompositor({
-    windows: { ...compositor.windows, ...movedWindows },
-    workspaces: workspacesAfterMove,
+  setStore({
+    windows: { ...store.windows, ...movedWindows },
+    workspaces: storesAfterMove,
     activeWorkspaceId: destinationWorkspaceId,
     activeWindowId: windowId,
-    lastZIndex: compositor.lastZIndex + 1,
+    lastZIndex: store.lastZIndex + 1,
   });
 };
 
 export const switchWorkspace = (workspaceId: string): void => {
-  let workspaces = compositor.workspaces;
+  let stores = store.workspaces;
   let targetWorkspaceId = workspaceId;
 
-  if (!workspaces[workspaceId]) {
-    workspaces = ensureWorkspaceExists(workspaces, workspaceId);
+  if (!stores[workspaceId]) {
+    stores = ensureWorkspace(stores, workspaceId);
   }
 
-  const targetWorkspace = workspaces[targetWorkspaceId];
-  const currentWorkspace = workspaces[compositor.activeWorkspaceId];
+  const targetWorkspace = stores[targetWorkspaceId];
+  const currentWorkspace = stores[store.activeWorkspaceId];
   const nextFocusedWindowId =
     targetWorkspace.windows.length > 0 ? targetWorkspace.windows[0] : null;
 
-  const workspacesAfterSwitch: Record<string, Workspace> = { ...workspaces };
+  const storesAfterSwitch: Record<string, Workspace> = { ...stores };
 
   if (currentWorkspace) {
     if (currentWorkspace.windows.length === 0 && currentWorkspace.id !== targetWorkspaceId) {
-      delete workspacesAfterSwitch[compositor.activeWorkspaceId];
+      delete storesAfterSwitch[store.activeWorkspaceId];
     } else {
-      workspacesAfterSwitch[compositor.activeWorkspaceId] = {
+      storesAfterSwitch[store.activeWorkspaceId] = {
         ...currentWorkspace,
         isActive: false,
       };
     }
   }
-  workspacesAfterSwitch[targetWorkspaceId] = { ...targetWorkspace, isActive: true };
+  storesAfterSwitch[targetWorkspaceId] = { ...targetWorkspace, isActive: true };
 
-  setCompositor({
-    workspaces: workspacesAfterSwitch,
+  setStore({
+    workspaces: storesAfterSwitch,
     activeWorkspaceId: targetWorkspaceId,
     activeWindowId: nextFocusedWindowId,
   });
@@ -407,10 +406,10 @@ export const switchWorkspace = (workspaceId: string): void => {
 };
 
 export const cycleWindow = (direction: 'next' | 'prev'): void => {
-  const activeWorkspace = compositor.workspaces[compositor.activeWorkspaceId];
+  const activeWorkspace = store.workspaces[store.activeWorkspaceId];
   if (activeWorkspace.windows.length === 0) return;
 
-  const currentIndex = activeWorkspace.windows.indexOf(compositor.activeWindowId ?? '');
+  const currentIndex = activeWorkspace.windows.indexOf(store.activeWindowId ?? '');
   const nextIndex =
     direction === 'next'
       ? (currentIndex + 1) % activeWorkspace.windows.length
@@ -419,28 +418,28 @@ export const cycleWindow = (direction: 'next' | 'prev'): void => {
   focusWindow(activeWorkspace.windows[nextIndex]);
 };
 
-export const setWindowFloating = (windowId: string, isFloating: boolean): void => {
-  const targetWindow = compositor.windows[windowId];
+export const setFloating = (windowId: string, isFloating: boolean): void => {
+  const targetWindow = store.windows[windowId];
   if (!targetWindow) return;
 
-  const workspace = compositor.workspaces[targetWindow.workspaceId];
-  if (!workspace) return;
+  const ws = store.workspaces[targetWindow.workspaceId];
+  if (!ws) return;
 
   if (isFloating) {
-    const { width: screenWidth, height: screenHeight } = getScreenDimensions();
+    const { width: screenWidth, height: screenHeight } = getScreen();
     const centerX = (screenWidth - targetWindow.size.width) / 2;
     const centerY = (screenHeight - targetWindow.size.height) / 2;
-    const nextZIndex = compositor.lastZIndex + 1;
+    const nextZIndex = store.lastZIndex + 1;
 
-    const { workspace: updatedWorkspace, updatedWindows } = removeWindowFromTree(
-      workspace,
+    const { workspace: updatedWorkspace, updatedWindows } = removeFromTree(
+      ws,
       windowId,
-      compositor.windows,
+      store.windows,
     );
 
-    setCompositor({
+    setStore({
       windows: {
-        ...compositor.windows,
+        ...store.windows,
         ...updatedWindows,
         [windowId]: {
           ...targetWindow,
@@ -450,57 +449,53 @@ export const setWindowFloating = (windowId: string, isFloating: boolean): void =
         },
       },
       workspaces: {
-        ...compositor.workspaces,
+        ...store.workspaces,
         [targetWindow.workspaceId]: updatedWorkspace,
       },
       lastZIndex: nextZIndex,
     });
   } else {
-    if (workspace.windows.includes(windowId)) {
+    if (ws.windows.includes(windowId)) {
       return;
     }
 
-    const { workspace: updatedWorkspace, updatedWindows } = addWindowToTree(
-      workspace,
-      windowId,
-      compositor.windows,
-    );
+    const { workspace: updatedWs, updatedWindows } = addToTree(ws, windowId, store.windows);
 
-    const rect = getWindowRectFromLayout(updatedWorkspace.root, windowId);
+    const rect = getRect(updatedWs.root, windowId);
     const newPosition = rect?.position ?? targetWindow.position;
     const newSize = rect?.size ?? targetWindow.size;
 
-    setCompositor({
+    setStore({
       windows: {
-        ...compositor.windows,
+        ...store.windows,
         ...updatedWindows,
         [windowId]: { ...targetWindow, isFloating, position: newPosition, size: newSize },
       },
       workspaces: {
-        ...compositor.workspaces,
-        [targetWindow.workspaceId]: updatedWorkspace,
+        ...store.workspaces,
+        [targetWindow.workspaceId]: updatedWs,
       },
     });
   }
 };
 
-export const swapWindows = (windowIdA: string, windowIdB: string): void => {
-  const workspace = compositor.workspaces[compositor.activeWorkspaceId];
-  if (!workspace?.root) return;
+export const swapWindow = (windowIdA: string, windowIdB: string): void => {
+  const ws = store.workspaces[store.activeWorkspaceId];
+  if (!ws?.root) return;
 
-  if (!workspace.windows.includes(windowIdA) || !workspace.windows.includes(windowIdB)) {
+  if (!ws.windows.includes(windowIdA) || !ws.windows.includes(windowIdB)) {
     return;
   }
 
-  const swappedRoot = swapNodes(workspace.root, windowIdA, windowIdB);
-  const updatedWindows = applyLayoutToWindows(swappedRoot, compositor.windows);
+  const swappedRoot = swapNodes(ws.root, windowIdA, windowIdB);
+  const updatedWindows = applyLayout(swappedRoot, store.windows);
 
-  setCompositor({
-    windows: { ...compositor.windows, ...updatedWindows },
+  setStore({
+    windows: { ...store.windows, ...updatedWindows },
     workspaces: {
-      ...compositor.workspaces,
-      [compositor.activeWorkspaceId]: {
-        ...workspace,
+      ...store.workspaces,
+      [store.activeWorkspaceId]: {
+        ...ws,
         root: swappedRoot,
         windows: getLeaves(swappedRoot),
       },
@@ -508,39 +503,38 @@ export const swapWindows = (windowIdA: string, windowIdB: string): void => {
   });
 };
 
-export const updateWindowSplit = (windowId: string, ratio: number): void => {
-  const workspace = compositor.workspaces[compositor.activeWorkspaceId];
-  if (!workspace?.root) return;
+export const splitWindow = (windowId: string, ratio: number): void => {
+  const ws = store.workspaces[store.activeWorkspaceId];
+  if (!ws?.root) return;
 
-  if (!workspace.windows.includes(windowId)) return;
+  if (!ws.windows.includes(windowId)) return;
 
-  const parentNode = findParentNode(workspace.root, windowId);
+  const parentNode = findParentNode(ws.root, windowId);
   if (!parentNode) return;
 
-  const updatedRoot = updateNodeSplitRatio(workspace.root, windowId, ratio);
-  const updatedWindows = applyLayoutToWindows(updatedRoot, compositor.windows);
+  const updatedRoot = updateSplitRatio(ws.root, windowId, ratio);
+  const updatedWindows = applyLayout(updatedRoot, store.windows);
 
-  setCompositor({
-    windows: { ...compositor.windows, ...updatedWindows },
+  setStore({
+    windows: { ...store.windows, ...updatedWindows },
     workspaces: {
-      ...compositor.workspaces,
-      [compositor.activeWorkspaceId]: {
-        ...workspace,
+      ...store.workspaces,
+      [store.activeWorkspaceId]: {
+        ...ws,
         root: updatedRoot,
       },
     },
   });
 };
 
-export const workspaceCompositorActions: WorkspaceActions = {
+export const compositorActions: Actions = {
   createWindow,
   closeWindow,
   focusWindow,
-  moveWindowToWorkspace,
+  moveWindow,
   switchWorkspace,
   cycleWindow,
-  getActiveWindowId: () => compositor.activeWindowId,
-  setWindowFloating,
-  swapWindows,
-  updateWindowSplit,
+  setFloating,
+  swapWindow,
+  splitWindow,
 };

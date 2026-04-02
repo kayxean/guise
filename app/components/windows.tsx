@@ -1,20 +1,20 @@
 import { useEffect, useMemo } from 'react';
 import {
-  workspaceCompositorActions,
-  useActiveWindowIds,
-  useActiveWorkspaceId,
-  useAllWorkspaces,
-  useWorkspaceStoreKey,
+  compositorActions,
+  useWindowIds,
+  useWorkspaceId,
+  useWorkspaces,
+  useStoreKey,
 } from '~/lib/workspace';
 import { Window } from '~/lib/window';
 import { handleKeyEvent } from '~/lib/workspace/dispatcher';
 
 function WorkspaceBar() {
-  const workspaces = useAllWorkspaces();
-  const activeWorkspaceId = useActiveWorkspaceId();
+  const workspaces = useWorkspaces();
+  const activeWorkspaceId = useWorkspaceId();
 
   const handleSwitch = (id: string) => {
-    workspaceCompositorActions.switchWorkspace(id);
+    compositorActions.switchWorkspace(id);
   };
 
   const visibleWorkspaceIds = useMemo(() => Object.keys(workspaces).sort(), [workspaces]);
@@ -48,9 +48,9 @@ function WorkspaceBar() {
 }
 
 function WindowsRenderer() {
-  const tiledWindowIds = useActiveWindowIds();
-  const activeWorkspaceId = useActiveWorkspaceId();
-  const allWindows = useWorkspaceStoreKey('windows');
+  const tiledWindowIds = useWindowIds();
+  const activeWorkspaceId = useWorkspaceId();
+  const allWindows = useStoreKey('windows');
 
   const floatingWindowIds = useMemo(() => {
     const ids: string[] = [];
@@ -125,9 +125,7 @@ export function Windows() {
         <WorkspaceBar />
         <div style={{ flex: 1 }} />
         <button
-          onClick={() =>
-            workspaceCompositorActions.createWindow('demo-app', `Window ${Date.now()}`)
-          }
+          onClick={() => compositorActions.createWindow('demo-app', `Window ${Date.now()}`)}
           style={{
             padding: '6px 16px',
             backgroundColor: '#007acc',
