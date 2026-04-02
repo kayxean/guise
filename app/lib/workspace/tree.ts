@@ -1,19 +1,5 @@
 import type { TreeNode } from './types';
-
-const DEFAULT_SCREEN_WIDTH = 1920;
-const DEFAULT_SCREEN_HEIGHT = 1080;
-
-let cachedWidth: number | null = null;
-let cachedHeight: number | null = null;
-
-function getScreenDimensions(): { width: number; height: number } {
-  if (typeof window === 'undefined') {
-    return { width: DEFAULT_SCREEN_WIDTH, height: DEFAULT_SCREEN_HEIGHT };
-  }
-  cachedWidth = window.innerWidth;
-  cachedHeight = window.innerHeight;
-  return { width: cachedWidth, height: cachedHeight };
-}
+import { getScreen } from './utils';
 
 export function isLeaf(node: TreeNode): boolean {
   return !node.children[0] && !node.children[1];
@@ -61,7 +47,7 @@ export function splitNode(root: TreeNode, targetIndex: number, newId: string): T
   return replace(root);
 }
 
-export function splitNodeAtWindow(root: TreeNode, windowId: string, newId: string): TreeNode {
+export function splitAtWindow(root: TreeNode, windowId: string, newId: string): TreeNode {
   function replace(node: TreeNode): TreeNode {
     if (isLeaf(node)) {
       if (node.id === windowId) {
@@ -118,7 +104,7 @@ export function removeLeaf(root: TreeNode, targetId: string): TreeNode | null {
   return root;
 }
 
-export function applyLayout(
+export function calcNodeLayout(
   node: TreeNode,
   x: number,
   y: number,
@@ -139,12 +125,12 @@ export function applyLayout(
 
   if (w > h) {
     const splitWidth = w * ratio;
-    if (left) applyLayout(left, x, y, splitWidth, h, result);
-    if (right) applyLayout(right, x + splitWidth, y, w - splitWidth, h, result);
+    if (left) calcNodeLayout(left, x, y, splitWidth, h, result);
+    if (right) calcNodeLayout(right, x + splitWidth, y, w - splitWidth, h, result);
   } else {
     const splitHeight = h * ratio;
-    if (left) applyLayout(left, x, y, w, splitHeight, result);
-    if (right) applyLayout(right, x, y + splitHeight, w, h - splitHeight, result);
+    if (left) calcNodeLayout(left, x, y, w, splitHeight, result);
+    if (right) calcNodeLayout(right, x, y + splitHeight, w, h - splitHeight, result);
   }
 }
 
@@ -153,8 +139,8 @@ export function calculateLayout(
 ): Map<string, { position: { x: number; y: number }; size: { width: number; height: number } }> {
   const result = new Map();
   if (!root) return result;
-  const { width: w, height: h } = getScreenDimensions();
-  applyLayout(root, 0, 0, w, h, result);
+  const { width: w, height: h } = getScreen();
+  calcNodeLayout(root, 0, 0, w, h, result);
   return result;
 }
 
@@ -178,7 +164,7 @@ export function findParentNode(root: TreeNode, targetId: string): TreeNode | nul
   return null;
 }
 
-export function updateNodeSplitRatio(root: TreeNode, windowId: string, ratio: number): TreeNode {
+export function updateSplitRatio(root: TreeNode, windowId: string, ratio: number): TreeNode {
   function update(node: TreeNode): TreeNode {
     if (!node.children[0] && !node.children[1]) {
       return node;

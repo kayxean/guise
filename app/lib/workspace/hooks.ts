@@ -1,60 +1,87 @@
+import type { Workspace, WindowState, State, Actions } from './types';
 import { useSyncExternalStore } from 'react';
-import { workspaceStoreSubscribers } from './store';
-import type { Workspace, WindowState, WorkspaceState, WorkspaceActions } from './types';
-import { workspaceCompositorActions } from './compositor';
+import { compositorActions } from './compositor';
+import { workspaceStore } from './store';
 
-const cachedActions: WorkspaceActions = workspaceCompositorActions;
+const cachedActions: Actions = compositorActions;
 
-export function useActiveWorkspace(): Workspace | null {
-  const activeWorkspaceId = useWorkspaceStoreKey('activeWorkspaceId');
-  const workspaces = useWorkspaceStoreKey('workspaces');
+type SubscriberKey =
+  | 'global'
+  | 'windows'
+  | 'workspaces'
+  | 'activeWorkspaceId'
+  | 'activeWindowId'
+  | 'lastZIndex';
+
+function getSelectorKeys(selector: Function): SubscriberKey[] {
+  const source = selector.toString();
+  const keys: SubscriberKey[] = [];
+
+  if (source.includes('.windows')) keys.push('windows');
+  if (source.includes('.workspaces')) keys.push('workspaces');
+  if (source.includes('.activeWindowId')) keys.push('activeWindowId');
+  if (source.includes('.activeWorkspaceId')) keys.push('activeWorkspaceId');
+  if (source.includes('.lastZIndex')) keys.push('lastZIndex');
+
+  return keys.length > 0 ? keys : ['windows'];
+}
+
+export function useWorkspace(): Workspace | null {
+  const activeWorkspaceId = useStoreKey('activeWorkspaceId');
+  const workspaces = useStoreKey('workspaces');
   return workspaces[activeWorkspaceId] ?? null;
 }
 
-export function useActiveWindowIds(): string[] {
-  const activeWorkspace = useActiveWorkspace();
+export function useWindowIds(): string[] {
+  const activeWorkspace = useWorkspace();
   return activeWorkspace?.windows ?? [];
 }
 
-export function useWindowById(windowId: string): WindowState | null {
-  const windows = useWorkspaceStoreKey('windows');
+export function useWindow(windowId: string): WindowState | null {
+  const windows = useStoreKey('windows');
   return windows[windowId] ?? null;
 }
 
-export function useWindowByIdSelector(windowId: string): WindowState | null {
-  return useWorkspaceStoreSelector((state) => state.windows[windowId] ?? null);
+export function useWindowSelector(windowId: string): WindowState | null {
+  return useStoreSelector((state) => state.windows[windowId] ?? null);
 }
 
-export function useActiveWindowId(): string | null {
-  return useWorkspaceStoreKey('activeWindowId');
+export function useWindowId(): string | null {
+  return useStoreKey('activeWindowId');
 }
 
-export function useAllWorkspaces(): Record<string, Workspace> {
-  return useWorkspaceStoreKey('workspaces');
+export function useWorkspaces(): Record<string, Workspace> {
+  return useStoreKey('workspaces');
 }
 
-export function useActiveWorkspaceId(): string {
-  return useWorkspaceStoreKey('activeWorkspaceId');
+export function useWorkspaceId(): string {
+  return useStoreKey('activeWorkspaceId');
 }
 
-export function useWorkspaceStore(): WorkspaceState & WorkspaceActions {
-  const state = workspaceStoreSubscribers.getState();
+export function useStore(): State & Actions {
+  const state = workspaceStore.getState();
   return { ...state, ...cachedActions };
 }
 
-export function useWorkspaceStoreKey<K extends keyof WorkspaceState>(key: K): WorkspaceState[K] {
+export function useStoreKey<K extends keyof State>(key: K): State[K] {
   return useSyncExternalStore(
-    (onStoreChange: () => void) => workspaceStoreSubscribers.subscribeToKey(key, onStoreChange),
-    () => workspaceStoreSubscribers.getState()[key],
-    () => workspaceStoreSubscribers.getState()[key],
+    (onStoreChange: () => void) => workspaceStore.subscribeToKey(key, onStoreChange),
+    () => workspaceStore.getState()[key],
+    () => workspaceStore.getState()[key],
   );
 }
 
-export function useWorkspaceStoreSelector<T>(selector: (state: WorkspaceState) => T): T {
+export function useStoreSelector<T>(selector: (state: State) => T): T {
+  const keys = getSelectorKeys(selector);
+
   return useSyncExternalStore(
-    (onStoreChange: () => void) =>
-      workspaceStoreSubscribers.subscribeToKey('windows', onStoreChange),
-    () => selector(workspaceStoreSubscribers.getState()),
-    () => selector(workspaceStoreSubscribers.getState()),
+    (onStoreChange: () => void) => {
+      keys.forEach((key) => workspaceStore.subscribeToKey(key, onStoreChange));
+      return () => {
+        keys.forEach((key) => workspaceStore.unsubscribeFromKey(key, onStoreChange));
+      };
+    },
+    () => selector(workspaceStore.getState()),
+    () => selector(workspaceStore.getState()),
   );
 }

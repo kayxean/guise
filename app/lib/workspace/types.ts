@@ -12,7 +12,7 @@ export interface Workspace {
   root: TreeNode | null;
 }
 
-export interface WorkspaceState {
+export interface State {
   workspaces: Record<string, Workspace>;
   windows: Record<string, WindowState>;
   activeWorkspaceId: string;
@@ -20,20 +20,19 @@ export interface WorkspaceState {
   lastZIndex: number;
 }
 
-export interface WorkspaceActions {
+export interface Actions {
   createWindow: (appId: string, title: string, focus?: boolean) => string;
   closeWindow: (windowId: string) => void;
   focusWindow: (windowId: string) => void;
-  moveWindowToWorkspace: (windowId: string, workspaceId: string) => void;
+  moveWindow: (windowId: string, workspaceId: string) => void;
   switchWorkspace: (workspaceId: string) => void;
   cycleWindow: (direction: 'next' | 'prev') => void;
-  getActiveWindowId: () => string | null;
-  setWindowFloating: (windowId: string, isFloating: boolean) => void;
-  swapWindows: (windowIdA: string, windowIdB: string) => void;
-  updateWindowSplit: (windowId: string, ratio: number) => void;
+  setFloating: (windowId: string, isFloating: boolean) => void;
+  swapWindow: (windowIdA: string, windowIdB: string) => void;
+  splitWindow: (windowId: string, ratio: number) => void;
 }
 
-export type WorkspaceStore = [() => WorkspaceState & WorkspaceActions, WorkspaceActions];
+export type Store = [() => State & Actions, Actions];
 
 export interface WindowState {
   id: string;
@@ -45,10 +44,4 @@ export interface WindowState {
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
-}
-
-export interface CompositorState extends WorkspaceState {
-  windows: Record<string, WindowState>;
-  activeWindowId: string | null;
-  lastZIndex: number;
 }
